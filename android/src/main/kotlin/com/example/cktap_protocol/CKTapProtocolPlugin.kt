@@ -1,5 +1,10 @@
 package com.example.cktap_protocol
 
+import android.nfc.Tag
+import android.nfc.tech.IsoDep
+import android.nfc.tech.TagTechnology
+import com.getkeepsafe.relinker.ReLinker;
+
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -15,6 +20,11 @@ class CKTapProtocolPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var channel: MethodChannel
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        ReLinker.loadLibrary(this, "tap-protocol");
+        ReLinker.loadLibrary(this, "cktap_protocol_plugin");
+
+        TagTechnology
+
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cktap_protocol")
         channel.setMethodCallHandler(this)
     }
