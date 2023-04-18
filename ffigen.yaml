@@ -1,0 +1,25 @@
+# Run with `flutter pub run ffigen --config ffigen.yaml`.
+name: CktapProtocolBindings
+description: |
+  Bindings for `src/cktap_protocol.h`.
+
+  Regenerate bindings with `flutter pub run ffigen --config ffigen.yaml`.
+output: 'lib/cktap_protocol_bindings_generated.dart'
+headers:
+  entry-points:
+    - 'src/cktap_protocol.h'
+    - 'src/exports/cktapcard.h'
+  include-directives:
+    - 'src/exports/cktapcard.h'
+    - 'src/cktap_protocol.h'
+preamble: |
+  // ignore_for_file: always_specify_types
+  // ignore_for_file: camel_case_types
+  // ignore_for_file: non_constant_identifier_names
+comments:
+  style: any
+  length: full
+compiler-opts:
+  - "-I/home/poops/.dev/clang+llvm-16.0.0/lib/clang/16/include"
+llvm-path:
+  - '/home/poops/.dev/clang+llvm-16.0.0'

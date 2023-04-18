@@ -1,18 +1,21 @@
 name: cktap_protocol
-description: A new Flutter plugin project.
+description: A new Flutter FFI plugin project.
 version: 0.0.1
 homepage:
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
-  flutter: ">=2.5.0"
+  flutter: ">=2.11.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  nfc_manager: ^3.2.0
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
+  ffi: ^2.0.1
+  ffigen: ^6.1.2
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
@@ -32,11 +35,12 @@ flutter:
   # This is required for using `dart:ffi`.
   # All these are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
+  #
+  # Please refer to README.md for a detailed explanation.
   plugin:
     platforms:
       android:
-        package: com.example.cktap_protocol
-        pluginClass: CKTapProtocolPlugin
+        ffiPlugin: true
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
