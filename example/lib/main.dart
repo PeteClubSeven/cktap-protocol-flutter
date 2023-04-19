@@ -12,39 +12,6 @@ void main() {
   runApp(const MyApp());
 }
 
-IsoDep? isoDep;
-
-int transceiveIsoDep(Pointer<Uint8> rawData, int dataLength) {
-  if (isoDep == null) {
-    return -1;
-  }
-  if (isoDep!.maxTransceiveLength != 0 && isoDep!.maxTransceiveLength < dataLength)
-  {
-    return -2;
-  }
-
-  Uint8List dataToTransmit = rawData.asTypedList(dataLength);
-  isoDep!.transceive(data: dataToTransmit).then((value) {
-    Pointer<Uint8> allocation = cktap_protocol.allocateResponse(value.lengthInBytes);
-    if (allocation.address == 0)
-    {
-      // something went real wrong
-      return;
-    }
-
-    Uint8List list =  allocation.asTypedList(value.length);
-    list.setAll(0, value);
-
-    cktap_protocol.finalizeResponse();
-  }).catchError((err) {
-    print('Error: $err'); // Prints 401.
-  }, test: (error) {
-    return error is int && error >= 400;
-  });
-
-  return 0;
-}
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -63,15 +30,7 @@ class _MyAppState extends State<MyApp> {
     sumAsyncResult = cktap_protocol.sumAsync(3, 4);
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
-        isoDep = IsoDep.from(tag);
-        if (isoDep != null) {
-          // Check if this breaks because it never returns.
-          int result = cktap_protocol.createCKTapCard(Pointer.fromFunction(transceiveIsoDep, 1));
-          if (result != 0)
-          {
-            print(result);
-          }
-        }
+        cktap_protocol.createCKTapCard(tag).then((int result) => print(result) );
       },
     );
   }

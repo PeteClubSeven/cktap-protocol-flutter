@@ -17,14 +17,14 @@ tap_protocol::Bytes g_responseData { };
 extern "C" 
 {
 
-int cktapcard_constructor(TransmitDataFunction transmitFunc)
+int cktapcard_constructor(const int32_t requestID, TransmitDataFunction transmitFunc)
 {
     if ( transmitFunc == nullptr )
     {
         return -1;
     }
 
-    auto transport = tap_protocol::MakeDefaultTransport([transmitFunc](const tap_protocol::Bytes& command)
+    auto transport = tap_protocol::MakeDefaultTransport([requestID, transmitFunc](const tap_protocol::Bytes& command)
     {
         // Something really bad happened
         if (g_hasResponse)
@@ -34,11 +34,12 @@ int cktapcard_constructor(TransmitDataFunction transmitFunc)
 
         // Attempt to communicate with the NFC card
         g_hasResponse = false;
-        transmitFunc(command.data(), static_cast<int32_t>(command.size()));
+        transmitFunc(requestID, command.data(), static_cast<int32_t>(command.size()));
 
         while (!g_hasResponse)
         {
-            std::this_thread::sleep_for(20ms);
+            std::this_thread::sleep_for(1ms);
+            std::this_thread::yield();
         }
 
         // Ensure nothing terrible happened

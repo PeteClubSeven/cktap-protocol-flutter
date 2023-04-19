@@ -14,12 +14,12 @@ extern "C"
 /// The function will be called using the prepared data to transmit. The response should be written into
 /// the given buffer.
 /// The function should return an error code, 0 for successful.
-typedef int (*TransmitDataFunction)(const uint8_t* rawData, const int32_t length);
+typedef int (*TransmitDataFunction)(const int32_t requestID, const uint8_t* rawData, const int32_t length);
 
 /// @brief 
 /// @param transmitFunc 
 /// @return The handle of the constructed object, 1 or higher are valid values, negative values are errors.
-int cktapcard_constructor(TransmitDataFunction transmitFunc);
+int cktapcard_constructor(const int32_t requestID, TransmitDataFunction transmitFunc);
 
 
 uint8_t* cktapcard_allocateResponse(const int32_t sizeInBytes);

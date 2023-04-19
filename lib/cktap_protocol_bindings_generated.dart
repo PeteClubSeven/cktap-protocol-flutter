@@ -71,18 +71,21 @@ class CktapProtocolBindings {
   /// @param transmitFunc
   /// @return The handle of the constructed object, 1 or higher are valid values, negative values are errors.
   int cktapcard_constructor(
+    int requestID,
     TransmitDataFunction transmitFunc,
   ) {
     return _cktapcard_constructor(
+      requestID,
       transmitFunc,
     );
   }
 
-  late final _cktapcard_constructorPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(TransmitDataFunction)>>(
-          'cktapcard_constructor');
+  late final _cktapcard_constructorPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(
+              ffi.Int32, TransmitDataFunction)>>('cktapcard_constructor');
   late final _cktapcard_constructor = _cktapcard_constructorPtr
-      .asFunction<int Function(TransmitDataFunction)>();
+      .asFunction<int Function(int, TransmitDataFunction)>();
 
   ffi.Pointer<ffi.Uint8> cktapcard_allocateResponse(
     int sizeInBytes,
@@ -114,4 +117,5 @@ class CktapProtocolBindings {
 /// the given buffer.
 /// The function should return an error code, 0 for successful.
 typedef TransmitDataFunction = ffi.Pointer<
-    ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Uint8>, ffi.Int32)>>;
+    ffi.NativeFunction<
+        ffi.Int Function(ffi.Int32, ffi.Pointer<ffi.Uint8>, ffi.Int32)>>;
