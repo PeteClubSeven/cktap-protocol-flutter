@@ -11,111 +11,152 @@ import 'dart:ffi' as ffi;
 ///
 /// Regenerate bindings with `flutter pub run ffigen --config ffigen.yaml`.
 ///
-class CktapProtocolBindings {
+class CKTapProtocolBindings {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
       _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
-  CktapProtocolBindings(ffi.DynamicLibrary dynamicLibrary)
+  CKTapProtocolBindings(ffi.DynamicLibrary dynamicLibrary)
       : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
-  CktapProtocolBindings.fromLookup(
+  CKTapProtocolBindings.fromLookup(
       ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
           lookup)
       : _lookup = lookup;
 
-  /// A very short-lived native function.
-  ///
-  /// For very short-lived functions, it is fine to call them on the main isolate.
-  /// They will block the Dart execution while running the native function, so
-  /// only do this for native functions which are guaranteed to be short-lived.
-  int sum(
-    int a,
-    int b,
-  ) {
-    return _sum(
-      a,
-      b,
-    );
+  int CKTapCard_GetThreadState() {
+    return _CKTapCard_GetThreadState();
   }
 
-  late final _sumPtr =
-      _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.IntPtr, ffi.IntPtr)>>(
-          'sum');
-  late final _sum = _sumPtr.asFunction<int Function(int, int)>();
+  late final _CKTapCard_GetThreadStatePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'CKTapCard_GetThreadState');
+  late final _CKTapCard_GetThreadState =
+      _CKTapCard_GetThreadStatePtr.asFunction<int Function()>();
 
-  /// A longer lived native function, which occupies the thread calling it.
-  ///
-  /// Do not call these kind of native functions in the main isolate. They will
-  /// block Dart execution. This will cause dropped frames in Flutter applications.
-  /// Instead, call these native functions on a separate isolate.
-  int sum_long_running(
-    int a,
-    int b,
-  ) {
-    return _sum_long_running(
-      a,
-      b,
-    );
+  int CKTapCard_BeginInitialization() {
+    return _CKTapCard_BeginInitialization();
   }
 
-  late final _sum_long_runningPtr =
-      _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.IntPtr, ffi.IntPtr)>>(
-          'sum_long_running');
-  late final _sum_long_running =
-      _sum_long_runningPtr.asFunction<int Function(int, int)>();
+  late final _CKTapCard_BeginInitializationPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'CKTapCard_BeginInitialization');
+  late final _CKTapCard_BeginInitialization =
+      _CKTapCard_BeginInitializationPtr.asFunction<int Function()>();
 
-  /// @brief
-  /// @param transmitFunc
-  /// @return The handle of the constructed object, 1 or higher are valid values, negative values are errors.
-  int cktapcard_constructor(
-    int requestID,
-    TransmitDataFunction transmitFunc,
-  ) {
-    return _cktapcard_constructor(
-      requestID,
-      transmitFunc,
-    );
+  ffi.Pointer<ffi.Uint8> CKTapCard_GetTransportRequestPointer() {
+    return _CKTapCard_GetTransportRequestPointer();
   }
 
-  late final _cktapcard_constructorPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int Function(
-              ffi.Int32, TransmitDataFunction)>>('cktapcard_constructor');
-  late final _cktapcard_constructor = _cktapcard_constructorPtr
-      .asFunction<int Function(int, TransmitDataFunction)>();
+  late final _CKTapCard_GetTransportRequestPointerPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint8> Function()>>(
+          'CKTapCard_GetTransportRequestPointer');
+  late final _CKTapCard_GetTransportRequestPointer =
+      _CKTapCard_GetTransportRequestPointerPtr.asFunction<
+          ffi.Pointer<ffi.Uint8> Function()>();
 
-  ffi.Pointer<ffi.Uint8> cktapcard_allocateResponse(
+  int CKTapCard_GetTransportRequestLength() {
+    return _CKTapCard_GetTransportRequestLength();
+  }
+
+  late final _CKTapCard_GetTransportRequestLengthPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'CKTapCard_GetTransportRequestLength');
+  late final _CKTapCard_GetTransportRequestLength =
+      _CKTapCard_GetTransportRequestLengthPtr.asFunction<int Function()>();
+
+  ffi.Pointer<ffi.Uint8> CKTapCard_AllocateTransportResponseBuffer(
     int sizeInBytes,
   ) {
-    return _cktapcard_allocateResponse(
+    return _CKTapCard_AllocateTransportResponseBuffer(
       sizeInBytes,
     );
   }
 
-  late final _cktapcard_allocateResponsePtr =
+  late final _CKTapCard_AllocateTransportResponseBufferPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint8> Function(ffi.Int32)>>(
-          'cktapcard_allocateResponse');
-  late final _cktapcard_allocateResponse = _cktapcard_allocateResponsePtr
-      .asFunction<ffi.Pointer<ffi.Uint8> Function(int)>();
+          'CKTapCard_AllocateTransportResponseBuffer');
+  late final _CKTapCard_AllocateTransportResponseBuffer =
+      _CKTapCard_AllocateTransportResponseBufferPtr.asFunction<
+          ffi.Pointer<ffi.Uint8> Function(int)>();
 
-  int cktapcard_finalizeResponse() {
-    return _cktapcard_finalizeResponse();
+  int CKTapCard_FinalizeTransportResponse() {
+    return _CKTapCard_FinalizeTransportResponse();
   }
 
-  late final _cktapcard_finalizeResponsePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function()>>(
-          'cktapcard_finalizeResponse');
-  late final _cktapcard_finalizeResponse =
-      _cktapcard_finalizeResponsePtr.asFunction<int Function()>();
+  late final _CKTapCard_FinalizeTransportResponsePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'CKTapCard_FinalizeTransportResponse');
+  late final _CKTapCard_FinalizeTransportResponse =
+      _CKTapCard_FinalizeTransportResponsePtr.asFunction<int Function()>();
 }
 
-/// A function pointer to handle transmitting data between the tap-protocol library and the actual card
-/// The function will be called using the prepared data to transmit. The response should be written into
-/// the given buffer.
-/// The function should return an error code, 0 for successful.
-typedef TransmitDataFunction = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Int Function(ffi.Int32, ffi.Pointer<ffi.Uint8>, ffi.Int32)>>;
+/// @brief Represents errors that may occur when the library is used incorrectly
+abstract class CKTapInterfaceErrorCode {
+  static const int Success = 0;
+  static const int ThreadAlreadyInUse = 1;
+  static const int ThreadAllocationFailed = 2;
+  static const int ThreadFailedtoStart = 3;
+  static const int ThreadFinishedBeforeInitialTransportRequest = 4;
+  static const int ThreadNotYetStarted = 5;
+  static const int ThreadNotReadyForResponse = 6;
+  static const int ThreadResponseFinalizationFailed = 7;
+}
+
+/// @brief Mirrors tap_protocol::TapProtoException
+abstract class CKTapInternalErrorCode {
+  static const int INVALID_DEVICE = 100;
+  static const int UNLUCKY_NUMBER = 205;
+  static const int BAD_ARGUMENTS = 400;
+  static const int BAD_AUTH = 401;
+  static const int NEED_AUTH = 403;
+  static const int UNKNOW_COMMAND = 404;
+  static const int INVALID_COMMAND = 405;
+  static const int INVALID_STATE = 406;
+  static const int WEAK_NONCE = 417;
+  static const int BAD_CBOR = 422;
+  static const int BACKUP_FIRST = 425;
+  static const int RATE_LIMIT = 429;
+  static const int DEFAULT_ERROR = 500;
+  static const int MESSAGE_TOO_LONG = 601;
+  static const int MISSING_KEY = 602;
+  static const int ISO_SELECT_FAIL = 603;
+  static const int SW_FAIL = 604;
+  static const int INVALID_CVC_LENGTH = 605;
+  static const int PICK_KEY_PAIR_FAIL = 606;
+  static const int ECDH_FAIL = 607;
+  static const int XCVC_FAIL = 608;
+  static const int UNKNOW_PROTO_VERSION = 609;
+  static const int INVALID_PUBKEY_LENGTH = 610;
+  static const int NO_PRIVATE_KEY_PICKED = 611;
+  static const int MALFORMED_BIP32_PATH = 612;
+  static const int INVALID_HASH_LENGTH = 613;
+  static const int SIG_VERIFY_ERROR = 614;
+  static const int INVALID_DIGEST_LENGTH = 615;
+  static const int INVALID_PATH_LENGTH = 616;
+  static const int SERIALIZE_ERROR = 617;
+  static const int EXCEEDED_RETRY = 618;
+  static const int INVALID_CARD = 619;
+  static const int SIGN_ERROR = 620;
+  static const int SIG_TO_PUBKEY_FAIL = 621;
+  static const int PSBT_PARSE_ERROR = 622;
+  static const int PSBT_INVALID = 623;
+  static const int INVALID_ADDRESS_TYPE = 624;
+  static const int INVALID_BACKUP_KEY = 625;
+  static const int INVALID_PUBKEY = 626;
+  static const int INVALID_PRIVKEY = 627;
+  static const int INVALID_SLOT = 628;
+}
+
+/// @brief The current state of the background thread which handles tap-protocol commands
+abstract class CKTapThreadState {
+  static const int NotStarted = 0;
+  static const int AwaitingTransportRequest = 1;
+  static const int TransportRequestReady = 2;
+  static const int TransportResponseReady = 3;
+  static const int ProcessingTransportResponse = 4;
+  static const int Timeout = 5;
+  static const int Finished = 6;
+}

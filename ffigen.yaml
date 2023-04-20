@@ -1,5 +1,5 @@
 # Run with `flutter pub run ffigen --config ffigen.yaml`.
-name: CktapProtocolBindings
+name: CKTapProtocolBindings
 description: |
   Bindings for `src/cktap_protocol.h`.
 
@@ -7,11 +7,10 @@ description: |
 output: 'lib/cktap_protocol_bindings_generated.dart'
 headers:
   entry-points:
-    - 'src/cktap_protocol.h'
-    - 'src/exports/cktapcard.h'
+    - 'src/Enums.h'
+    - 'src/Exports.h'
   include-directives:
-    - 'src/exports/cktapcard.h'
-    - 'src/cktap_protocol.h'
+    - 'src/*.h'
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types
