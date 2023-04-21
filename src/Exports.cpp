@@ -21,7 +21,7 @@ FFI_PLUGIN_EXPORT CKTapThreadState CKTapCard_GetThreadState()
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode CKTapCard_BeginInitialization()
 {
     // If the thread already exists we shouldn't proceed unless it's finished
-    if (g_protocolThread != nullptr && !g_protocolThread->HasFinished())
+    if (g_protocolThread != nullptr && !g_protocolThread->HasFinished() && !g_protocolThread->HasFailed())
     {
         return CKTapInterfaceErrorCode::ThreadAlreadyInUse;
     }

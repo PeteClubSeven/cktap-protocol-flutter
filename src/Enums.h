@@ -14,6 +14,9 @@ FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode
     ThreadNotYetStarted,
     ThreadNotReadyForResponse,
     ThreadResponseFinalizationFailed,
+    ThreadTimeoutDuringTransport,
+    ThreadEncounterTapProtocolError,
+    UnknownErrorDuringInitialization,
 } CKTapInterfaceErrorCode;
 
 /// @brief Mirrors tap_protocol::TapProtoException
@@ -70,8 +73,9 @@ FFI_PLUGIN_EXPORT typedef enum CKTapThreadState
     TransportRequestReady,
     TransportResponseReady,
     ProcessingTransportResponse,
-    Timeout,
     Finished,
+    Timeout,
+    TapProtocolError,
 } CKTapThreadState;
 
 #endif // __CKTAP_PROTOCOL__ENUMS_H__

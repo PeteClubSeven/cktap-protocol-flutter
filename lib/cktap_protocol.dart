@@ -89,4 +89,4 @@ final CKTapProtocolBindings _bindings = CKTapProtocolBindings(() {
     return DynamicLibrary.open('$libName.dll');
   }
   throw UnsupportedError('Unknown platform: ${Platform.operatingSystem}');
-}(););
+}());
