@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cktap_protocol/cktap_protocol.dart' as cktap_protocol;
+import 'package:cktap_protocol/cktap_protocol.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
@@ -26,7 +26,7 @@ class _MyAppState extends State<MyApp> {
     sumAsyncResult = Future(() => 2);
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
-        cktap_protocol.createCKTapCard(tag).then((result) => print(result) );
+        createCKTapCard(tag).then((result) => print(result) );
       },
     );
   }

@@ -1,26 +1,41 @@
 #ifndef __CKTAP_PROTOCOL__ENUMS_H__
 #define __CKTAP_PROTOCOL__ENUMS_H__
 
+// Project
 #include "Macros.h"
 
+// libc
+#include "stdint.h"
+
+FFI_PLUGIN_EXPORT typedef enum CKTapCardType 
+{
+    UnknownCard,
+    Satscard,
+    Tapsigner
+} CKTapCardType;
+
 /// @brief Represents errors that may occur when the library is used incorrectly
-FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode
+FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode 
 {
     Success,
+    ExpectedTapsignerButReceivedNothing,
+    ExpectedSatscardButReceivedNothing,
+    InvalidHandlingOfTapCardDuringOperationFinalization,
     ThreadAlreadyInUse,
     ThreadAllocationFailed,
+    ThreadEncounterTapProtocolError,
     ThreadFailedtoStart,
     ThreadFinishedBeforeInitialTransportRequest,
     ThreadNotYetStarted,
     ThreadNotReadyForResponse,
+    ThreadOperationFinalizationFailed,
     ThreadResponseFinalizationFailed,
     ThreadTimeoutDuringTransport,
-    ThreadEncounterTapProtocolError,
     UnknownErrorDuringInitialization,
 } CKTapInterfaceErrorCode;
 
 /// @brief Mirrors tap_protocol::TapProtoException
-FFI_PLUGIN_EXPORT typedef enum CKTapInternalErrorCode
+FFI_PLUGIN_EXPORT typedef enum CKTapInternalErrorCode 
 {
     INVALID_DEVICE = 100,
     UNLUCKY_NUMBER = 205,
@@ -66,7 +81,7 @@ FFI_PLUGIN_EXPORT typedef enum CKTapInternalErrorCode
 } CKTapInternalErrorCode;
 
 /// @brief The current state of the background thread which handles tap-protocol commands
-FFI_PLUGIN_EXPORT typedef enum CKTapThreadState
+FFI_PLUGIN_EXPORT typedef enum CKTapThreadState 
 {
     NotStarted,
     AwaitingTransportRequest,

@@ -8,13 +8,13 @@ environment:
   flutter: ">=2.11.0"
 
 dependencies:
+  ffi: ^2.0.1
   flutter:
     sdk: flutter
   nfc_manager: ^3.2.0
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
-  ffi: ^2.0.1
   ffigen: ^6.1.2
   flutter_test:
     sdk: flutter
