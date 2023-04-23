@@ -32,7 +32,7 @@ class Slot {
   final Uint8List masterPK;
   final Uint8List chainCode;
 
-  bool get isValid => index > 0;
+  bool get isValid => index >= 0;
 
   Slot(this.index, this.status, this.address)
       : privkey = Uint8List(0),
