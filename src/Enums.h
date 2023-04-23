@@ -9,9 +9,9 @@
 
 FFI_PLUGIN_EXPORT typedef enum CKTapCardType 
 {
-    UnknownCard,
-    Satscard,
-    Tapsigner
+    UnknownCard = 0,
+    Satscard = 1,
+    Tapsigner = 2,
 } CKTapCardType;
 
 /// @brief Represents errors that may occur when the library is used incorrectly
@@ -79,6 +79,14 @@ FFI_PLUGIN_EXPORT typedef enum CKTapInternalErrorCode
     INVALID_PRIVKEY = 627,
     INVALID_SLOT = 628,
 } CKTapInternalErrorCode;
+
+/// @brief Mirrors tap_protocol::Satscard::SlotStatus
+FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus
+{
+    UNUSED,
+    SEALED,
+    UNSEALED,
+} CKTapSatscardSlotStatus;
 
 /// @brief The current state of the background thread which handles tap-protocol commands
 FFI_PLUGIN_EXPORT typedef enum CKTapThreadState 

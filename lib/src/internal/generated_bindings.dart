@@ -48,16 +48,15 @@ class CKTapProtocolBindings {
   late final _Core_BeginInitialization =
       _Core_BeginInitializationPtr.asFunction<int Function()>();
 
-  CKTapCardFinalizeOperationResponse CKTapCard_FinalizeRecentOperation() {
-    return _CKTapCard_FinalizeRecentOperation();
+  CKTapCardFinalizeOperationResponse Core_FinalizeRecentOperation() {
+    return _Core_FinalizeRecentOperation();
   }
 
-  late final _CKTapCard_FinalizeRecentOperationPtr = _lookup<
+  late final _Core_FinalizeRecentOperationPtr = _lookup<
           ffi.NativeFunction<CKTapCardFinalizeOperationResponse Function()>>(
-      'CKTapCard_FinalizeRecentOperation');
-  late final _CKTapCard_FinalizeRecentOperation =
-      _CKTapCard_FinalizeRecentOperationPtr.asFunction<
-          CKTapCardFinalizeOperationResponse Function()>();
+      'Core_FinalizeRecentOperation');
+  late final _Core_FinalizeRecentOperation = _Core_FinalizeRecentOperationPtr
+      .asFunction<CKTapCardFinalizeOperationResponse Function()>();
 
   ffi.Pointer<ffi.Uint8> Core_GetTransportRequestPointer() {
     return _Core_GetTransportRequestPointer();
@@ -239,6 +238,89 @@ class CKTapProtocolBindings {
       _CKTapCard_NeedSetupPtr.asFunction<int Function(int, int)>();
 
   /// ----------------------------------------------
+  /// Satscard:
+  IntermediateSatscardSlot Satscard_GetActiveSlot(
+    int handle,
+    int type,
+  ) {
+    return _Satscard_GetActiveSlot(
+      handle,
+      type,
+    );
+  }
+
+  late final _Satscard_GetActiveSlotPtr = _lookup<
+      ffi.NativeFunction<
+          IntermediateSatscardSlot Function(
+              ffi.Int32, ffi.Int32)>>('Satscard_GetActiveSlot');
+  late final _Satscard_GetActiveSlot = _Satscard_GetActiveSlotPtr.asFunction<
+      IntermediateSatscardSlot Function(int, int)>();
+
+  int Satscard_GetActiveSlotIndex(
+    int handle,
+    int type,
+  ) {
+    return _Satscard_GetActiveSlotIndex(
+      handle,
+      type,
+    );
+  }
+
+  late final _Satscard_GetActiveSlotIndexPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'Satscard_GetActiveSlotIndex');
+  late final _Satscard_GetActiveSlotIndex =
+      _Satscard_GetActiveSlotIndexPtr.asFunction<int Function(int, int)>();
+
+  int Satscard_GetNumSlots(
+    int handle,
+    int type,
+  ) {
+    return _Satscard_GetNumSlots(
+      handle,
+      type,
+    );
+  }
+
+  late final _Satscard_GetNumSlotsPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'Satscard_GetNumSlots');
+  late final _Satscard_GetNumSlots =
+      _Satscard_GetNumSlotsPtr.asFunction<int Function(int, int)>();
+
+  int Satscard_HasUnusedSlots(
+    int handle,
+    int type,
+  ) {
+    return _Satscard_HasUnusedSlots(
+      handle,
+      type,
+    );
+  }
+
+  late final _Satscard_HasUnusedSlotsPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'Satscard_HasUnusedSlots');
+  late final _Satscard_HasUnusedSlots =
+      _Satscard_HasUnusedSlotsPtr.asFunction<int Function(int, int)>();
+
+  int Satscard_IsUsedUp(
+    int handle,
+    int type,
+  ) {
+    return _Satscard_IsUsedUp(
+      handle,
+      type,
+    );
+  }
+
+  late final _Satscard_IsUsedUpPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'Satscard_IsUsedUp');
+  late final _Satscard_IsUsedUp =
+      _Satscard_IsUsedUpPtr.asFunction<int Function(int, int)>();
+
+  /// ----------------------------------------------
   /// Utility:
   void Utility_FreeString(
     ffi.Pointer<ffi.Char> cString,
@@ -253,6 +335,35 @@ class CKTapProtocolBindings {
           'Utility_FreeString');
   late final _Utility_FreeString =
       _Utility_FreeStringPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void Utility_FreeBinaryArray(
+    CBinaryArray array,
+  ) {
+    return _Utility_FreeBinaryArray(
+      array,
+    );
+  }
+
+  late final _Utility_FreeBinaryArrayPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(CBinaryArray)>>(
+          'Utility_FreeBinaryArray');
+  late final _Utility_FreeBinaryArray =
+      _Utility_FreeBinaryArrayPtr.asFunction<void Function(CBinaryArray)>();
+
+  void Utility_FreeIntermediateSatscardSlot(
+    IntermediateSatscardSlot slot,
+  ) {
+    return _Utility_FreeIntermediateSatscardSlot(
+      slot,
+    );
+  }
+
+  late final _Utility_FreeIntermediateSatscardSlotPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(IntermediateSatscardSlot)>>(
+          'Utility_FreeIntermediateSatscardSlot');
+  late final _Utility_FreeIntermediateSatscardSlot =
+      _Utility_FreeIntermediateSatscardSlotPtr.asFunction<
+          void Function(IntermediateSatscardSlot)>();
 }
 
 abstract class CKTapCardType {
@@ -325,6 +436,13 @@ abstract class CKTapInternalErrorCode {
   static const int INVALID_SLOT = 628;
 }
 
+/// @brief Mirrors tap_protocol::Satscard::SlotStatus
+abstract class CKTapSatscardSlotStatus {
+  static const int UNUSED = 0;
+  static const int SEALED = 1;
+  static const int UNSEALED = 2;
+}
+
 /// @brief The current state of the background thread which handles tap-protocol commands
 abstract class CKTapThreadState {
   static const int NotStarted = 0;
@@ -335,6 +453,13 @@ abstract class CKTapThreadState {
   static const int Finished = 5;
   static const int Timeout = 6;
   static const int TapProtocolError = 7;
+}
+
+class CBinaryArray extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int length;
 }
 
 class CKTapCardHandle extends ffi.Struct {
@@ -350,4 +475,23 @@ class CKTapCardFinalizeOperationResponse extends ffi.Struct {
 
   @ffi.Int32()
   external int errorCode;
+}
+
+class IntermediateSatscardSlot extends ffi.Struct {
+  @ffi.Int32()
+  external int index;
+
+  @ffi.Int32()
+  external int status;
+
+  external ffi.Pointer<ffi.Char> address;
+
+  /// Requires the CVC to acquire
+  external CBinaryArray privkey;
+
+  external CBinaryArray pubkey;
+
+  external CBinaryArray masterPK;
+
+  external CBinaryArray chainCode;
 }

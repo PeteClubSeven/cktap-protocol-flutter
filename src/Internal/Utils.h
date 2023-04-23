@@ -5,35 +5,39 @@
 #include <Enums.h>
 #include <Structs.h>
 
+#include <tap_protocol/cktapcard.h>
+
 // STL
+#include <cstdint>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 // Forward declarations
 class TapProtocolThread;
-namespace tap_protocol
-{
-    class Satscard;
-    class Tapsigner;
-}
 
 // Globals
 constexpr size_t invalidIndex = std::numeric_limits<size_t>::max();
 
-std::unique_ptr<TapProtocolThread> g_protocolThread { };
-std::vector<std::unique_ptr<tap_protocol::Satscard>> g_satscards { };
-std::vector<std::unique_ptr<tap_protocol::Tapsigner>> g_tapsigners { };
+extern std::unique_ptr<TapProtocolThread> g_protocolThread;
+extern std::vector<std::unique_ptr<tap_protocol::Satscard>> g_satscards;
+extern std::vector<std::unique_ptr<tap_protocol::Tapsigner>> g_tapsigners;
 
 
 char* AllocateCStringFromCpp(const std::string& cppString);
+CBinaryArray AllocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary);
+
+void FreeAllocatedCString(char*& cString);
+void FreeAllocatedBinaryArray(CBinaryArray& array);
 
 CKTapCardHandle ConstructTapCardHandle(const int32_t index, const int32_t type);
 
-template <typename R, typename Func>
-auto GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, const Func& getterFunction)
+template <typename CardType, typename R, typename Func>
+R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, const Func& getterFunction)
 {
     const auto handle = ConstructTapCardHandle(index, type);
     const auto processCard = [&handle, &defaultReturn, &getterFunction](const auto& vector)
@@ -54,17 +58,28 @@ auto GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, 
             return std::move(defaultReturn);
         }
         
-        return getterFunction(*card);
+        return std::move(getterFunction(*card));
     };
 
-    switch (handle.type)
+    if constexpr (std::is_same_v<CardType, tap_protocol::Satscard>)
     {
-        case CKTapCardType::Satscard:
-            return processCard(g_satscards);
-        case CKTapCardType::Tapsigner:
-            return processCard(g_tapsigners);
-        default:
-            return std::move(defaultReturn);
+        return std::move(processCard(g_satscards));
+    }
+    else if (std::is_same_v<CardType, tap_protocol::Tapsigner>)
+    {
+        return std::move(processCard(g_tapsigners));
+    }
+    else if (std::is_same_v<CardType, tap_protocol::CKTapCard>)
+    {
+        switch (handle.type)
+        {
+            case CKTapCardType::Satscard:
+                return std::move(processCard(g_satscards));
+            case CKTapCardType::Tapsigner:
+                return std::move(processCard(g_tapsigners));
+            default:
+                return std::move(defaultReturn);
+        }
     }
 }
 

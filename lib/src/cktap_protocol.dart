@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
-import 'dart:typed_data';
 
 import 'package:cktap_protocol/src/cktapcard.dart';
-import 'package:ffi/ffi.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
 
 import 'internal/generated_bindings.dart';
+import 'satscard.dart';
+import 'tapsigner.dart';
 
 Future<CKTapCard> createCKTapCard(NfcTag tag,
     {bool pollAllSatscardSlots = false}) async {
@@ -18,14 +17,14 @@ Future<CKTapCard> createCKTapCard(NfcTag tag,
     return Future.error(-1);
   }
 
-  var initResponse = _bindings.Core_BeginInitialization();
+  var initResponse = bindings.Core_BeginInitialization();
   if (initResponse != CKTapInterfaceErrorCode.Success) {
     return Future.error(initResponse);
   }
 
   int threadState;
   do {
-    threadState = _bindings.Core_GetThreadState();
+    threadState = bindings.Core_GetThreadState();
     switch (threadState) {
       case CKTapThreadState.AwaitingTransportRequest:
       case CKTapThreadState.TransportResponseReady:
@@ -33,9 +32,9 @@ Future<CKTapCard> createCKTapCard(NfcTag tag,
         await Future.delayed(const Duration(microseconds: 100));
         break;
       case CKTapThreadState.TransportRequestReady:
-        var pointer = _bindings.Core_GetTransportRequestPointer();
-        var length = _bindings.Core_GetTransportRequestLength();
-        if (pointer == null) {
+        var pointer = bindings.Core_GetTransportRequestPointer();
+        var length = bindings.Core_GetTransportRequestLength();
+        if (pointer.address == 0) {
           return Future.error(-2);
         }
         if (length == 0) {
@@ -45,7 +44,7 @@ Future<CKTapCard> createCKTapCard(NfcTag tag,
         var transportRequest = pointer.asTypedList(length);
         await isoDep.transceive(data: transportRequest).then((value) {
           Pointer<Uint8> allocation =
-              _bindings.Core_AllocateTransportResponseBuffer(value.length);
+              bindings.Core_AllocateTransportResponseBuffer(value.length);
           if (allocation.address == 0) {
             return Future.error(-4);
           }
@@ -53,7 +52,7 @@ Future<CKTapCard> createCKTapCard(NfcTag tag,
           var transportResponse = allocation.asTypedList(value.length);
           transportResponse.setAll(0, value);
 
-          var errorCode = _bindings.Core_FinalizeTransportResponse();
+          var errorCode = bindings.Core_FinalizeTransportResponse();
           if (errorCode != CKTapInterfaceErrorCode.Success) {
             return Future.error(errorCode);
           }
@@ -74,19 +73,27 @@ Future<CKTapCard> createCKTapCard(NfcTag tag,
 
   // Finalize the initialization of the card and prepare the result
   if (threadState == CKTapThreadState.Finished) {
-    var response = _bindings.Core_FinalizeRecentOperation();
+    var response = bindings.Core_FinalizeRecentOperation();
     if (response.errorCode != CKTapInterfaceErrorCode.Success) {
       return Future.error(response.errorCode);
     }
 
-
+    if (response.handle.type == CKTapCardType.Satscard) {
+      var satscard = Satscard(response.handle.index, response.handle.type);
+      print(satscard);
+      return satscard;
+    } else if (response.handle.type == CKTapCardType.Tapsigner) {
+      var tapsigner = Tapsigner(response.handle.index, response.handle.type);
+      print(tapsigner);
+      return tapsigner;
+    }
   }
 
-  return 0;
+  return Future.error(-6);
 }
 
 /// The bindings to the native functions in [CKTapProtocolBindings] and its dependencies.
-final CKTapProtocolBindings _bindings = CKTapProtocolBindings(() {
+final CKTapProtocolBindings bindings = CKTapProtocolBindings(() {
   const String libName = 'cktap_protocol';
 
   if (Platform.isMacOS || Platform.isIOS) {

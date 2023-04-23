@@ -33,12 +33,19 @@ FFI_PLUGIN_EXPORT int32_t CKTapCard_NeedSetup(const int32_t handle, const int32_
 
 // ----------------------------------------------
 // Satscard:
+FFI_PLUGIN_EXPORT IntermediateSatscardSlot Satscard_GetActiveSlot(const int32_t handle, const int32_t type);
+FFI_PLUGIN_EXPORT int32_t Satscard_GetActiveSlotIndex(const int32_t handle, const int32_t type);
+FFI_PLUGIN_EXPORT int32_t Satscard_GetNumSlots(const int32_t handle, const int32_t type);
+FFI_PLUGIN_EXPORT int32_t Satscard_HasUnusedSlots(const int32_t handle, const int32_t type);
+FFI_PLUGIN_EXPORT int32_t Satscard_IsUsedUp(const int32_t handle, const int32_t type);
 
 // ----------------------------------------------
 // Tapsigner:
 
 // ----------------------------------------------
 // Utility:
+FFI_PLUGIN_EXPORT void Utility_FreeBinaryArray(CBinaryArray array);
+FFI_PLUGIN_EXPORT void Utility_FreeIntermediateSatscardSlot(IntermediateSatscardSlot slot);
 FFI_PLUGIN_EXPORT void Utility_FreeString(char* cString);
 
 #endif // __CKTAP_PROTOCOL__EXPORTS_H__
