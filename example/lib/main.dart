@@ -26,7 +26,22 @@ class _MyAppState extends State<MyApp> {
     sumAsyncResult = Future(() => 2);
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
-        createCKTapCard(tag).then((result) => print(result) );
+        var card = await createCKTapCard(tag);
+        if (card.isTapsigner) {
+          var tapsigner = card.toTapsigner();
+          
+        }
+        else
+        {
+          var satscard = card.toSatscard();
+          if (satscard != null) {
+            Navigator. of(context).push(
+              MaterialPageRoute(
+                builder: (context) => SatscardWidget(satscard),
+              ),
+            );
+          }
+        }
       },
     );
   }
@@ -36,9 +51,57 @@ class _MyAppState extends State<MyApp> {
     const textStyle = TextStyle(fontSize: 25);
     const spacerSmall = SizedBox(height: 10);
     return MaterialApp(
+      routes: {
+        '/': (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Coinkite Tap Protocol Tester'),
+          ),
+          body: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  const Text(
+                    'Please tap your phone with a Satscard or a Tapsigner',
+                    style: textStyle,
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+            ),
+          ),
+        )
+      },
+    );
+  }
+}
+
+class SatscardWidget extends StatefulWidget {
+  final Satscard satscard;
+
+  const SatscardWidget(this.satscard, {super.key});
+  
+  @override
+  State<SatscardWidget> createState() => SatscardState();
+}
+
+class SatscardState extends State<SatscardWidget> {
+  late Satscard satscard;
+
+  @override
+  void initState() {
+    super.initState();
+    satscard = widget.satscard;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const textStyle = TextStyle(fontSize: 12);
+    const spacerSmall = SizedBox(height: 10);
+    return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Native Packages'),
+          title: const Text('Satscard Detected'),
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -46,29 +109,96 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               children: [
                 const Text(
-                  'This calls a native function through FFI that is shipped as source in the package. '
-                  'The native code is built as part of the Flutter Runner build.',
-                  style: textStyle,
-                  textAlign: TextAlign.center,
+                  'CKTapCard',
+                  style: TextStyle(fontSize: 20),
+                  textAlign: TextAlign.left,
                 ),
                 spacerSmall,
                 Text(
-                  'sum(1, 2) = $sumResult',
+                  'internalHandle: ${satscard.handle.toString()}',
                   style: textStyle,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'internalType: ${satscard.type.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'ident ${satscard.ident}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'appletVersion: ${satscard.appletVersion}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'birthHeight: ${satscard.birthHeight.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'isTestnet: ${satscard.isTestnet.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'authDelay: ${satscard.authDelay.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'isTampered: ${satscard.isTampered.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'isCertsChecked: ${satscard.isCertsChecked.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'needSetup: ${satscard.needSetup.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'isTapsigner: ${satscard.isTapsigner.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                const Text(
+                  'Satscard',
+                  style: TextStyle(fontSize: 20),
+                  textAlign: TextAlign.left,
                 ),
                 spacerSmall,
-                FutureBuilder<int>(
-                  future: sumAsyncResult,
-                  builder: (BuildContext context, AsyncSnapshot<int> value) {
-                    final displayValue =
-                        (value.hasData) ? value.data : 'loading';
-                    return Text(
-                      'await sumAsync(3, 4) = $displayValue',
-                      style: textStyle,
-                      textAlign: TextAlign.center,
-                    );
-                  },
+                Text(
+                  'activeSlot: ${satscard.activeSlot.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'activeSlotIndex: ${satscard.activeSlotIndex.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'numSlots: ${satscard.numSlots.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'hasUnusedSlots: ${satscard.hasUnusedSlots.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  'isUsedUp: ${satscard.isUsedUp.toString()}',
+                  style: textStyle,
+                  textAlign: TextAlign.left,
                 ),
               ],
             ),
