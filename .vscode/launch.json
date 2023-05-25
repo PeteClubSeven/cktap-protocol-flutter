@@ -24,5 +24,12 @@
             "program": "lib/main.dart",
             "flutterMode": "release"
         },
+        {
+            "name": "Attach Flutter",
+            "type": "dart",
+            "request": "attach",
+            "cwd": "example",
+            "program": "lib/main.dart"
+        }
     ]
 }
