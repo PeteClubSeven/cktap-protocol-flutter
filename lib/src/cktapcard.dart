@@ -1,7 +1,7 @@
 import 'cktap_protocol.dart';
+import 'internal/utils.dart';
 import 'satscard.dart';
 import 'tapsigner.dart';
-import 'internal/utils.dart';
 
 abstract class CKTapCard {
   final int handle;

@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:cktap_protocol/src/cktap_protocol.dart';
-
+import 'cktap_protocol.dart';
 import 'cktapcard.dart';
 import 'internal/utils.dart';
 
