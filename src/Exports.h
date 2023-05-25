@@ -41,6 +41,8 @@ FFI_PLUGIN_EXPORT int32_t Satscard_IsUsedUp(const int32_t handle, const int32_t 
 
 // ----------------------------------------------
 // Tapsigner:
+FFI_PLUGIN_EXPORT int32_t Tapsigner_GetNumberOfBackups(const int32_t handle, const int32_t type);
+FFI_PLUGIN_EXPORT char* Tapsigner_GetDerivationPath(const int32_t handle, const int32_t type);
 
 // ----------------------------------------------
 // Utility:

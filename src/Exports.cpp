@@ -300,6 +300,34 @@ FFI_PLUGIN_EXPORT int32_t Satscard_IsUsedUp(const int32_t handle, const int32_t 
 }
 
 // ----------------------------------------------
+// Tapsigner:
+
+FFI_PLUGIN_EXPORT int32_t Tapsigner_GetNumberOfBackups(const int32_t handle, const int32_t type)
+{
+    return GetFromTapCard<tap_protocol::Tapsigner>(handle, type, -1, [](const auto& card)
+    {
+        return card.GetNumberOfBackups();
+    });
+}
+
+FFI_PLUGIN_EXPORT char* Tapsigner_GetDerivationPath(const int32_t handle, const int32_t type)
+{
+    return GetFromTapCard<tap_protocol::Tapsigner, char*>(handle, type, nullptr, [](const auto& card)
+    {
+        char* value = nullptr;
+        if (const auto optionalPath = card.GetDerivationPath())
+        {
+            if (optionalPath.has_value())
+            {
+                value = AllocateCStringFromCpp(optionalPath.value());
+            }
+        }
+
+        return value;
+    });
+}
+
+// ----------------------------------------------
 // Utility:
 
 FFI_PLUGIN_EXPORT void Utility_FreeBinaryArray(CBinaryArray array)

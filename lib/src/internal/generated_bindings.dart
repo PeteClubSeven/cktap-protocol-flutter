@@ -321,21 +321,42 @@ class CKTapProtocolBindings {
       _Satscard_IsUsedUpPtr.asFunction<int Function(int, int)>();
 
   /// ----------------------------------------------
-  /// Utility:
-  void Utility_FreeString(
-    ffi.Pointer<ffi.Char> cString,
+  /// Tapsigner:
+  int Tapsigner_GetNumberOfBackups(
+    int handle,
+    int type,
   ) {
-    return _Utility_FreeString(
-      cString,
+    return _Tapsigner_GetNumberOfBackups(
+      handle,
+      type,
     );
   }
 
-  late final _Utility_FreeStringPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-          'Utility_FreeString');
-  late final _Utility_FreeString =
-      _Utility_FreeStringPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+  late final _Tapsigner_GetNumberOfBackupsPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'Tapsigner_GetNumberOfBackups');
+  late final _Tapsigner_GetNumberOfBackups =
+      _Tapsigner_GetNumberOfBackupsPtr.asFunction<int Function(int, int)>();
 
+  ffi.Pointer<ffi.Char> Tapsigner_GetDerivationPath(
+    int handle,
+    int type,
+  ) {
+    return _Tapsigner_GetDerivationPath(
+      handle,
+      type,
+    );
+  }
+
+  late final _Tapsigner_GetDerivationPathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Int32, ffi.Int32)>>('Tapsigner_GetDerivationPath');
+  late final _Tapsigner_GetDerivationPath = _Tapsigner_GetDerivationPathPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int, int)>();
+
+  /// ----------------------------------------------
+  /// Utility:
   void Utility_FreeBinaryArray(
     CBinaryArray array,
   ) {
@@ -364,6 +385,20 @@ class CKTapProtocolBindings {
   late final _Utility_FreeIntermediateSatscardSlot =
       _Utility_FreeIntermediateSatscardSlotPtr.asFunction<
           void Function(IntermediateSatscardSlot)>();
+
+  void Utility_FreeString(
+    ffi.Pointer<ffi.Char> cString,
+  ) {
+    return _Utility_FreeString(
+      cString,
+    );
+  }
+
+  late final _Utility_FreeStringPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'Utility_FreeString');
+  late final _Utility_FreeString =
+      _Utility_FreeStringPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 }
 
 abstract class CKTapCardType {
