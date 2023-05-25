@@ -65,11 +65,11 @@ R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, con
     {
         return std::move(processCard(g_satscards));
     }
-    else if (std::is_same_v<CardType, tap_protocol::Tapsigner>)
+    else if constexpr (std::is_same_v<CardType, tap_protocol::Tapsigner>)
     {
         return std::move(processCard(g_tapsigners));
     }
-    else if (std::is_same_v<CardType, tap_protocol::CKTapCard>)
+    else if constexpr (std::is_same_v<CardType, tap_protocol::CKTapCard>)
     {
         switch (handle.type)
         {
