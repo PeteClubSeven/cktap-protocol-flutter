@@ -26,20 +26,22 @@ class _MyAppState extends State<MyApp> {
     sumAsyncResult = Future(() => 2);
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
-        var card = await createCKTapCard(tag);
-        if (card.isTapsigner) {
-          var tapsigner = card.toTapsigner();
-          
-        }
-        else
-        {
-          var satscard = card.toSatscard();
-          if (satscard != null) {
-            Navigator. of(context).push(
-              MaterialPageRoute(
-                builder: (context) => SatscardWidget(satscard),
-              ),
-            );
+        if (isCoinkiteCard(tag)) {
+          var card = await createCKTapCard(tag);
+          if (card.isTapsigner) {
+            var tapsigner = card.toTapsigner();
+            
+          }
+          else
+          {
+            var satscard = card.toSatscard();
+            if (satscard != null) {
+              Navigator. of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => SatscardWidget(satscard),
+                ),
+              );
+            }
           }
         }
       },

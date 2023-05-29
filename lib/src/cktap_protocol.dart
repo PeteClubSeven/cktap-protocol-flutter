@@ -10,6 +10,32 @@ import 'internal/generated_bindings.dart';
 import 'satscard.dart';
 import 'tapsigner.dart';
 
+/// Performs a preliminary check to see if the given tag is a Coinkite NFC card
+bool isCoinkiteCard(NfcTag tag) {
+  var ndef = Ndef.from(tag);
+  if (ndef == null || ndef.cachedMessage == null) {
+    return false;
+  }
+  
+  for (var record in ndef.cachedMessage!.records) {
+    var payload = String.fromCharCodes(record.payload);
+    var isValid = isSatscard(payload) || isTapsigner(payload);
+    if (isValid) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool isSatscard(String ndefRecordPayload) {
+  return ndefRecordPayload.startsWith("satscard.com/start", 1);
+}
+
+bool isTapsigner(String ndefRecordPayload) {
+  return ndefRecordPayload.startsWith("tapsigner.com/start", 1);
+}
+
 Future<CKTapCard> createCKTapCard(NfcTag tag,
     {bool pollAllSatscardSlots = false}) async {
   var isoDep = IsoDep.from(tag);
