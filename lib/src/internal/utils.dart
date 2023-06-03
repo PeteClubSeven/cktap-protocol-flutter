@@ -3,8 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
-import 'generated_bindings.dart';
-import '../cktap_protocol.dart';
+import 'library.dart';
 import '../cktapcard.dart';
 import '../satscard.dart';
 
@@ -15,7 +14,7 @@ Uint8List dartListFromCBinaryArray(CBinaryArray array,
     list.setAll(0, array.ptr.asTypedList(array.length));
 
     if (freeArray) {
-      bindings.Utility_FreeBinaryArray(array);
+      nativeLibrary.Utility_FreeBinaryArray(array);
     }
     return list;
   }
@@ -31,7 +30,7 @@ String dartStringFromCString(Pointer<Char> cString,
 
     // Ensure we clean up the string
     if (freeCString) {
-      bindings.Utility_FreeString(cString);
+      nativeLibrary.Utility_FreeString(cString);
     }
     return dartString;
   }
@@ -41,7 +40,7 @@ String dartStringFromCString(Pointer<Char> cString,
 
 Slot getActiveSatscardSlotFrom(int handle, int type) {
   IntermediateSatscardSlot intermediary =
-      bindings.Satscard_GetActiveSlot(handle, type);
+      nativeLibrary.Satscard_GetActiveSlot(handle, type);
   if (intermediary.index < 0) {
     return Slot.invalid();
   }
@@ -55,7 +54,7 @@ Slot getActiveSatscardSlotFrom(int handle, int type) {
       dartListFromCBinaryArray(intermediary.masterPK),
       dartListFromCBinaryArray(intermediary.chainCode));
 
-  bindings.Utility_FreeIntermediateSatscardSlot(intermediary);
+  nativeLibrary.Utility_FreeIntermediateSatscardSlot(intermediary);
   return slot;
 }
 

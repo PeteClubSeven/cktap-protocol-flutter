@@ -1,4 +1,4 @@
-import 'cktap_protocol.dart';
+import 'internal/library.dart';
 import 'internal/utils.dart';
 import 'satscard.dart';
 import 'tapsigner.dart';
@@ -22,17 +22,18 @@ abstract class CKTapCard {
   CKTapCard(this.handle, int type)
       : type = intToCardType(type),
         ident = dartStringFromCString(
-            bindings.CKTapCard_GetIdentCString(handle, type),
+            nativeLibrary.CKTapCard_GetIdentCString(handle, type),
             freeCString: true),
         appletVersion = dartStringFromCString(
-            bindings.CKTapCard_GetAppletVersionCString(handle, type),
+            nativeLibrary.CKTapCard_GetAppletVersionCString(handle, type),
             freeCString: true),
-        birthHeight = bindings.CKTapCard_GetBirthHeight(handle, type),
-        isTestnet = bindings.CKTapCard_IsTestnet(handle, type) > 0,
-        authDelay = bindings.CKTapCard_GetAuthDelay(handle, type),
-        isTampered = bindings.CKTapCard_IsTampered(handle, type) > 0,
-        isCertsChecked = bindings.CKTapCard_IsCertsChecked(handle, type) > 0,
-        needSetup = bindings.CKTapCard_NeedSetup(handle, type) > 0;
+        birthHeight = nativeLibrary.CKTapCard_GetBirthHeight(handle, type),
+        isTestnet = nativeLibrary.CKTapCard_IsTestnet(handle, type) > 0,
+        authDelay = nativeLibrary.CKTapCard_GetAuthDelay(handle, type),
+        isTampered = nativeLibrary.CKTapCard_IsTampered(handle, type) > 0,
+        isCertsChecked =
+            nativeLibrary.CKTapCard_IsCertsChecked(handle, type) > 0,
+        needSetup = nativeLibrary.CKTapCard_NeedSetup(handle, type) > 0;
 }
 
 enum CardType {

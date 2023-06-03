@@ -1,5 +1,5 @@
-import 'cktap_protocol.dart';
 import 'cktapcard.dart';
+import 'internal/library.dart';
 import 'internal/utils.dart';
 
 class Tapsigner extends CKTapCard {
@@ -7,8 +7,9 @@ class Tapsigner extends CKTapCard {
   final String derivationPath;
 
   Tapsigner(handle, type)
-      : numberOfBackups = bindings.Tapsigner_GetNumberOfBackups(handle, type),
+      : numberOfBackups =
+            nativeLibrary.Tapsigner_GetNumberOfBackups(handle, type),
         derivationPath = dartStringFromCString(
-            bindings.Tapsigner_GetDerivationPath(handle, type)),
+            nativeLibrary.Tapsigner_GetDerivationPath(handle, type)),
         super(handle, type);
 }

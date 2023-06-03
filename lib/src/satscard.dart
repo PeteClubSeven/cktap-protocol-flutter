@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'cktap_protocol.dart';
 import 'cktapcard.dart';
+import 'internal/library.dart';
 import 'internal/utils.dart';
 
 class Satscard extends CKTapCard {
@@ -13,10 +13,12 @@ class Satscard extends CKTapCard {
 
   Satscard(handle, type)
       : activeSlot = getActiveSatscardSlotFrom(handle, type),
-        activeSlotIndex = bindings.Satscard_GetActiveSlotIndex(handle, type),
-        numSlots = bindings.Satscard_GetNumSlots(handle, type),
-        hasUnusedSlots = bindings.Satscard_HasUnusedSlots(handle, type) > 0,
-        isUsedUp = bindings.Satscard_IsUsedUp(handle, type) > 0,
+        activeSlotIndex =
+            nativeLibrary.Satscard_GetActiveSlotIndex(handle, type),
+        numSlots = nativeLibrary.Satscard_GetNumSlots(handle, type),
+        hasUnusedSlots =
+            nativeLibrary.Satscard_HasUnusedSlots(handle, type) > 0,
+        isUsedUp = nativeLibrary.Satscard_IsUsedUp(handle, type) > 0,
         super(handle, type);
 }
 

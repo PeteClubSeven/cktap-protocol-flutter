@@ -26,8 +26,8 @@ class _MyAppState extends State<MyApp> {
     sumAsyncResult = Future(() => 2);
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
-        if (isCoinkiteCard(tag)) {
-          var card = await createCKTapCard(tag);
+        if (CKTapCardProtocol.isCoinkiteCard(tag)) {
+          var card = await CKTapCardProtocol.instance.createCKTapCard(tag);
           if (card.isTapsigner) {
             var tapsigner = card.toTapsigner();
             
@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
           {
             var satscard = card.toSatscard();
             if (satscard != null) {
-              Navigator. of(context).push(
+              Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => SatscardWidget(satscard),
                 ),
