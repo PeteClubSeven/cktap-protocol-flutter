@@ -30,10 +30,7 @@ class _MyAppState extends State<MyApp> {
           var card = await CKTapCardProtocol.instance.createCKTapCard(tag);
           if (card.isTapsigner) {
             var tapsigner = card.toTapsigner();
-            
-          }
-          else
-          {
+          } else {
             var satscard = card.toSatscard();
             if (satscard != null) {
               Navigator.of(context).push(
@@ -55,24 +52,24 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       routes: {
         '/': (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Coinkite Tap Protocol Tester'),
-          ),
-          body: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  const Text(
-                    'Please tap your phone with a Satscard or a Tapsigner',
-                    style: textStyle,
-                    textAlign: TextAlign.center,
-                  )
-                ],
+              appBar: AppBar(
+                title: const Text('Coinkite Tap Protocol Tester'),
               ),
-            ),
-          ),
-        )
+              body: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Please tap your phone with a Satscard or a Tapsigner',
+                        style: textStyle,
+                        textAlign: TextAlign.center,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
       },
     );
   }
@@ -82,7 +79,7 @@ class SatscardWidget extends StatefulWidget {
   final Satscard satscard;
 
   const SatscardWidget(this.satscard, {super.key});
-  
+
   @override
   State<SatscardWidget> createState() => SatscardState();
 }

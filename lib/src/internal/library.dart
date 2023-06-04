@@ -1,8 +1,9 @@
 import 'dart:ffi';
 import 'dart:io';
 
-export 'generated_bindings.dart';
 import 'generated_bindings.dart';
+
+export 'generated_bindings.dart';
 
 /// The bindings to the native functions in [CKTapProtocolBindings] and its dependencies.
 final CKTapProtocolBindings nativeLibrary = CKTapProtocolBindings(() {

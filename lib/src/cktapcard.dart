@@ -16,7 +16,9 @@ abstract class CKTapCard {
   final bool needSetup;
 
   bool get isTapsigner => type == CardType.tapsigner;
+
   Satscard? toSatscard() => !isTapsigner ? this as Satscard : null;
+
   Tapsigner? toTapsigner() => isTapsigner ? this as Tapsigner : null;
 
   CKTapCard(this.handle, int type)
