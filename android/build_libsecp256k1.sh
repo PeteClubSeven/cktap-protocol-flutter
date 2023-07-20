@@ -1,12 +1,14 @@
 #!/bin/bash
 
-scriptDir=`dirname '$0'`
-echo $0
-echo $1
-echo $2
+scriptDir=`dirname "$0"`
+echo "$0"
+echo "$1"
+echo "$2"
 
-pushd "$scriptDir/../contrib/tap-protocol"
-ANDROID_NDK="$1" ARCHS="$2" tools/build_android.sh
+pushd "$scriptDir/../contrib/tap-protocol" || exit
+echo "ANDROID_NDK=\"$1\" ARCHS=\"$2\" \"$(pwd)/tools/build_android.sh\"" > "$scriptDir/last_run_command_$2.log"
+ANDROID_NDK="$1" ARCHS="$2" "$(pwd)/tools/build_android.sh"
+
 #echo 
 #ARCHS=armeabi-v7a ANDROID_NDK="$1" tools/build_android.sh 
 #echo 
@@ -21,4 +23,5 @@ ANDROID_NDK="$1" ARCHS="$2" tools/build_android.sh
 #ARCHS=x86 ANDROID_NDK="$1" tools/build_android.sh
 #echo 
 #ARCHS=arm6d4-v8a ANDROID_NDK="$1" tools/build_android.sh
-popd
+
+popd || exit
