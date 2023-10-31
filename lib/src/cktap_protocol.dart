@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:ffi';
 
+import 'dart:typed_data';
 import 'package:cktap_protocol/src/cktapcard.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
 
 import 'internal/library.dart';
+import 'internal/native_thread.dart';
 import 'satscard.dart';
 import 'tapsigner.dart';
 
-/// Implements the basic functionality required to interact with Coinkite NFC cards
+/// Implements the basic functionality required to interact with Coinkite NFC
+/// cards
 class CKTapCardProtocol {
   /// An instance of the protocol
   static CKTapCardProtocol? _instance;
@@ -17,7 +20,8 @@ class CKTapCardProtocol {
   /// Gets or creates the shared instance
   static CKTapCardProtocol get instance => _instance ??= CKTapCardProtocol();
 
-  /// Performs a preliminary check to see if the given tag is potentially a compatible NFC card
+  /// Performs a preliminary check to see if the given tag is potentially a
+  /// compatible NFC card
   static bool isCoinkiteCard(NfcTag tag) {
     var ndef = Ndef.from(tag);
     if (ndef == null || ndef.cachedMessage == null) {
@@ -35,16 +39,22 @@ class CKTapCardProtocol {
     return false;
   }
 
+  /// Checks if the given payload is likely to be a Satscard
   static bool isSatscard(String ndefRecordPayload) {
     return ndefRecordPayload.startsWith("satscard.com/start", 1);
   }
 
+  /// Checks if the given payload is likely to be a Tapsigner
   static bool isTapsigner(String ndefRecordPayload) {
     return ndefRecordPayload.startsWith("tapsigner.com/start", 1);
   }
 
+  /// Attempts to communicate with the given NFC device to determine if it is a
+  /// Coinkite NFC card (e.g. a Satscard or Tapsigner) and returns it
   Future<CKTapCard> createCKTapCard(NfcTag tag,
       {bool pollAllSatscardSlots = false}) async {
+    // TODO: iOS support
+    // This is Android-exclusive
     var isoDep = IsoDep.from(tag);
     if (isoDep == null) {
       return Future.error(-1);
@@ -55,55 +65,26 @@ class CKTapCardProtocol {
       return Future.error(initResponse);
     }
 
-    int threadState;
-    do {
+    int threadState = -1;
+    while (threadState != CKTapThreadState.Finished &&
+        threadState != CKTapThreadState.Timeout) {
       threadState = nativeLibrary.Core_GetThreadState();
-      switch (threadState) {
-        case CKTapThreadState.AwaitingTransportRequest:
-        case CKTapThreadState.TransportResponseReady:
-        case CKTapThreadState.ProcessingTransportResponse:
-          await Future.delayed(const Duration(microseconds: 100));
-          break;
-        case CKTapThreadState.TransportRequestReady:
-          var pointer = nativeLibrary.Core_GetTransportRequestPointer();
-          var length = nativeLibrary.Core_GetTransportRequestLength();
-          if (pointer.address == 0) {
-            return Future.error(-2);
-          }
-          if (length == 0) {
-            return Future.error(-3);
-          }
 
-          var transportRequest = pointer.asTypedList(length);
-          await isoDep.transceive(data: transportRequest).then((value) {
-            Pointer<Uint8> allocation =
-                nativeLibrary.Core_AllocateTransportResponseBuffer(
-                    value.length);
-            if (allocation.address == 0) {
-              return Future.error(-4);
-            }
-
-            var transportResponse = allocation.asTypedList(value.length);
-            transportResponse.setAll(0, value);
-
-            var errorCode = nativeLibrary.Core_FinalizeTransportResponse();
-            if (errorCode != CKTapInterfaceErrorCode.Success) {
-              return Future.error(errorCode);
-            }
-
-            return 1;
-          }).catchError((err) {
-            print('Error: $err');
-            return -5;
-          }, test: (error) {
-            print(error);
-            return error is int && error >= 400;
-          });
-
-          break;
+      // Allow the background thread to reach the desired state
+      if (threadState != CKTapThreadState.TransportRequestReady) {
+        await Future.delayed(const Duration(microseconds: 100));
+        continue;
       }
-    } while (threadState != CKTapThreadState.Finished &&
-        threadState != CKTapThreadState.Timeout);
+
+      // Communicate any necessary data with the NFC card
+      Uint8List transportRequest = getNativeTransportRequest();
+      // TODO: iOS support
+      var transportResponse = await isoDep.transceive(data: transportRequest);
+      var errorCode = setNativeTransportResponse(transportResponse);
+      if (errorCode != CKTapInterfaceErrorCode.Success) {
+        return Future.error(errorCode);
+      }
+    }
 
     // Finalize the initialization of the card and prepare the result
     if (threadState == CKTapThreadState.Finished) {
