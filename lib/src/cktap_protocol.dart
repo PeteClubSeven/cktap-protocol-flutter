@@ -65,9 +65,8 @@ class CKTapCardProtocol {
       return Future.error(initResponse);
     }
 
-    int threadState = -1;
-    while (threadState != CKTapThreadState.Finished &&
-        threadState != CKTapThreadState.Timeout) {
+    int threadState;
+    do {
       threadState = nativeLibrary.Core_GetThreadState();
 
       // Allow the background thread to reach the desired state
@@ -84,7 +83,8 @@ class CKTapCardProtocol {
       if (errorCode != CKTapInterfaceErrorCode.Success) {
         return Future.error(errorCode);
       }
-    }
+    } while (threadState != CKTapThreadState.Finished &&
+        threadState != CKTapThreadState.Timeout);
 
     // Finalize the initialization of the card and prepare the result
     if (threadState == CKTapThreadState.Finished) {

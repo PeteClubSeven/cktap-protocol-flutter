@@ -18,6 +18,7 @@ FFI_PLUGIN_EXPORT typedef enum CKTapCardType
 FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode 
 {
     Success,
+
     ExpectedTapsignerButReceivedNothing,
     ExpectedSatscardButReceivedNothing,
     InvalidHandlingOfTapCardDuringOperationFinalization,
@@ -92,10 +93,12 @@ FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus
 FFI_PLUGIN_EXPORT typedef enum CKTapThreadState 
 {
     NotStarted,
+
     AwaitingTransportRequest,
     TransportRequestReady,
     TransportResponseReady,
     ProcessingTransportResponse,
+
     Finished,
     Timeout,
     TapProtocolError,
