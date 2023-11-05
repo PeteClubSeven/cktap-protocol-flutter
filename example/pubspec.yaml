@@ -28,22 +28,15 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+
+  bloc: ^8.1.2
+  cktap_protocol:
+    path: ../
+  cupertino_icons: ^1.0.2
+  ffi: ^2.0.1
   flutter:
     sdk: flutter
-
-  cktap_protocol:
-    # When depending on this package from a real application you should use:
-    #   cktap_protocol: ^x.y.z
-    # See https://dart.dev/tools/pub/dependencies#version-constraints
-    # The example app is bundled with the plugin so we use a path dependency on
-    # the parent directory to use the current plugin's version.
-    path: ../
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-
-  ffi: ^2.0.1
+  flutter_bloc: ^8.1.3
   nfc_manager: ^3.2.0
 
 dev_dependencies:
