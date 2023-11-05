@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
-import 'library.dart';
+import 'native_library.dart';
 
 /// Converts the native transport request to a Dart readable format.
 /// Should only be called when there is a transport request ready.

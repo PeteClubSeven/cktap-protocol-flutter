@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'dart:ffi';
-
 import 'dart:typed_data';
-import 'package:cktap_protocol/src/cktapcard.dart';
+
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
 
-import 'internal/library.dart';
-import 'internal/native_thread.dart';
-import 'satscard.dart';
-import 'tapsigner.dart';
+import 'src/native_library.dart';
+import 'src/native_thread.dart';
+import 'cktapcard.dart';
 
 /// Implements the basic functionality required to interact with Coinkite NFC
 /// cards

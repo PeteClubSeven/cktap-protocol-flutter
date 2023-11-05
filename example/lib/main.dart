@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:cktap_protocol/cktap_protocol.dart';
+import 'package:cktap_protocol/cktapcard.dart';
+import 'package:cktap_protocol/tap_protocol.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
@@ -33,11 +34,6 @@ class _MyAppState extends State<MyApp> {
           } else {
             var satscard = card.toSatscard();
             if (satscard != null) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => SatscardWidget(satscard),
-                ),
-              );
             }
           }
         }

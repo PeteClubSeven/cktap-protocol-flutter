@@ -4,8 +4,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 
 import '../cktapcard.dart';
-import '../satscard.dart';
-import 'library.dart';
+import 'native_library.dart';
 
 Uint8List dartListFromCBinaryArray(CBinaryArray array,
     {bool freeArray = false}) {

@@ -4,7 +4,7 @@ description: |
   Bindings for `src/cktap_protocol.h`.
 
   Regenerate bindings with `flutter pub run ffigen --config ffigen.yaml`.
-output: 'lib/src/internal/generated_bindings.dart'
+output: 'lib/src/generated_bindings.dart'
 headers:
   entry-points:
     - 'src/Enums.h'
