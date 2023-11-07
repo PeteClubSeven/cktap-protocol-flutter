@@ -17,26 +17,32 @@ FFI_PLUGIN_EXPORT typedef enum CKTapCardType
 /// @brief Represents errors that may occur when the library is used incorrectly
 FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode 
 {
+    Pending,
     Success,
 
-    ExpectedTapsignerButReceivedNothing,
+    AttemptToFinalizeActiveThread,
+    CaughtTapProtocolException,
     ExpectedSatscardButReceivedNothing,
-    InvalidHandlingOfTapCardDuringOperationFinalization,
+    ExpectedTapsignerButReceivedNothing,
+    FailedToPerformHandshake,
+    InvalidHandlingOfTapCardDuringFinalization,
+    LibraryNotInitialized,
+    OperationStillInProgress,
+    OperationFailed,
     ThreadAlreadyInUse,
     ThreadAllocationFailed,
-    ThreadEncounterTapProtocolError,
-    ThreadFailedtoStart,
-    ThreadFinishedBeforeInitialTransportRequest,
-    ThreadNotYetStarted,
     ThreadNotReadyForResponse,
-    ThreadOperationFinalizationFailed,
+    ThreadNotResetForHandshake,
+    ThreadNotYetFinalized,
+    ThreadNotYetStarted,
     ThreadResponseFinalizationFailed,
-    ThreadTimeoutDuringTransport,
-    UnknownErrorDuringInitialization,
+    TimeoutDuringTransport,
+    UnableToFinalizeAsyncAction,
+    UnknownErrorDuringHandshake,
 } CKTapInterfaceErrorCode;
 
 /// @brief Mirrors tap_protocol::TapProtoException
-FFI_PLUGIN_EXPORT typedef enum CKTapInternalErrorCode 
+FFI_PLUGIN_EXPORT typedef enum CKTapProtoExceptionErrorCode
 {
     INVALID_DEVICE = 100,
     UNLUCKY_NUMBER = 205,
@@ -79,7 +85,7 @@ FFI_PLUGIN_EXPORT typedef enum CKTapInternalErrorCode
     INVALID_PUBKEY = 626,
     INVALID_PRIVKEY = 627,
     INVALID_SLOT = 628,
-} CKTapInternalErrorCode;
+} CKTapProtoExceptionErrorCode;
 
 /// @brief Mirrors tap_protocol::Satscard::SlotStatus
 FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus
@@ -92,16 +98,24 @@ FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus
 /// @brief The current state of the background thread which handles tap-protocol commands
 FFI_PLUGIN_EXPORT typedef enum CKTapThreadState 
 {
+    // Ready state
     NotStarted,
 
+    // Transport request loop
     AwaitingTransportRequest,
     TransportRequestReady,
     TransportResponseReady,
     ProcessingTransportResponse,
 
+    // Success
     Finished,
-    Timeout,
+
+    // Fail states
+    Canceled,
+    Failed,
     TapProtocolError,
+    Timeout,
+
 } CKTapThreadState;
 
 #endif // __CKTAP_PROTOCOL__ENUMS_H__

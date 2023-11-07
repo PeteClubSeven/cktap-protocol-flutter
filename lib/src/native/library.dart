@@ -1,0 +1,156 @@
+import 'dart:ffi';
+import 'dart:io';
+
+import 'package:cktap_protocol/src/native/bindings.dart';
+
+/// The bindings to the native functions in [CKTapProtocolBindings] and its dependencies.
+final CKTapProtocolBindings nativeLibrary = CKTapProtocolBindings(() {
+  const List<String> dependencies = ['tap-protocol'];
+  const String pluginLibName = 'cktap_protocol';
+
+  for (final libName in dependencies) {
+    _loadLibrary(libName);
+  }
+
+  return _loadLibrary(pluginLibName);
+}());
+
+/// Maps internal interface error code numbers to a string-readable version
+final Map<int, String> tapInterfaceErrorLiteralMap = {
+  CKTapInterfaceErrorCode.Pending: "Pending",
+  CKTapInterfaceErrorCode.Success: "Success",
+  CKTapInterfaceErrorCode.AttemptToFinalizeActiveThread: "AttemptToFinalizeActiveThread",
+  CKTapInterfaceErrorCode.CaughtTapProtocolException: "CaughtTapProtocolException",
+  CKTapInterfaceErrorCode.ExpectedSatscardButReceivedNothing: "ExpectedSatscardButReceivedNothing",
+  CKTapInterfaceErrorCode.ExpectedTapsignerButReceivedNothing: "ExpectedTapsignerButReceivedNothing",
+  CKTapInterfaceErrorCode.FailedToPerformHandshake: "FailedToPerformHandshake",
+  CKTapInterfaceErrorCode.InvalidHandlingOfTapCardDuringFinalization: "InvalidHandlingOfTapCardDuringFinalization",
+  CKTapInterfaceErrorCode.LibraryNotInitialized: "LibraryNotInitialized",
+  CKTapInterfaceErrorCode.OperationStillInProgress: "OperationStillInProgress",
+  CKTapInterfaceErrorCode.OperationFailed: "OperationFailed",
+  CKTapInterfaceErrorCode.ThreadAlreadyInUse: "ThreadAlreadyInUse",
+  CKTapInterfaceErrorCode.ThreadAllocationFailed: "ThreadAllocationFailed",
+  CKTapInterfaceErrorCode.ThreadNotReadyForResponse: "ThreadNotReadyForResponse",
+  CKTapInterfaceErrorCode.ThreadNotResetForHandshake: "ThreadNotResetForHandshake",
+  CKTapInterfaceErrorCode.ThreadNotYetFinalized: "ThreadNotYetFinalized",
+  CKTapInterfaceErrorCode.ThreadNotYetStarted: "ThreadNotYetStarted",
+  CKTapInterfaceErrorCode.ThreadResponseFinalizationFailed: "ThreadResponseFinalizationFailed",
+  CKTapInterfaceErrorCode.TimeoutDuringTransport: "TimeoutDuringTransport",
+  CKTapInterfaceErrorCode.UnableToFinalizeAsyncAction: "UnableToFinalizeAsyncAction",
+  CKTapInterfaceErrorCode.UnknownErrorDuringHandshake: "UnknownErrorDuringHandshake",
+};
+
+/// Maps Nunchuk tap_protocol error code numbers to a string-readable version
+final Map<int, String> tapProtoExceptionErrorLiteralMap = {
+  CKTapProtoExceptionErrorCode.INVALID_DEVICE:
+      "tap_protocol::TapProtoException::INVALID_DEVICE",
+  CKTapProtoExceptionErrorCode.UNLUCKY_NUMBER:
+      "tap_protocol::TapProtoException::UNLUCKY_NUMBER",
+  CKTapProtoExceptionErrorCode.BAD_ARGUMENTS:
+      "tap_protocol::TapProtoException::BAD_ARGUMENTS",
+  CKTapProtoExceptionErrorCode.BAD_AUTH:
+      "tap_protocol::TapProtoException::BAD_AUTH",
+  CKTapProtoExceptionErrorCode.NEED_AUTH:
+      "tap_protocol::TapProtoException::NEED_AUTH",
+  CKTapProtoExceptionErrorCode.UNKNOW_COMMAND:
+      "tap_protocol::TapProtoException::UNKNOW_COMMAND",
+  CKTapProtoExceptionErrorCode.INVALID_COMMAND:
+      "tap_protocol::TapProtoException::INVALID_COMMAND",
+  CKTapProtoExceptionErrorCode.INVALID_STATE:
+      "tap_protocol::TapProtoException::INVALID_STATE",
+  CKTapProtoExceptionErrorCode.WEAK_NONCE:
+      "tap_protocol::TapProtoException::WEAK_NONCE",
+  CKTapProtoExceptionErrorCode.BAD_CBOR:
+      "tap_protocol::TapProtoException::BAD_CBOR",
+  CKTapProtoExceptionErrorCode.BACKUP_FIRST:
+      "tap_protocol::TapProtoException::BACKUP_FIRST",
+  CKTapProtoExceptionErrorCode.RATE_LIMIT:
+      "tap_protocol::TapProtoException::RATE_LIMIT",
+  CKTapProtoExceptionErrorCode.DEFAULT_ERROR:
+      "tap_protocol::TapProtoException::DEFAULT_ERROR",
+  CKTapProtoExceptionErrorCode.MESSAGE_TOO_LONG:
+      "tap_protocol::TapProtoException::MESSAGE_TOO_LONG",
+  CKTapProtoExceptionErrorCode.MISSING_KEY:
+      "tap_protocol::TapProtoException::MISSING_KEY",
+  CKTapProtoExceptionErrorCode.ISO_SELECT_FAIL:
+      "tap_protocol::TapProtoException::ISO_SELECT_FAIL",
+  CKTapProtoExceptionErrorCode.SW_FAIL:
+      "tap_protocol::TapProtoException::SW_FAIL",
+  CKTapProtoExceptionErrorCode.INVALID_CVC_LENGTH:
+      "tap_protocol::TapProtoException::INVALID_CVC_LENGTH",
+  CKTapProtoExceptionErrorCode.PICK_KEY_PAIR_FAIL:
+      "tap_protocol::TapProtoException::PICK_KEY_PAIR_FAIL",
+  CKTapProtoExceptionErrorCode.ECDH_FAIL:
+      "tap_protocol::TapProtoException::ECDH_FAIL",
+  CKTapProtoExceptionErrorCode.XCVC_FAIL:
+      "tap_protocol::TapProtoException::XCVC_FAIL",
+  CKTapProtoExceptionErrorCode.UNKNOW_PROTO_VERSION:
+      "tap_protocol::TapProtoException::UNKNOW_PROTO_VERSION",
+  CKTapProtoExceptionErrorCode.INVALID_PUBKEY_LENGTH:
+      "tap_protocol::TapProtoException::INVALID_PUBKEY_LENGTH",
+  CKTapProtoExceptionErrorCode.NO_PRIVATE_KEY_PICKED:
+      "tap_protocol::TapProtoException::NO_PRIVATE_KEY_PICKED",
+  CKTapProtoExceptionErrorCode.MALFORMED_BIP32_PATH:
+      "tap_protocol::TapProtoException::MALFORMED_BIP32_PATH",
+  CKTapProtoExceptionErrorCode.INVALID_HASH_LENGTH:
+      "tap_protocol::TapProtoException::INVALID_HASH_LENGTH",
+  CKTapProtoExceptionErrorCode.SIG_VERIFY_ERROR:
+      "tap_protocol::TapProtoException::SIG_VERIFY_ERROR",
+  CKTapProtoExceptionErrorCode.INVALID_DIGEST_LENGTH:
+      "tap_protocol::TapProtoException::INVALID_DIGEST_LENGTH",
+  CKTapProtoExceptionErrorCode.INVALID_PATH_LENGTH:
+      "tap_protocol::TapProtoException::INVALID_PATH_LENGTH",
+  CKTapProtoExceptionErrorCode.SERIALIZE_ERROR:
+      "tap_protocol::TapProtoException::SERIALIZE_ERROR",
+  CKTapProtoExceptionErrorCode.EXCEEDED_RETRY:
+      "tap_protocol::TapProtoException::EXCEEDED_RETRY",
+  CKTapProtoExceptionErrorCode.INVALID_CARD:
+      "tap_protocol::TapProtoException::INVALID_CARD",
+  CKTapProtoExceptionErrorCode.SIGN_ERROR:
+      "tap_protocol::TapProtoException::SIGN_ERROR",
+  CKTapProtoExceptionErrorCode.SIG_TO_PUBKEY_FAIL:
+      "tap_protocol::TapProtoException::SIG_TO_PUBKEY_FAIL",
+  CKTapProtoExceptionErrorCode.PSBT_PARSE_ERROR:
+      "tap_protocol::TapProtoException::PSBT_PARSE_ERROR",
+  CKTapProtoExceptionErrorCode.PSBT_INVALID:
+      "tap_protocol::TapProtoException::PSBT_INVALID",
+  CKTapProtoExceptionErrorCode.INVALID_ADDRESS_TYPE:
+      "tap_protocol::TapProtoException::INVALID_ADDRESS_TYPE",
+  CKTapProtoExceptionErrorCode.INVALID_BACKUP_KEY:
+      "tap_protocol::TapProtoException::INVALID_BACKUP_KEY",
+  CKTapProtoExceptionErrorCode.INVALID_PUBKEY:
+      "tap_protocol::TapProtoException::INVALID_PUBKEY",
+  CKTapProtoExceptionErrorCode.INVALID_PRIVKEY:
+      "tap_protocol::TapProtoException::INVALID_PRIVKEY",
+  CKTapProtoExceptionErrorCode.INVALID_SLOT:
+      "tap_protocol::TapProtoException::INVALID_SLOT",
+};
+
+/// Maps thread states to a string-readable version
+final Map<int, String> tapThreadStateLiteralMap = {
+  CKTapThreadState.NotStarted: "NotStarted",
+  CKTapThreadState.AwaitingTransportRequest: "AwaitingTransportRequest",
+  CKTapThreadState.TransportRequestReady: "TransportRequestReady",
+  CKTapThreadState.TransportResponseReady: "TransportResponseReady",
+  CKTapThreadState.ProcessingTransportResponse: "ProcessingTransportResponse",
+  CKTapThreadState.Finished: "Finished",
+  CKTapThreadState.Canceled: "Canceled",
+  CKTapThreadState.Failed: "Failed",
+  CKTapThreadState.TapProtocolError: "TapProtocolError",
+  CKTapThreadState.Timeout: "Timeout",
+};
+
+/// Loads the library of the given name in the expected format for the current platform
+DynamicLibrary _loadLibrary(final String libName) {
+  if (Platform.isMacOS || Platform.isIOS) {
+    return DynamicLibrary.open('$libName.framework/$libName');
+  }
+  if (Platform.isAndroid || Platform.isLinux) {
+    return DynamicLibrary.open('lib$libName.so');
+  }
+  if (Platform.isWindows) {
+    return DynamicLibrary.open('$libName.dll');
+  }
+  throw UnsupportedError(
+      'Unknown platform (${Platform.operatingSystem}) for lib: $libName');
+}

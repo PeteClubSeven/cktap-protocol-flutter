@@ -86,3 +86,15 @@ CKTapCardType IntToTapCardType(const int32_t type)
             return CKTapCardType::UnknownCard;
     }
 }
+
+CKTapOperationResponse MakeTapOperationResponse(CKTapInterfaceErrorCode errorCode, int32_t index, CKTapCardType type)
+{
+    CKTapOperationResponse response =
+    {
+        .handle.index = index,
+        .handle.type = type,
+        .errorCode = errorCode,
+    };
+
+    return response;
+}

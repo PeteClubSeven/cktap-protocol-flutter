@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'src/native_library.dart';
-import 'src/utils.dart';
+import 'package:cktap_protocol/src/native/library.dart';
+import 'package:cktap_protocol/src/native/translations.dart';
 
 abstract class CKTapCard {
   final int handle;

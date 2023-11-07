@@ -3,8 +3,9 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
-import '../cktapcard.dart';
-import 'native_library.dart';
+import 'package:cktap_protocol/cktapcard.dart';
+import 'package:cktap_protocol/src/native/bindings.dart';
+import 'package:cktap_protocol/src/native/library.dart';
 
 Uint8List dartListFromCBinaryArray(CBinaryArray array,
     {bool freeArray = false}) {
@@ -55,6 +56,20 @@ Slot getActiveSatscardSlotFrom(int handle, int type) {
 
   nativeLibrary.Utility_FreeIntermediateSatscardSlot(intermediary);
   return slot;
+}
+
+String getLiteralFromTapInterfaceErrorCode(int code) {
+  return tapInterfaceErrorLiteralMap[code] ??
+      "CKTapInterfaceErrorCode missing: $code";
+}
+
+String getLiteralFromTapProtoExceptionErrorCode(int code) {
+  return tapProtoExceptionErrorLiteralMap[code] ??
+      "CKTapProtoExceptionErrorCode missing: $code";
+}
+
+String getLiteralFromTapThreadState(int state) {
+  return tapThreadStateLiteralMap[state] ?? "CKTapThreadState missing: $state";
 }
 
 CardType intToCardType(final int type) {

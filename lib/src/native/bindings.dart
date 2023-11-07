@@ -29,37 +29,62 @@ class CKTapProtocolBindings {
           lookup)
       : _lookup = lookup;
 
-  /// ----------------------------------------------
-  /// Core Bindings:
-  int Core_GetThreadState() {
-    return _Core_GetThreadState();
+  /// Ensures the library and native thread are initialized
+  int Core_InitializeLibrary() {
+    return _Core_InitializeLibrary();
   }
 
-  late final _Core_GetThreadStatePtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('Core_GetThreadState');
-  late final _Core_GetThreadState =
-      _Core_GetThreadStatePtr.asFunction<int Function()>();
-
-  int Core_BeginInitialization() {
-    return _Core_BeginInitialization();
-  }
-
-  late final _Core_BeginInitializationPtr =
+  late final _Core_InitializeLibraryPtr =
       _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
-          'Core_BeginInitialization');
-  late final _Core_BeginInitialization =
-      _Core_BeginInitializationPtr.asFunction<int Function()>();
+          'Core_InitializeLibrary');
+  late final _Core_InitializeLibrary =
+      _Core_InitializeLibraryPtr.asFunction<int Function()>();
 
-  CKTapCardFinalizeOperationResponse Core_FinalizeRecentOperation() {
-    return _Core_FinalizeRecentOperation();
+  /// Must be called first to restore the native thread to its initial state
+  int Core_NewOperation() {
+    return _Core_NewOperation();
   }
 
-  late final _Core_FinalizeRecentOperationPtr = _lookup<
-          ffi.NativeFunction<CKTapCardFinalizeOperationResponse Function()>>(
-      'Core_FinalizeRecentOperation');
-  late final _Core_FinalizeRecentOperation = _Core_FinalizeRecentOperationPtr
-      .asFunction<CKTapCardFinalizeOperationResponse Function()>();
+  late final _Core_NewOperationPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('Core_NewOperation');
+  late final _Core_NewOperation =
+      _Core_NewOperationPtr.asFunction<int Function()>();
 
+  /// Must be called last to store and retrieve Satscard/Tapsigner data
+  CKTapOperationResponse Core_EndOperation() {
+    return _Core_EndOperation();
+  }
+
+  late final _Core_EndOperationPtr =
+      _lookup<ffi.NativeFunction<CKTapOperationResponse Function()>>(
+          'Core_EndOperation');
+  late final _Core_EndOperation =
+      _Core_EndOperationPtr.asFunction<CKTapOperationResponse Function()>();
+
+  /// Attempts to perform an initial handshake with a CKTapCard
+  int Core_BeginAsyncHandshake() {
+    return _Core_BeginAsyncHandshake();
+  }
+
+  late final _Core_BeginAsyncHandshakePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'Core_BeginAsyncHandshake');
+  late final _Core_BeginAsyncHandshake =
+      _Core_BeginAsyncHandshakePtr.asFunction<int Function()>();
+
+  /// Must be called at the end of every async action
+  int Core_FinalizeAsyncAction() {
+    return _Core_FinalizeAsyncAction();
+  }
+
+  late final _Core_FinalizeAsyncActionPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'Core_FinalizeAsyncAction');
+  late final _Core_FinalizeAsyncAction =
+      _Core_FinalizeAsyncActionPtr.asFunction<int Function()>();
+
+  /// Retrieves a pointer to the current transport request
+  /// Returns nullptr if the native thread isn't ready or is invalid
   ffi.Pointer<ffi.Uint8> Core_GetTransportRequestPointer() {
     return _Core_GetTransportRequestPointer();
   }
@@ -71,6 +96,8 @@ class CKTapProtocolBindings {
       _Core_GetTransportRequestPointerPtr.asFunction<
           ffi.Pointer<ffi.Uint8> Function()>();
 
+  /// Retrieves the size of the current transport request in bytes
+  /// Returns 0 if the native thread isn't ready or is invalid
   int Core_GetTransportRequestLength() {
     return _Core_GetTransportRequestLength();
   }
@@ -81,6 +108,8 @@ class CKTapProtocolBindings {
   late final _Core_GetTransportRequestLength =
       _Core_GetTransportRequestLengthPtr.asFunction<int Function()>();
 
+  /// Ensures that the transport response buffer will be appropriately sized
+  /// Returns a pointer to the buffer if valid, nullptr if not
   ffi.Pointer<ffi.Uint8> Core_AllocateTransportResponseBuffer(
     int sizeInBytes,
   ) {
@@ -96,6 +125,7 @@ class CKTapProtocolBindings {
       _Core_AllocateTransportResponseBufferPtr.asFunction<
           ffi.Pointer<ffi.Uint8> Function(int)>();
 
+  /// Informs the native thread that it's now safe to read the previously allocated buffer
   int Core_FinalizeTransportResponse() {
     return _Core_FinalizeTransportResponse();
   }
@@ -105,6 +135,28 @@ class CKTapProtocolBindings {
           'Core_FinalizeTransportResponse');
   late final _Core_FinalizeTransportResponse =
       _Core_FinalizeTransportResponsePtr.asFunction<int Function()>();
+
+  /// Gets the current native thread state atomically
+  int Core_GetThreadState() {
+    return _Core_GetThreadState();
+  }
+
+  late final _Core_GetThreadStatePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('Core_GetThreadState');
+  late final _Core_GetThreadState =
+      _Core_GetThreadStatePtr.asFunction<int Function()>();
+
+  /// Gets the most recent tap_protocol::TapProtoException ONLY if the current thread state is
+  /// CKTapThreadState::TapProtocolError
+  CKTapProtoException Core_GetTapProtoException() {
+    return _Core_GetTapProtoException();
+  }
+
+  late final _Core_GetTapProtoExceptionPtr =
+      _lookup<ffi.NativeFunction<CKTapProtoException Function()>>(
+          'Core_GetTapProtoException');
+  late final _Core_GetTapProtoException = _Core_GetTapProtoExceptionPtr
+      .asFunction<CKTapProtoException Function()>();
 
   /// ----------------------------------------------
   /// CKTapCard:
@@ -411,25 +463,31 @@ abstract class CKTapCardType {
 
 /// @brief Represents errors that may occur when the library is used incorrectly
 abstract class CKTapInterfaceErrorCode {
-  static const int Success = 0;
-  static const int ExpectedTapsignerButReceivedNothing = 1;
-  static const int ExpectedSatscardButReceivedNothing = 2;
-  static const int InvalidHandlingOfTapCardDuringOperationFinalization = 3;
-  static const int ThreadAlreadyInUse = 4;
-  static const int ThreadAllocationFailed = 5;
-  static const int ThreadEncounterTapProtocolError = 6;
-  static const int ThreadFailedtoStart = 7;
-  static const int ThreadFinishedBeforeInitialTransportRequest = 8;
-  static const int ThreadNotYetStarted = 9;
-  static const int ThreadNotReadyForResponse = 10;
-  static const int ThreadOperationFinalizationFailed = 11;
-  static const int ThreadResponseFinalizationFailed = 12;
-  static const int ThreadTimeoutDuringTransport = 13;
-  static const int UnknownErrorDuringInitialization = 14;
+  static const int Pending = 0;
+  static const int Success = 1;
+  static const int AttemptToFinalizeActiveThread = 2;
+  static const int CaughtTapProtocolException = 3;
+  static const int ExpectedSatscardButReceivedNothing = 4;
+  static const int ExpectedTapsignerButReceivedNothing = 5;
+  static const int FailedToPerformHandshake = 6;
+  static const int InvalidHandlingOfTapCardDuringFinalization = 7;
+  static const int LibraryNotInitialized = 8;
+  static const int OperationStillInProgress = 9;
+  static const int OperationFailed = 10;
+  static const int ThreadAlreadyInUse = 11;
+  static const int ThreadAllocationFailed = 12;
+  static const int ThreadNotReadyForResponse = 13;
+  static const int ThreadNotResetForHandshake = 14;
+  static const int ThreadNotYetFinalized = 15;
+  static const int ThreadNotYetStarted = 16;
+  static const int ThreadResponseFinalizationFailed = 17;
+  static const int TimeoutDuringTransport = 18;
+  static const int UnableToFinalizeAsyncAction = 19;
+  static const int UnknownErrorDuringHandshake = 20;
 }
 
 /// @brief Mirrors tap_protocol::TapProtoException
-abstract class CKTapInternalErrorCode {
+abstract class CKTapProtoExceptionErrorCode {
   static const int INVALID_DEVICE = 100;
   static const int UNLUCKY_NUMBER = 205;
   static const int BAD_ARGUMENTS = 400;
@@ -482,14 +540,23 @@ abstract class CKTapSatscardSlotStatus {
 
 /// @brief The current state of the background thread which handles tap-protocol commands
 abstract class CKTapThreadState {
+  /// Ready state
   static const int NotStarted = 0;
+
+  /// Transport request loop
   static const int AwaitingTransportRequest = 1;
   static const int TransportRequestReady = 2;
   static const int TransportResponseReady = 3;
   static const int ProcessingTransportResponse = 4;
+
+  /// Success
   static const int Finished = 5;
-  static const int Timeout = 6;
-  static const int TapProtocolError = 7;
+
+  /// Fail states
+  static const int Canceled = 6;
+  static const int Failed = 7;
+  static const int TapProtocolError = 8;
+  static const int Timeout = 9;
 }
 
 class CBinaryArray extends ffi.Struct {
@@ -507,11 +574,18 @@ class CKTapCardHandle extends ffi.Struct {
   external int type;
 }
 
-class CKTapCardFinalizeOperationResponse extends ffi.Struct {
+class CKTapOperationResponse extends ffi.Struct {
   external CKTapCardHandle handle;
 
   @ffi.Int32()
   external int errorCode;
+}
+
+class CKTapProtoException extends ffi.Struct {
+  @ffi.Int32()
+  external int code;
+
+  external ffi.Pointer<ffi.Char> message;
 }
 
 class IntermediateSatscardSlot extends ffi.Struct {

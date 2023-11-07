@@ -3,6 +3,7 @@
 
 // Project
 #include <Enums.h>
+#include <Structs.h>
 
 // Third party
 #include <tap_protocol/tap_protocol.h>
@@ -25,17 +26,22 @@ class TapProtocolThread
 public:
 
     static TapProtocolThread* CreateNew();
+    CKTapInterfaceErrorCode Reset();
+
+    bool BeginCardHandshake();
+    bool FinalizeCardHandshake();
 
     bool HasStarted() const;
     bool HasFailed() const;
     bool HasFinished() const;
+    bool IsThreadActive() const;
     CKTapThreadState GetState() const;
     CKTapInterfaceErrorCode GetRecentErrorCode() const;
+    bool GetTapProtocolException(CKTapProtoException& outException) const;
 
     std::optional<const tap_protocol::Bytes*> GetTransportRequest() const;
     std::optional<uint8_t*> AllocateTransportResponseBuffer(const size_t sizeInBytes);
     bool FinalizeTransportResponse();
-    bool FinalizeRecentOperation();
 
     std::optional<bool> IsTapsigner() const;
     std::unique_ptr<tap_protocol::Satscard> ReleaseSatscard();
@@ -43,22 +49,21 @@ public:
 
 private:
 
-    std::unique_ptr<tap_protocol::CKTapCard> Initialize();
+    std::unique_ptr<tap_protocol::CKTapCard> PerformHandshake();
 
     void SignalTransportRequestReady(const tap_protocol::Bytes& bytes);
-    bool IsTapCardSafeToAccess() const;
 
-    std::atomic<CKTapThreadState> m_state { CKTapThreadState::NotStarted };
-    std::future<CKTapInterfaceErrorCode> m_future { };
-    std::atomic<CKTapInterfaceErrorCode> m_recentErrorCode { CKTapInterfaceErrorCode::ThreadNotYetStarted };
-    
-    int m_tapProtocolErrorCode { 0 };
-    std::string m_tapProtocolErrorMessage { };
-    
-    tap_protocol::Bytes m_awaitingTransport { };
-    tap_protocol::Bytes m_transportResponse { };
+    std::future<CKTapInterfaceErrorCode> _future { };
 
-    std::unique_ptr<tap_protocol::CKTapCard> m_card { };
+    std::atomic<CKTapThreadState> _state { CKTapThreadState::NotStarted };
+    std::atomic<CKTapInterfaceErrorCode> _recentError { CKTapInterfaceErrorCode::ThreadNotYetStarted };
+    
+    tap_protocol::TapProtoException _tapProtoException { 0, { } };
+    
+    tap_protocol::Bytes _pendingTransportRequest { };
+    tap_protocol::Bytes _transportResponse { };
+
+    std::unique_ptr<tap_protocol::CKTapCard> _card { };
 };
 
 #endif // __CKTAP_PROTOCOL__INTERNAL_TAPPROTOCOLTHREAD_H__

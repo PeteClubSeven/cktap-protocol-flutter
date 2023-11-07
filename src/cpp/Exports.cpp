@@ -12,84 +12,53 @@
 #include <cstring>
 
 // ----------------------------------------------
-// Core Bindings: 
+// Core Bindings:
 
-FFI_PLUGIN_EXPORT CKTapThreadState Core_GetThreadState()
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_InitializeLibrary()
 {
     if (g_protocolThread == nullptr)
     {
-        return CKTapThreadState::NotStarted;
-    }
-
-    return g_protocolThread->GetState();
-}
-
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_BeginInitialization()
-{
-    // If the thread already exists we shouldn't proceed unless it's finished
-    if (g_protocolThread != nullptr && !g_protocolThread->HasFinished() && !g_protocolThread->HasFailed())
-    {
-        return CKTapInterfaceErrorCode::ThreadAlreadyInUse;
-    }
-
-    g_protocolThread.reset(TapProtocolThread::CreateNew());
-
-    if (g_protocolThread == nullptr)
-    {
-        return CKTapInterfaceErrorCode::ThreadAllocationFailed;
-    }
-    if (!g_protocolThread->HasStarted())
-    {
-        //return CKTapInterfaceErrorCode::ThreadFailedtoStart;
-    }
-    if (g_protocolThread->HasFinished())
-    {
-        return CKTapInterfaceErrorCode::ThreadFinishedBeforeInitialTransportRequest;
+        g_protocolThread.reset(TapProtocolThread::CreateNew());
+        if (g_protocolThread == nullptr)
+        {
+            return CKTapInterfaceErrorCode::ThreadAllocationFailed;
+        }
     }
 
     return CKTapInterfaceErrorCode::Success;
 }
 
-FFI_PLUGIN_EXPORT CKTapCardFinalizeOperationResponse Core_FinalizeRecentOperation()
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_NewOperation()
 {
-    CKTapCardFinalizeOperationResponse response = 
-    {
-        .handle.index = -1,
-        .handle.type = CKTapCardType::UnknownCard,
-        .errorCode = CKTapInterfaceErrorCode::Success,
-    };
-
     if (g_protocolThread == nullptr)
-    {
-        response.errorCode = CKTapInterfaceErrorCode::ThreadNotYetStarted;
-        return response;
-    }
+        return CKTapInterfaceErrorCode::LibraryNotInitialized;
+    if (g_protocolThread->IsThreadActive())
+        return CKTapInterfaceErrorCode::ThreadAlreadyInUse;
+
+    return g_protocolThread->Reset();
+}
+
+FFI_PLUGIN_EXPORT CKTapOperationResponse Core_EndOperation()
+{
+    if (g_protocolThread == nullptr)
+        return MakeTapOperationResponse(CKTapInterfaceErrorCode::LibraryNotInitialized);
     if (!g_protocolThread->HasStarted())
-    {
-        response.errorCode = CKTapInterfaceErrorCode::ThreadNotYetStarted;
-    }
-    if (!g_protocolThread->FinalizeRecentOperation())
-    {
-        response.errorCode = CKTapInterfaceErrorCode::ThreadOperationFinalizationFailed;
-        return response;
-    }
-    
-    response.errorCode = g_protocolThread->GetRecentErrorCode();
-    if (!g_protocolThread->HasFinished() || !g_protocolThread->IsTapsigner().has_value())
-    {
-        return response;
-    }
-    
-    size_t index = invalidIndex;
+        return MakeTapOperationResponse(CKTapInterfaceErrorCode::ThreadNotYetStarted);
+    if (g_protocolThread->IsThreadActive())
+        return MakeTapOperationResponse(CKTapInterfaceErrorCode::OperationStillInProgress);
+    if (g_protocolThread->GetRecentErrorCode() == CKTapInterfaceErrorCode::Pending)
+        return MakeTapOperationResponse(CKTapInterfaceErrorCode::ThreadNotYetFinalized);
+    if (g_protocolThread->HasFailed() || !g_protocolThread->IsTapsigner().has_value())
+        return MakeTapOperationResponse(CKTapInterfaceErrorCode::OperationFailed);
+
+    auto response = MakeTapOperationResponse(g_protocolThread->GetRecentErrorCode());
+    auto index = invalidIndex;
     if (g_protocolThread->IsTapsigner().value())
     {
         auto tapsigner = g_protocolThread->ReleaseTapsigner();
         if (!tapsigner)
-        {
-            response.errorCode = CKTapInterfaceErrorCode::ExpectedTapsignerButReceivedNothing;
-            return response;
-        }
-        
+            return MakeTapOperationResponse(CKTapInterfaceErrorCode::ExpectedTapsignerButReceivedNothing);
+
         index = UpdateVectorWithTapCard(g_tapsigners, tapsigner);
         response.handle.type = CKTapCardType::Tapsigner;
     }
@@ -97,61 +66,75 @@ FFI_PLUGIN_EXPORT CKTapCardFinalizeOperationResponse Core_FinalizeRecentOperatio
     {
         auto satscard = g_protocolThread->ReleaseSatscard();
         if (!satscard)
-        {
-            response.errorCode = CKTapInterfaceErrorCode::ExpectedTapsignerButReceivedNothing;
-            return response;
-        }
-        
+            return MakeTapOperationResponse(CKTapInterfaceErrorCode::ExpectedSatscardButReceivedNothing);
+
         index = UpdateVectorWithTapCard(g_satscards, satscard);
         response.handle.type = CKTapCardType::Satscard;
     }
 
     if (index == invalidIndex)
-    {
-        response.errorCode = CKTapInterfaceErrorCode::InvalidHandlingOfTapCardDuringOperationFinalization;
-        return response;
-    }
-    else
-    {
-        response.handle.index = static_cast<int32_t>(index);
-    }
+        return MakeTapOperationResponse(CKTapInterfaceErrorCode::InvalidHandlingOfTapCardDuringFinalization);
+
+    response.handle.index = static_cast<int32_t>(index);
     return response;
+}
+
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_BeginAsyncHandshake()
+{
+    if (g_protocolThread == nullptr)
+        return CKTapInterfaceErrorCode::LibraryNotInitialized;
+    if (g_protocolThread->HasStarted())
+        return CKTapInterfaceErrorCode::ThreadNotResetForHandshake;
+
+    if (!g_protocolThread->BeginCardHandshake())
+    {
+        // The thread failed to start so we should diagnose why
+        return g_protocolThread->FinalizeCardHandshake() ?
+            g_protocolThread->GetRecentErrorCode() :
+            CKTapInterfaceErrorCode::UnknownErrorDuringHandshake;
+    }
+
+    return CKTapInterfaceErrorCode::Success;
+}
+
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_FinalizeAsyncAction()
+{
+    if (g_protocolThread == nullptr)
+        return CKTapInterfaceErrorCode::LibraryNotInitialized;
+    if (!g_protocolThread->HasStarted())
+        return CKTapInterfaceErrorCode::ThreadNotYetStarted;
+    if (g_protocolThread->IsThreadActive())
+        return CKTapInterfaceErrorCode::AttemptToFinalizeActiveThread;
+
+    return g_protocolThread->FinalizeCardHandshake() ?
+           g_protocolThread->GetRecentErrorCode() :
+           CKTapInterfaceErrorCode::UnableToFinalizeAsyncAction;
 }
 
 FFI_PLUGIN_EXPORT const uint8_t* Core_GetTransportRequestPointer()
 {
     if (g_protocolThread == nullptr)
-    {
         return nullptr;
-    }
 
     const auto optionalBytes = g_protocolThread->GetTransportRequest();
-    
     return optionalBytes.has_value() ? optionalBytes.value()->data() : nullptr;
 }
 
 FFI_PLUGIN_EXPORT int32_t Core_GetTransportRequestLength()
 {
     if (g_protocolThread == nullptr)
-    {
         return 0;
-    }
 
     const auto optionalBytes = g_protocolThread->GetTransportRequest();
-    
     return optionalBytes.has_value() ? static_cast<int32_t>(optionalBytes.value()->size()) : 0;
 }
 
 FFI_PLUGIN_EXPORT uint8_t* Core_AllocateTransportResponseBuffer(const int32_t sizeInBytes)
 {
     if (g_protocolThread == nullptr)
-    {
         return nullptr;
-    }
     if (sizeInBytes <= 0)
-    {
         return nullptr;
-    }
 
     auto optionalBuffer = g_protocolThread->AllocateTransportResponseBuffer(static_cast<size_t>(sizeInBytes));
     return optionalBuffer.value_or(nullptr);
@@ -160,17 +143,35 @@ FFI_PLUGIN_EXPORT uint8_t* Core_AllocateTransportResponseBuffer(const int32_t si
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_FinalizeTransportResponse()
 {
     if (g_protocolThread == nullptr)
-    {
         return CKTapInterfaceErrorCode::ThreadNotYetStarted;
-    }
     if (g_protocolThread->GetState() != CKTapThreadState::TransportRequestReady)
-    {
         return CKTapInterfaceErrorCode::ThreadNotReadyForResponse;
-    }
 
     return g_protocolThread->FinalizeTransportResponse() ?
         CKTapInterfaceErrorCode::Success :
         CKTapInterfaceErrorCode::ThreadResponseFinalizationFailed;
+}
+
+FFI_PLUGIN_EXPORT CKTapThreadState Core_GetThreadState()
+{
+    if (g_protocolThread == nullptr)
+        return CKTapThreadState::NotStarted;
+
+    return g_protocolThread->GetState();
+}
+
+FFI_PLUGIN_EXPORT CKTapProtoException Core_GetTapProtoException()
+{
+    if (g_protocolThread != nullptr)
+    {
+        auto e = CKTapProtoException { };
+        if (g_protocolThread->GetTapProtocolException(e))
+        {
+            return e;
+        }
+    }
+
+    return { };
 }
 
 // ----------------------------------------------

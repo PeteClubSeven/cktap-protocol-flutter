@@ -5,6 +5,7 @@
 #include <Enums.h>
 #include <Structs.h>
 
+// Third party
 #include <tap_protocol/cktapcard.h>
 
 // STL
@@ -84,6 +85,12 @@ R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, con
 }
 
 CKTapCardType IntToTapCardType(const int32_t type);
+
+CKTapOperationResponse MakeTapOperationResponse(
+    CKTapInterfaceErrorCode errorCode,
+    int32_t index = -1,
+    CKTapCardType type = CKTapCardType::UnknownCard
+);
 
 template <typename TapCardType>
 size_t UpdateVectorWithTapCard(std::vector<std::unique_ptr<TapCardType>>& vector, std::unique_ptr<TapCardType>& card)

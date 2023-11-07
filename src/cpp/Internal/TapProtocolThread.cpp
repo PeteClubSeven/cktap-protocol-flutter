@@ -1,6 +1,7 @@
 #include "TapProtocolThread.h"
 
 // Project
+#include <Internal/Exceptions.h>
 #include <Internal/Utils.h>
 
 // Third party
@@ -8,130 +9,178 @@
 
 // STL
 #include <chrono>
+#include <cstring>
 
 using namespace std::chrono_literals;
 
 TapProtocolThread* TapProtocolThread::CreateNew()
 {
-    auto protocol = new TapProtocolThread { };
-    if (protocol)
+    if (auto thread = new TapProtocolThread { })
     {
-        protocol->m_future = std::async(std::launch::async, [protocol]()
-        { 
-            try
+        if (thread->Reset() == CKTapInterfaceErrorCode::Success)
+        {
+            return thread;
+        }
+
+        delete thread;
+    }
+    return nullptr;
+}
+
+CKTapInterfaceErrorCode TapProtocolThread::Reset()
+{
+    if (IsThreadActive())
+    {
+        return CKTapInterfaceErrorCode::ThreadAlreadyInUse;
+    }
+
+    _future = std::future<CKTapInterfaceErrorCode> { };
+    _state = CKTapThreadState::NotStarted;
+    _recentError = CKTapInterfaceErrorCode::Pending;
+    _tapProtoException = tap_protocol::TapProtoException { 0, { } };
+    _pendingTransportRequest.clear();
+    _transportResponse.clear();
+    _card.reset();
+
+    return CKTapInterfaceErrorCode::Success;
+};
+
+bool TapProtocolThread::BeginCardHandshake()
+{
+    _future = std::async(std::launch::async, [this]()
+    {
+        try
+        {
+            _state = CKTapThreadState::AwaitingTransportRequest;
+            if (auto card = PerformHandshake())
             {
-                protocol->m_state = CKTapThreadState::AwaitingTransportRequest;
-                protocol->m_tapProtocolErrorCode = 0;
-                protocol->m_tapProtocolErrorMessage.resize(0);
-                protocol->m_recentErrorCode = CKTapInterfaceErrorCode::ThreadNotYetStarted;
-
-                protocol->m_card = std::move(protocol->Initialize());
-                protocol->m_state = CKTapThreadState::Finished;
-
+                _card = std::move(card);
+                _state = CKTapThreadState::Finished;
                 return CKTapInterfaceErrorCode::Success;
             }
-            catch (const tap_protocol::TapProtoException& e)
+            else
             {
-                protocol->m_card.reset();
-                protocol->m_tapProtocolErrorCode = e.code();
-                protocol->m_tapProtocolErrorMessage = e.what();
-                protocol->m_state = CKTapThreadState::TapProtocolError;
-                return CKTapInterfaceErrorCode::ThreadEncounterTapProtocolError;
+                _state = CKTapThreadState::Failed;
+                return CKTapInterfaceErrorCode::FailedToPerformHandshake;
             }
-            catch (const std::runtime_error& e)
-            {
-                protocol->m_card.reset();
-                protocol->m_state = CKTapThreadState::Timeout;
-                return CKTapInterfaceErrorCode::ThreadTimeoutDuringTransport;
-            }
-            catch (...)
-            {
-                return CKTapInterfaceErrorCode::UnknownErrorDuringInitialization;
-            }
-        });
-    }
+        }
+        catch (tap_protocol::TapProtoException e)
+        {
+            _tapProtoException = std::move(e);
+            _state = CKTapThreadState::TapProtocolError;
+            return CKTapInterfaceErrorCode::CaughtTapProtocolException;
+        }
+        catch (const TimeoutException& e)
+        {
+            _state = CKTapThreadState::Timeout;
+            return CKTapInterfaceErrorCode::TimeoutDuringTransport;
+        }
+        // TODO: Add more exception handling and message extraction
+        catch (...)
+        {
+            return CKTapInterfaceErrorCode::UnknownErrorDuringHandshake;
+        }
+    });
 
-    return protocol;
+    return _future.valid();
 }
 
-bool TapProtocolThread::HasStarted() const
-{
-    return m_state != CKTapThreadState::NotStarted;
-}
 
-bool TapProtocolThread::HasFailed() const
+bool TapProtocolThread::FinalizeCardHandshake()
 {
-    return m_state == CKTapThreadState::Timeout || m_state == CKTapThreadState::TapProtocolError;
-}
-
-bool TapProtocolThread::HasFinished() const
-{
-    return m_state == CKTapThreadState::Finished;
-}
-
-CKTapThreadState TapProtocolThread::GetState() const
-{
-    return m_state;
-}
-
-CKTapInterfaceErrorCode TapProtocolThread::GetRecentErrorCode() const
-{
-    return m_recentErrorCode;
-}
-
-std::optional<const tap_protocol::Bytes*> TapProtocolThread::GetTransportRequest() const
-{
-    if (m_state != CKTapThreadState::TransportRequestReady)
+    if ((HasFinished() || HasFailed()) && _future.valid())
     {
-        return { };
-    }
-
-    return &m_awaitingTransport;
-}
-
-std::optional<uint8_t*> TapProtocolThread::AllocateTransportResponseBuffer(const size_t sizeInBytes)
-{
-    if (m_state != CKTapThreadState::TransportRequestReady)
-    {
-        return { };
-    }
-
-    m_transportResponse.resize(sizeInBytes);
-    return m_transportResponse.data();
-}
-
-bool TapProtocolThread::FinalizeTransportResponse()
-{
-    if (m_state != CKTapThreadState::TransportRequestReady)
-    {
-        return false;
-    }
-
-    m_state = CKTapThreadState::TransportResponseReady;
-    return m_state == CKTapThreadState::TransportResponseReady;
-}
-
-bool TapProtocolThread::FinalizeRecentOperation()
-{
-    if ((HasFinished() || HasFailed()) && m_future.valid())
-    {
-        m_recentErrorCode = m_future.get();
+        _recentError = _future.get();
         return true;
     }
 
     return false;
 }
 
-std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::Initialize()
+bool TapProtocolThread::HasStarted() const
+{
+    return _state != CKTapThreadState::NotStarted;
+}
+
+bool TapProtocolThread::HasFailed() const
+{
+    return _state > CKTapThreadState::Finished;
+}
+
+bool TapProtocolThread::HasFinished() const
+{
+    return _state == CKTapThreadState::Finished;
+}
+
+bool TapProtocolThread::IsThreadActive() const
+{
+    return HasStarted() && !HasFinished() && !HasFailed();
+}
+
+CKTapThreadState TapProtocolThread::GetState() const
+{
+    return _state;
+}
+
+CKTapInterfaceErrorCode TapProtocolThread::GetRecentErrorCode() const
+{
+    return _recentError;
+}
+
+bool TapProtocolThread::GetTapProtocolException(CKTapProtoException& outException) const
+{
+    if (_state == CKTapThreadState::TapProtocolError)
+    {
+        outException.code = _tapProtoException.code();
+        outException.message = strdup(_tapProtoException.what());
+        return _state == CKTapThreadState::TapProtocolError;
+    }
+
+    return false;
+}
+
+std::optional<const tap_protocol::Bytes*> TapProtocolThread::GetTransportRequest() const
+{
+    if (_state != CKTapThreadState::TransportRequestReady)
+    {
+        return { };
+    }
+
+    return &_pendingTransportRequest;
+}
+
+std::optional<uint8_t*> TapProtocolThread::AllocateTransportResponseBuffer(const size_t sizeInBytes)
+{
+    if (_state != CKTapThreadState::TransportRequestReady)
+    {
+        return { };
+    }
+
+    _transportResponse.resize(sizeInBytes);
+    return _transportResponse.data();
+}
+
+bool TapProtocolThread::FinalizeTransportResponse()
+{
+    if (_state != CKTapThreadState::TransportRequestReady)
+    {
+        return false;
+    }
+
+    _state = CKTapThreadState::TransportResponseReady;
+    return _state == CKTapThreadState::TransportResponseReady;
+}
+
+std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::PerformHandshake()
 {
     auto card = tap_protocol::CKTapCard(tap_protocol::MakeDefaultTransport([this](const tap_protocol::Bytes& bytes)
     {
-        if (m_state == CKTapThreadState::ProcessingTransportResponse)
+        if (_state == CKTapThreadState::ProcessingTransportResponse)
         {
             // Sometimes we may need to send multiple messages during a single transmission
-            m_state = CKTapThreadState::AwaitingTransportRequest;
+            _state = CKTapThreadState::AwaitingTransportRequest;
         }
-        if (m_state != CKTapThreadState::AwaitingTransportRequest)
+        if (_state != CKTapThreadState::AwaitingTransportRequest)
         {
             return tap_protocol::Bytes { };
         }
@@ -147,21 +196,21 @@ std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::Initialize()
             std::this_thread::sleep_for(100ns);
             std::this_thread::yield();
             currentTime = std::chrono::high_resolution_clock::now();
-        } while (m_state != CKTapThreadState::TransportResponseReady && currentTime < endTime);
+        } while (_state != CKTapThreadState::TransportResponseReady && currentTime < endTime);
 
         // Handle timeouts
-        if (m_state != CKTapThreadState::TransportResponseReady)
+        if (_state != CKTapThreadState::TransportResponseReady)
         {
-            throw std::runtime_error("TapProtocolThread::Initialize::MakeDefaultTransport(): Timed out waiting for transport response, current state is \"" + 
-                std::to_string(m_state) + '"');
+            throw TimeoutException("TapProtocolThread::PerformHandshake::MakeDefaultTransport(): Timed out waiting for transport response, current state is \"" +
+                std::to_string(_state) + '"');
         }
 
-        m_state = CKTapThreadState::ProcessingTransportResponse;
-        return m_transportResponse;
+        _state = CKTapThreadState::ProcessingTransportResponse;
+        return _transportResponse;
     }));
 
     // More transport operations may need to be performed when we turn the card into a Tapsigner or Satscard
-    m_state = CKTapThreadState::AwaitingTransportRequest;
+    _state = CKTapThreadState::AwaitingTransportRequest;
     if (card.IsTapsigner())
     {
         return tap_protocol::ToTapsigner(std::move(card));
@@ -174,21 +223,21 @@ std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::Initialize()
 
 void TapProtocolThread::SignalTransportRequestReady(const tap_protocol::Bytes& bytes)
 {
-    if (m_state != CKTapThreadState::AwaitingTransportRequest)
+    if (_state != CKTapThreadState::AwaitingTransportRequest)
     {
         throw std::runtime_error("TapProtocolThread::SetTransportRequest(): Attempt to set transport request when state was \"" + 
-            std::to_string(m_state) + '\"');
+            std::to_string(_state) + '\"');
     }
     
-    m_awaitingTransport = bytes;
-    m_state = CKTapThreadState::TransportRequestReady;
+    _pendingTransportRequest = bytes;
+    _state = CKTapThreadState::TransportRequestReady;
 }
 
 std::optional<bool> TapProtocolThread::IsTapsigner() const 
 {
-    if (IsTapCardSafeToAccess())
+    if (!IsThreadActive())
     {
-        return m_card->IsTapsigner();
+        return _card->IsTapsigner();
     }
 
     return { };
@@ -196,27 +245,14 @@ std::optional<bool> TapProtocolThread::IsTapsigner() const
 
 std::unique_ptr<tap_protocol::Satscard> TapProtocolThread::ReleaseSatscard() 
 {
-    return IsTapCardSafeToAccess() ?
-        std::move(dynamic_pointer_cast<tap_protocol::Satscard>(m_card)) :
+    return !IsThreadActive() ?
+        std::move(dynamic_pointer_cast<tap_protocol::Satscard>(_card)) :
         nullptr;
 }
 
 std::unique_ptr<tap_protocol::Tapsigner> TapProtocolThread::ReleaseTapsigner() 
 {
-    return IsTapCardSafeToAccess() ?
-        std::move(dynamic_pointer_cast<tap_protocol::Tapsigner>(m_card)) :
+    return !IsThreadActive() ?
+        std::move(dynamic_pointer_cast<tap_protocol::Tapsigner>(_card)) :
         nullptr;
-}
-
-bool TapProtocolThread::IsTapCardSafeToAccess() const
-{
-    switch (m_state)
-    {
-        case CKTapThreadState::Finished:
-        case CKTapThreadState::Timeout:
-        case CKTapThreadState::TapProtocolError:
-            return true;
-        default:
-            return false;
-    }
 }

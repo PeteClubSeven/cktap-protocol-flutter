@@ -24,7 +24,13 @@ FFI_PLUGIN_EXPORT typedef struct
 {
     CKTapCardHandle handle;
     CKTapInterfaceErrorCode errorCode;
-} CKTapCardFinalizeOperationResponse;
+} CKTapOperationResponse;
+
+FFI_PLUGIN_EXPORT typedef struct
+{
+    int32_t code;
+    char* message;
+} CKTapProtoException;
 
 FFI_PLUGIN_EXPORT typedef struct
 {
