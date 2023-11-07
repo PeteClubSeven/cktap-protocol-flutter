@@ -18,5 +18,8 @@ class CardBloc extends Bloc<CardEvent, CardState> {
             : InvalidCardState());
       }
     });
+    on<CardError>((_, emit) async {
+      emit(InvalidCardState());
+    });
   }
 }

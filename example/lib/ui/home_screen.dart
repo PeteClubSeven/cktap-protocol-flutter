@@ -26,9 +26,18 @@ class HomeScreenState extends State<HomeScreen> {
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
         if (CKTapCardProtocol.isCoinkiteCard(tag)) {
-          final card = await CKTapCardProtocol.instance.createCKTapCard(tag);
-          final bloc = BlocProvider.of<CardBloc>(context);
-          bloc.add(CardDetected(card));
+          try {
+            final card = await CKTapCardProtocol.createCKTapCard(tag);
+            if (context.mounted) {
+              final bloc = BlocProvider.of<CardBloc>(context);
+              bloc.add(CardDetected(card));
+            }
+          } catch (_) {
+            if (context.mounted) {
+              final bloc = BlocProvider.of<CardBloc>(context);
+              bloc.add(CardError());
+            }
+          }
         }
       },
     );

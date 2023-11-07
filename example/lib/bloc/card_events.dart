@@ -7,3 +7,5 @@ class CardDetected extends CardEvent {
 
   CardDetected(this.card);
 }
+
+class CardError extends CardEvent {}

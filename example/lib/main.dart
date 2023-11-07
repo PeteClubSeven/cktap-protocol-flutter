@@ -16,16 +16,3 @@ class MyApp extends MaterialApp {
           ),
         );
 }
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(home: HomeScreen());
-  }
-}
