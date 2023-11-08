@@ -29,17 +29,17 @@ extern std::vector<std::unique_ptr<tap_protocol::Satscard>> g_satscards;
 extern std::vector<std::unique_ptr<tap_protocol::Tapsigner>> g_tapsigners;
 
 
-char* AllocateCStringFromCpp(const std::string& cppString);
-CBinaryArray AllocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary);
+char* allocateCStringFromCpp(const std::string& cppString);
+CBinaryArray allocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary);
 
-void FreeAllocatedCString(char*& cString);
-void FreeAllocatedBinaryArray(CBinaryArray& array);
+void freeAllocatedCString(char*& cString);
+void freeAllocatedBinaryArray(CBinaryArray& array);
 
-CKTapCardHandle ConstructTapCardHandle(int32_t index, int32_t type);
+CKTapCardHandle constructTapCardHandle(int32_t index, int32_t type);
 
 template <typename CardType, typename R, typename Func>
-R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, const Func& getterFunction) {
-    const auto handle = ConstructTapCardHandle(index, type);
+R getFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, const Func& getterFunction) {
+    const auto handle = constructTapCardHandle(index, type);
     const auto processCard = [&handle, &defaultReturn, &getterFunction](const auto& vector) {
         if (handle.index < 0 || handle.index >= vector.size()) {
             return std::move(defaultReturn);
@@ -49,8 +49,8 @@ R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, con
         if (!card) {
             return std::move(defaultReturn);
         }
-        if ((card->IsTapsigner() && handle.type != CKTapCardType::Tapsigner) ||
-            (!card->IsTapsigner() && handle.type != CKTapCardType::Satscard)) {
+        if ((card->IsTapsigner() && handle.type != CKTapCardType::tapsigner) ||
+            (!card->IsTapsigner() && handle.type != CKTapCardType::satscard)) {
             return std::move(defaultReturn);
         }
 
@@ -68,9 +68,9 @@ R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, con
     else if constexpr(std::is_same_v<CardType, tap_protocol::CKTapCard>)
     {
         switch (handle.type) {
-            case CKTapCardType::Satscard:
+            case CKTapCardType::satscard:
                 return std::move(processCard(g_satscards));
-            case CKTapCardType::Tapsigner:
+            case CKTapCardType::tapsigner:
                 return std::move(processCard(g_tapsigners));
             default:
                 return std::move(defaultReturn);
@@ -78,16 +78,16 @@ R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, con
     }
 }
 
-CKTapCardType IntToTapCardType(const int32_t type);
+CKTapCardType intToTapCardType(const int32_t type);
 
-CKTapOperationResponse MakeTapOperationResponse(
+CKTapOperationResponse makeTapOperationResponse(
     CKTapInterfaceErrorCode errorCode,
     int32_t index = -1,
-    CKTapCardType type = CKTapCardType::UnknownCard
+    CKTapCardType type = CKTapCardType::unknownCard
 );
 
-template <typename TapCardType>
-size_t UpdateVectorWithTapCard(std::vector<std::unique_ptr<TapCardType>>& vector, std::unique_ptr<TapCardType>& card) {
+template <typename CardType>
+size_t updateVectorWithTapCard(std::vector<std::unique_ptr<CardType>>& vector, std::unique_ptr<CardType>& card) {
     if (!card) {
         return invalidIndex;
     }

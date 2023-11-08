@@ -24,18 +24,18 @@ abstract class CKTapCard {
   CKTapCard(this.handle, int type)
       : type = intToCardType(type),
         ident = dartStringFromCString(
-            nativeLibrary.CKTapCard_GetIdentCString(handle, type),
+            nativeLibrary.CKTapCard_getIdentCString(handle, type),
             freeCString: true),
         appletVersion = dartStringFromCString(
-            nativeLibrary.CKTapCard_GetAppletVersionCString(handle, type),
+            nativeLibrary.CKTapCard_getAppletVersionCString(handle, type),
             freeCString: true),
-        birthHeight = nativeLibrary.CKTapCard_GetBirthHeight(handle, type),
-        isTestnet = nativeLibrary.CKTapCard_IsTestnet(handle, type) > 0,
-        authDelay = nativeLibrary.CKTapCard_GetAuthDelay(handle, type),
-        isTampered = nativeLibrary.CKTapCard_IsTampered(handle, type) > 0,
+        birthHeight = nativeLibrary.CKTapCard_getBirthHeight(handle, type),
+        isTestnet = nativeLibrary.CKTapCard_isTestnet(handle, type) > 0,
+        authDelay = nativeLibrary.CKTapCard_getAuthDelay(handle, type),
+        isTampered = nativeLibrary.CKTapCard_isTampered(handle, type) > 0,
         isCertsChecked =
-            nativeLibrary.CKTapCard_IsCertsChecked(handle, type) > 0,
-        needSetup = nativeLibrary.CKTapCard_NeedSetup(handle, type) > 0;
+            nativeLibrary.CKTapCard_isCertsChecked(handle, type) > 0,
+        needSetup = nativeLibrary.CKTapCard_needSetup(handle, type) > 0;
 }
 
 enum CardType {
@@ -54,11 +54,11 @@ class Satscard extends CKTapCard {
   Satscard(handle, type)
       : activeSlot = getActiveSatscardSlotFrom(handle, type),
         activeSlotIndex =
-            nativeLibrary.Satscard_GetActiveSlotIndex(handle, type),
-        numSlots = nativeLibrary.Satscard_GetNumSlots(handle, type),
+            nativeLibrary.Satscard_getActiveSlotIndex(handle, type),
+        numSlots = nativeLibrary.Satscard_getNumSlots(handle, type),
         hasUnusedSlots =
-            nativeLibrary.Satscard_HasUnusedSlots(handle, type) > 0,
-        isUsedUp = nativeLibrary.Satscard_IsUsedUp(handle, type) > 0,
+            nativeLibrary.Satscard_hasUnusedSlots(handle, type) > 0,
+        isUsedUp = nativeLibrary.Satscard_isUsedUp(handle, type) > 0,
         super(handle, type);
 }
 
@@ -107,8 +107,8 @@ class Tapsigner extends CKTapCard {
 
   Tapsigner(handle, type)
       : numberOfBackups =
-            nativeLibrary.Tapsigner_GetNumberOfBackups(handle, type),
+            nativeLibrary.Tapsigner_getNumberOfBackups(handle, type),
         derivationPath = dartStringFromCString(
-            nativeLibrary.Tapsigner_GetDerivationPath(handle, type)),
+            nativeLibrary.Tapsigner_getDerivationPath(handle, type)),
         super(handle, type);
 }

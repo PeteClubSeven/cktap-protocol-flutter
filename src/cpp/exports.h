@@ -11,68 +11,68 @@
 // Core Bindings:
 
 /// Ensures the library and native thread are initialized
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_InitializeLibrary();
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_initializeLibrary();
 
 /// Must be called first to restore the native thread to its initial state
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_NewOperation();
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_newOperation();
 /// Must be called last to store and retrieve Satscard/Tapsigner data
-FFI_PLUGIN_EXPORT CKTapOperationResponse Core_EndOperation();
+FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation();
 
 /// Attempts to perform an initial handshake with a CKTapCard
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_BeginAsyncHandshake();
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake();
 /// Must be called at the end of every async action
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_FinalizeAsyncAction();
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_finalizeAsyncAction();
 
 /// Retrieves a pointer to the current transport request
 /// Returns nullptr if the native thread isn't ready or is invalid
-FFI_PLUGIN_EXPORT const uint8_t* Core_GetTransportRequestPointer();
+FFI_PLUGIN_EXPORT const uint8_t* Core_getTransportRequestPointer();
 /// Retrieves the size of the current transport request in bytes
 /// Returns 0 if the native thread isn't ready or is invalid
-FFI_PLUGIN_EXPORT int32_t Core_GetTransportRequestLength();
+FFI_PLUGIN_EXPORT int32_t Core_getTransportRequestLength();
 
 /// Ensures that the transport response buffer will be appropriately sized
 /// Returns a pointer to the buffer if valid, nullptr if not
-FFI_PLUGIN_EXPORT uint8_t* Core_AllocateTransportResponseBuffer(int32_t sizeInBytes);
+FFI_PLUGIN_EXPORT uint8_t* Core_allocateTransportResponseBuffer(int32_t sizeInBytes);
 /// Informs the native thread that it's now safe to read the previously allocated buffer
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_FinalizeTransportResponse();
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_finalizeTransportResponse();
 
 /// Gets the current native thread state atomically
-FFI_PLUGIN_EXPORT CKTapThreadState Core_GetThreadState();
+FFI_PLUGIN_EXPORT CKTapThreadState Core_getThreadState();
 /// Gets the most recent tap_protocol::TapProtoException ONLY if the current thread state is
-/// CKTapThreadState::TapProtocolError
-FFI_PLUGIN_EXPORT CKTapProtoException Core_GetTapProtoException();
+/// CKTapThreadState::tapProtocolError
+FFI_PLUGIN_EXPORT CKTapProtoException Core_getTapProtoException();
 
 // ----------------------------------------------
 // CKTapCard:
 // TODO: Simply data retrieval to avoid overhead of so many FFI calls and lookups
-FFI_PLUGIN_EXPORT char* CKTapCard_GetIdentCString(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT char* CKTapCard_GetAppletVersionCString(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_GetBirthHeight(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_IsTestnet(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_GetAuthDelay(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_IsTampered(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_IsCertsChecked(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_NeedSetup(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT char* CKTapCard_getIdentCString(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT char* CKTapCard_getAppletVersionCString(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t CKTapCard_getBirthHeight(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t CKTapCard_isTestnet(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t CKTapCard_getAuthDelay(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t CKTapCard_isTampered(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t CKTapCard_isCertsChecked(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t CKTapCard_needSetup(int32_t handle, int32_t type);
 
 // ----------------------------------------------
 // Satscard:
 // TODO: Simply data retrieval to avoid overhead of so many FFI calls and lookups
-FFI_PLUGIN_EXPORT IntermediateSatscardSlot Satscard_GetActiveSlot(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t Satscard_GetActiveSlotIndex(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t Satscard_GetNumSlots(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t Satscard_HasUnusedSlots(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t Satscard_IsUsedUp(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT IntermediateSatscardSlot Satscard_getActiveSlot(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t Satscard_getActiveSlotIndex(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t Satscard_getNumSlots(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t Satscard_hasUnusedSlots(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t Satscard_isUsedUp(int32_t handle, int32_t type);
 
 // ----------------------------------------------
 // Tapsigner:
 // TODO: Simply data retrieval to avoid overhead of so many FFI calls and lookups
-FFI_PLUGIN_EXPORT int32_t Tapsigner_GetNumberOfBackups(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT char* Tapsigner_GetDerivationPath(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT int32_t Tapsigner_getNumberOfBackups(int32_t handle, int32_t type);
+FFI_PLUGIN_EXPORT char* Tapsigner_getDerivationPath(int32_t handle, int32_t type);
 
 // ----------------------------------------------
 // Utility:
-FFI_PLUGIN_EXPORT void Utility_FreeBinaryArray(CBinaryArray array);
-FFI_PLUGIN_EXPORT void Utility_FreeIntermediateSatscardSlot(IntermediateSatscardSlot slot);
-FFI_PLUGIN_EXPORT void Utility_FreeString(char* cString);
+FFI_PLUGIN_EXPORT void Utility_freeBinaryArray(CBinaryArray array);
+FFI_PLUGIN_EXPORT void Utility_freeIntermediateSatscardSlot(IntermediateSatscardSlot slot);
+FFI_PLUGIN_EXPORT void Utility_freeString(char* cString);
 
 #endif // __CKTAP_PROTOCOL__EXPORTS_H__

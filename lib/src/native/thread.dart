@@ -16,21 +16,21 @@ Future<void> prepareNativeThread() async {
     throw ProtocolConcurrencyError("Can't prepare the native thread");
   }
 
-  ensureSuccessful(nativeLibrary.Core_InitializeLibrary());
-  ensureSuccessful(nativeLibrary.Core_NewOperation());
+  ensureSuccessful(nativeLibrary.Core_initializeLibrary());
+  ensureSuccessful(nativeLibrary.Core_newOperation());
 }
 
 /// Tries to retrieve the card data from the native thread and return in a Dart-native format
 Future<CKTapCard> finalizeCardCreation() async {
-  int threadState = nativeLibrary.Core_GetThreadState();
-  if (threadState == CKTapThreadState.Finished) {
-    CKTapOperationResponse response = nativeLibrary.Core_EndOperation();
+  int threadState = nativeLibrary.Core_getThreadState();
+  if (threadState == CKTapThreadState.finished) {
+    CKTapOperationResponse response = nativeLibrary.Core_endOperation();
     ensureSuccessful(response.errorCode);
 
     switch (response.handle.type) {
-      case CKTapCardType.Satscard:
+      case CKTapCardType.satscard:
         return Satscard(response.handle.index, response.handle.type);
-      case CKTapCardType.Tapsigner:
+      case CKTapCardType.tapsigner:
         return Tapsigner(response.handle.index, response.handle.type);
       default:
         throw UnsupportedError(
@@ -39,33 +39,33 @@ Future<CKTapCard> finalizeCardCreation() async {
   }
 
   switch (threadState) {
-    case CKTapThreadState.Timeout:
+    case CKTapThreadState.timeout:
       throw TimeoutException("CKTap card creation timed out");
-    case CKTapThreadState.Canceled:
+    case CKTapThreadState.canceled:
       throw OperationCanceledException("CKTap card creation canceled");
     default:
-      throw InvalidThreadStateError(CKTapThreadState.Finished, threadState);
+      throw InvalidThreadStateError(CKTapThreadState.finished, threadState);
   }
 }
 
 /// Tells the native thread to start the handshaking process
 Future<void> prepareForCardHandshake() async {
-  ensureNativeThreadState(CKTapThreadState.NotStarted);
-  ensureSuccessful(nativeLibrary.Core_BeginAsyncHandshake());
+  ensureNativeThreadState(CKTapThreadState.notStarted);
+  ensureSuccessful(nativeLibrary.Core_beginAsyncHandshake());
 }
 
 /// Handles the sending and receiving of data between the native library and an
 /// NFC device until completion or failure
 Future<void> processTransportRequests(NfcBridge nfc) async {
   ensureNativeThreadStates([
-    CKTapThreadState.AwaitingTransportRequest,
-    CKTapThreadState.TransportRequestReady
+    CKTapThreadState.awaitingTransportRequest,
+    CKTapThreadState.transportRequestReady
   ]);
 
   while (_isNativeThreadActive()) {
     // Allow the background thread to reach the desired state
-    if (nativeLibrary.Core_GetThreadState() !=
-        CKTapThreadState.TransportRequestReady) {
+    if (nativeLibrary.Core_getThreadState() !=
+        CKTapThreadState.transportRequestReady) {
       await Future.delayed(Duration.zero);
       continue;
     }
@@ -76,25 +76,25 @@ Future<void> processTransportRequests(NfcBridge nfc) async {
     ensureSuccessful(errorCode);
   }
 
-  ensureSuccessful(nativeLibrary.Core_FinalizeAsyncAction());
+  ensureSuccessful(nativeLibrary.Core_finalizeAsyncAction());
 }
 
 /// Stops transport request loops when given any "final" states"
 bool _isNativeThreadActive() {
-  int threadState = nativeLibrary.Core_GetThreadState();
-  return threadState != CKTapThreadState.NotStarted &&
-      threadState < CKTapThreadState.Finished;
+  int threadState = nativeLibrary.Core_getThreadState();
+  return threadState != CKTapThreadState.notStarted &&
+      threadState < CKTapThreadState.finished;
 }
 
 /// Converts the native transport request to a Dart readable format.
 /// Should only be called when there is a transport request ready.
 Uint8List _getNativeTransportRequest() {
-  assert(nativeLibrary.Core_GetThreadState() ==
-      CKTapThreadState.TransportRequestReady);
+  assert(nativeLibrary.Core_getThreadState() ==
+      CKTapThreadState.transportRequestReady);
 
   Pointer<Uint8> requestPointer =
-      nativeLibrary.Core_GetTransportRequestPointer();
-  int requestLength = nativeLibrary.Core_GetTransportRequestLength();
+      nativeLibrary.Core_getTransportRequestPointer();
+  int requestLength = nativeLibrary.Core_getTransportRequestLength();
   assert(requestPointer.address != 0);
   assert(requestLength != 0);
 
@@ -105,18 +105,18 @@ Uint8List _getNativeTransportRequest() {
 /// Should only be called when there is a transport request ready.
 int _setNativeTransportResponse(Uint8List response) {
   assert(response.isNotEmpty);
-  assert(nativeLibrary.Core_GetThreadState() ==
-      CKTapThreadState.TransportRequestReady);
+  assert(nativeLibrary.Core_getThreadState() ==
+      CKTapThreadState.transportRequestReady);
 
   Pointer<Uint8> allocation =
-      nativeLibrary.Core_AllocateTransportResponseBuffer(response.length);
+      nativeLibrary.Core_allocateTransportResponseBuffer(response.length);
   assert(allocation.address != 0);
 
   var nativeResponse = allocation.asTypedList(response.length);
   nativeResponse.setAll(0, response);
 
-  var errorCode = nativeLibrary.Core_FinalizeTransportResponse();
-  ensureSuccessful(CKTapInterfaceErrorCode.Success);
+  var errorCode = nativeLibrary.Core_finalizeTransportResponse();
+  ensureSuccessful(CKTapInterfaceErrorCode.success);
 
   return errorCode;
 }

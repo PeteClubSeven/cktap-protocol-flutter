@@ -25,38 +25,38 @@ namespace tap_protocol {
 class TapProtocolThread {
 public:
 
-    static TapProtocolThread* CreateNew();
-    CKTapInterfaceErrorCode Reset();
+    static TapProtocolThread* createNew();
+    CKTapInterfaceErrorCode reset();
 
-    bool BeginCardHandshake();
-    bool FinalizeCardHandshake();
+    bool beginCardHandshake();
+    bool finalizeCardHandshake();
 
-    bool HasStarted() const;
-    bool HasFailed() const;
-    bool HasFinished() const;
-    bool IsThreadActive() const;
-    CKTapThreadState GetState() const;
-    CKTapInterfaceErrorCode GetRecentErrorCode() const;
-    bool GetTapProtocolException(CKTapProtoException& outException) const;
+    bool hasStarted() const;
+    bool hasFailed() const;
+    bool hasFinished() const;
+    bool isThreadActive() const;
+    CKTapThreadState getState() const;
+    CKTapInterfaceErrorCode getRecentErrorCode() const;
+    bool getTapProtocolException(CKTapProtoException& outException) const;
 
-    std::optional<const tap_protocol::Bytes*> GetTransportRequest() const;
-    std::optional<uint8_t*> AllocateTransportResponseBuffer(size_t sizeInBytes);
-    bool FinalizeTransportResponse();
+    std::optional<const tap_protocol::Bytes*> getTransportRequest() const;
+    std::optional<uint8_t*> allocateTransportResponseBuffer(size_t sizeInBytes);
+    bool finalizeTransportResponse();
 
-    std::optional<bool> IsTapsigner() const;
-    std::unique_ptr<tap_protocol::Satscard> ReleaseSatscard();
-    std::unique_ptr<tap_protocol::Tapsigner> ReleaseTapsigner();
+    std::optional<bool> isTapsigner() const;
+    std::unique_ptr<tap_protocol::Satscard> releaseSatscard();
+    std::unique_ptr<tap_protocol::Tapsigner> releaseTapsigner();
 
 private:
 
-    std::unique_ptr<tap_protocol::CKTapCard> PerformHandshake();
+    std::unique_ptr<tap_protocol::CKTapCard> _performHandshake();
 
-    void SignalTransportRequestReady(const tap_protocol::Bytes& bytes);
+    void _signalTransportRequestReady(const tap_protocol::Bytes& bytes);
 
     std::future<CKTapInterfaceErrorCode> _future{ };
 
-    std::atomic<CKTapThreadState> _state{ CKTapThreadState::NotStarted };
-    std::atomic<CKTapInterfaceErrorCode> _recentError{ CKTapInterfaceErrorCode::ThreadNotYetStarted };
+    std::atomic<CKTapThreadState> _state{ CKTapThreadState::notStarted };
+    std::atomic<CKTapInterfaceErrorCode> _recentError{ CKTapInterfaceErrorCode::threadNotYetStarted };
 
     tap_protocol::TapProtoException _tapProtoException{ 0, { } };
 

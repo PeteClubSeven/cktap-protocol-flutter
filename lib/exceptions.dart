@@ -58,8 +58,8 @@ class TapProtoException implements CKTapException {
   }
 
   factory TapProtoException.fromNative() {
-    ensureNativeThreadState(CKTapThreadState.TapProtocolError);
-    final exception = nativeLibrary.Core_GetTapProtoException();
+    ensureNativeThreadState(CKTapThreadState.tapProtocolError);
+    final exception = nativeLibrary.Core_getTapProtoException();
     final message = dartStringFromCString(exception.message, freeCString: true);
     return TapProtoException.fromCode(exception.code, message);
   }

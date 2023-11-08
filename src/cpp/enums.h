@@ -8,35 +8,35 @@
 #include <stdint.h>
 
 FFI_PLUGIN_EXPORT typedef enum CKTapCardType {
-    UnknownCard = 0,
-    Satscard = 1,
-    Tapsigner = 2,
+    unknownCard = 0,
+    satscard = 1,
+    tapsigner = 2,
 } CKTapCardType;
 
 /// @brief Represents errors that may occur when the library is used incorrectly
 FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode {
-    Pending,
-    Success,
+    pending,
+    success,
 
-    AttemptToFinalizeActiveThread,
-    CaughtTapProtocolException,
-    ExpectedSatscardButReceivedNothing,
-    ExpectedTapsignerButReceivedNothing,
-    FailedToPerformHandshake,
-    InvalidHandlingOfTapCardDuringFinalization,
-    LibraryNotInitialized,
-    OperationStillInProgress,
-    OperationFailed,
-    ThreadAlreadyInUse,
-    ThreadAllocationFailed,
-    ThreadNotReadyForResponse,
-    ThreadNotResetForHandshake,
-    ThreadNotYetFinalized,
-    ThreadNotYetStarted,
-    ThreadResponseFinalizationFailed,
-    TimeoutDuringTransport,
-    UnableToFinalizeAsyncAction,
-    UnknownErrorDuringHandshake,
+    attemptToFinalizeActiveThread,
+    caughtTapProtocolException,
+    expectedSatscardButReceivedNothing,
+    expectedTapsignerButReceivedNothing,
+    failedToPerformHandshake,
+    invalidHandlingOfTapCardDuringFinalization,
+    libraryNotInitialized,
+    operationStillInProgress,
+    operationFailed,
+    threadAlreadyInUse,
+    threadAllocationFailed,
+    threadNotReadyForResponse,
+    threadNotResetForHandshake,
+    threadNotYetFinalized,
+    threadNotYetStarted,
+    threadResponseFinalizationFailed,
+    timeoutDuringTransport,
+    unableToFinalizeAsyncAction,
+    unknownErrorDuringHandshake,
 } CKTapInterfaceErrorCode;
 
 /// @brief Mirrors tap_protocol::TapProtoException
@@ -94,22 +94,22 @@ FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus {
 /// @brief The current state of the background thread which handles tap-protocol commands
 FFI_PLUGIN_EXPORT typedef enum CKTapThreadState {
     // Ready state
-    NotStarted,
+    notStarted,
 
     // Transport request loop
-    AwaitingTransportRequest,
-    TransportRequestReady,
-    TransportResponseReady,
-    ProcessingTransportResponse,
+    awaitingTransportRequest,
+    transportRequestReady,
+    transportResponseReady,
+    processingTransportResponse,
 
-    // Success
-    Finished,
+    // Success state
+    finished,
 
     // Fail states
-    Canceled,
-    Failed,
-    TapProtocolError,
-    Timeout,
+    canceled,
+    failed,
+    tapProtocolError,
+    timeout,
 
 } CKTapThreadState;
 

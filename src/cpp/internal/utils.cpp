@@ -13,7 +13,7 @@ std::unique_ptr<TapProtocolThread> g_protocolThread{ };
 std::vector<std::unique_ptr<tap_protocol::Satscard>> g_satscards{ };
 std::vector<std::unique_ptr<tap_protocol::Tapsigner>> g_tapsigners{ };
 
-char* AllocateCStringFromCpp(const std::string& cppString) {
+char* allocateCStringFromCpp(const std::string& cppString) {
     if (cppString.empty()) {
         return nullptr;
     }
@@ -22,7 +22,7 @@ char* AllocateCStringFromCpp(const std::string& cppString) {
     return cString;
 }
 
-CBinaryArray AllocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary) {
+CBinaryArray allocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary) {
     CBinaryArray array;
     std::memset(&array, 0, sizeof(CBinaryArray));
 
@@ -39,14 +39,14 @@ CBinaryArray AllocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary)
     return array;
 }
 
-void FreeAllocatedCString(char*& cString) {
+void freeAllocatedCString(char*& cString) {
     if (cString != nullptr) {
         std::free(cString);
         cString = nullptr;
     }
 }
 
-void FreeAllocatedBinaryArray(CBinaryArray& array) {
+void freeAllocatedBinaryArray(CBinaryArray& array) {
     if (array.ptr != nullptr) {
         std::free(array.ptr);
         array.ptr = nullptr;
@@ -54,27 +54,27 @@ void FreeAllocatedBinaryArray(CBinaryArray& array) {
     }
 }
 
-CKTapCardHandle ConstructTapCardHandle(const int32_t index, const int32_t type) {
+CKTapCardHandle constructTapCardHandle(const int32_t index, const int32_t type) {
     CKTapCardHandle handle = {
         .index = index,
-        .type = IntToTapCardType(type),
+        .type = intToTapCardType(type),
     };
 
     return handle;
 }
 
-CKTapCardType IntToTapCardType(const int32_t type) {
+CKTapCardType intToTapCardType(const int32_t type) {
     switch (type) {
-        case CKTapCardType::Satscard:
-            return CKTapCardType::Satscard;
-        case CKTapCardType::Tapsigner:
-            return CKTapCardType::Tapsigner;
+        case CKTapCardType::satscard:
+            return CKTapCardType::satscard;
+        case CKTapCardType::tapsigner:
+            return CKTapCardType::tapsigner;
         default:
-            return CKTapCardType::UnknownCard;
+            return CKTapCardType::unknownCard;
     }
 }
 
-CKTapOperationResponse MakeTapOperationResponse(CKTapInterfaceErrorCode errorCode, int32_t index, CKTapCardType type) {
+CKTapOperationResponse makeTapOperationResponse(CKTapInterfaceErrorCode errorCode, int32_t index, CKTapCardType type) {
     CKTapOperationResponse response = {
         .handle.index = index,
         .handle.type = type,

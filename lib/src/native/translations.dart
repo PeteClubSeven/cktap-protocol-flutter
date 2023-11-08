@@ -14,7 +14,7 @@ Uint8List dartListFromCBinaryArray(CBinaryArray array,
     list.setAll(0, array.ptr.asTypedList(array.length));
 
     if (freeArray) {
-      nativeLibrary.Utility_FreeBinaryArray(array);
+      nativeLibrary.Utility_freeBinaryArray(array);
     }
     return list;
   }
@@ -30,7 +30,7 @@ String dartStringFromCString(Pointer<Char> cString,
 
     // Ensure we clean up the string
     if (freeCString) {
-      nativeLibrary.Utility_FreeString(cString);
+      nativeLibrary.Utility_freeString(cString);
     }
     return dartString;
   }
@@ -40,7 +40,7 @@ String dartStringFromCString(Pointer<Char> cString,
 
 Slot getActiveSatscardSlotFrom(int handle, int type) {
   IntermediateSatscardSlot intermediary =
-      nativeLibrary.Satscard_GetActiveSlot(handle, type);
+      nativeLibrary.Satscard_getActiveSlot(handle, type);
   if (intermediary.index < 0) {
     return Slot.invalid();
   }
@@ -54,7 +54,7 @@ Slot getActiveSatscardSlotFrom(int handle, int type) {
       dartListFromCBinaryArray(intermediary.masterPK),
       dartListFromCBinaryArray(intermediary.chainCode));
 
-  nativeLibrary.Utility_FreeIntermediateSatscardSlot(intermediary);
+  nativeLibrary.Utility_freeIntermediateSatscardSlot(intermediary);
   return slot;
 }
 
@@ -74,9 +74,9 @@ String getLiteralFromTapThreadState(int state) {
 
 CardType intToCardType(final int type) {
   switch (type) {
-    case CKTapCardType.Satscard:
+    case CKTapCardType.satscard:
       return CardType.satscard;
-    case CKTapCardType.Tapsigner:
+    case CKTapCardType.tapsigner:
       return CardType.tapsigner;
     default:
       return CardType.unknown;
