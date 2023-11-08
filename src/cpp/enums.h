@@ -95,6 +95,7 @@ FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus {
 FFI_PLUGIN_EXPORT typedef enum CKTapThreadState {
     // Ready state
     notStarted,
+    asyncActionStarting,
 
     // Transport request loop
     awaitingTransportRequest,

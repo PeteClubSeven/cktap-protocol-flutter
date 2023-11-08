@@ -574,21 +574,22 @@ abstract class CKTapSatscardSlotStatus {
 abstract class CKTapThreadState {
   /// Ready state
   static const int notStarted = 0;
+  static const int asyncActionStarting = 1;
 
   /// Transport request loop
-  static const int awaitingTransportRequest = 1;
-  static const int transportRequestReady = 2;
-  static const int transportResponseReady = 3;
-  static const int processingTransportResponse = 4;
+  static const int awaitingTransportRequest = 2;
+  static const int transportRequestReady = 3;
+  static const int transportResponseReady = 4;
+  static const int processingTransportResponse = 5;
 
   /// Success state
-  static const int finished = 5;
+  static const int finished = 6;
 
   /// Fail states
-  static const int canceled = 6;
-  static const int failed = 7;
-  static const int tapProtocolError = 8;
-  static const int timeout = 9;
+  static const int canceled = 7;
+  static const int failed = 8;
+  static const int tapProtocolError = 9;
+  static const int timeout = 10;
 }
 
 class IntermediateSatscardSlot extends ffi.Struct {

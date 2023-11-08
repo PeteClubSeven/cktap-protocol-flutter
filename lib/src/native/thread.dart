@@ -58,6 +58,7 @@ Future<void> prepareForCardHandshake() async {
 /// NFC device until completion or failure
 Future<void> processTransportRequests(NfcBridge nfc) async {
   ensureNativeThreadStates([
+    CKTapThreadState.asyncActionStarting,
     CKTapThreadState.awaitingTransportRequest,
     CKTapThreadState.transportRequestReady
   ]);

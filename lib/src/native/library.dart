@@ -129,6 +129,7 @@ final Map<int, String> tapProtoExceptionErrorLiteralMap = {
 /// Maps thread states to a string-readable version
 final Map<int, String> tapThreadStateLiteralMap = {
   CKTapThreadState.notStarted: "notStarted",
+  CKTapThreadState.asyncActionStarting: "asyncActionStarting",
   CKTapThreadState.awaitingTransportRequest: "awaitingTransportRequest",
   CKTapThreadState.transportRequestReady: "transportRequestReady",
   CKTapThreadState.transportResponseReady: "transportResponseReady",

@@ -41,6 +41,7 @@ CKTapInterfaceErrorCode TapProtocolThread::reset() {
 };
 
 bool TapProtocolThread::beginCardHandshake() {
+    _state = CKTapThreadState::asyncActionStarting;
     _future = std::async(std::launch::async, [this]() {
     try {
         _state = CKTapThreadState::awaitingTransportRequest;
