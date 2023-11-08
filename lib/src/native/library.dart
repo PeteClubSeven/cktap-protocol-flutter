@@ -42,88 +42,47 @@ final Map<int, String> tapInterfaceErrorLiteralMap = {
 
 /// Maps Nunchuk tap_protocol error code numbers to a string-readable version
 final Map<int, String> tapProtoExceptionErrorLiteralMap = {
-  CKTapProtoExceptionErrorCode.INVALID_DEVICE:
-      "tap_protocol::TapProtoException::INVALID_DEVICE",
-  CKTapProtoExceptionErrorCode.UNLUCKY_NUMBER:
-      "tap_protocol::TapProtoException::UNLUCKY_NUMBER",
-  CKTapProtoExceptionErrorCode.BAD_ARGUMENTS:
-      "tap_protocol::TapProtoException::BAD_ARGUMENTS",
-  CKTapProtoExceptionErrorCode.BAD_AUTH:
-      "tap_protocol::TapProtoException::BAD_AUTH",
-  CKTapProtoExceptionErrorCode.NEED_AUTH:
-      "tap_protocol::TapProtoException::NEED_AUTH",
-  CKTapProtoExceptionErrorCode.UNKNOW_COMMAND:
-      "tap_protocol::TapProtoException::UNKNOW_COMMAND",
-  CKTapProtoExceptionErrorCode.INVALID_COMMAND:
-      "tap_protocol::TapProtoException::INVALID_COMMAND",
-  CKTapProtoExceptionErrorCode.INVALID_STATE:
-      "tap_protocol::TapProtoException::INVALID_STATE",
-  CKTapProtoExceptionErrorCode.WEAK_NONCE:
-      "tap_protocol::TapProtoException::WEAK_NONCE",
-  CKTapProtoExceptionErrorCode.BAD_CBOR:
-      "tap_protocol::TapProtoException::BAD_CBOR",
-  CKTapProtoExceptionErrorCode.BACKUP_FIRST:
-      "tap_protocol::TapProtoException::BACKUP_FIRST",
-  CKTapProtoExceptionErrorCode.RATE_LIMIT:
-      "tap_protocol::TapProtoException::RATE_LIMIT",
-  CKTapProtoExceptionErrorCode.DEFAULT_ERROR:
-      "tap_protocol::TapProtoException::DEFAULT_ERROR",
-  CKTapProtoExceptionErrorCode.MESSAGE_TOO_LONG:
-      "tap_protocol::TapProtoException::MESSAGE_TOO_LONG",
-  CKTapProtoExceptionErrorCode.MISSING_KEY:
-      "tap_protocol::TapProtoException::MISSING_KEY",
-  CKTapProtoExceptionErrorCode.ISO_SELECT_FAIL:
-      "tap_protocol::TapProtoException::ISO_SELECT_FAIL",
-  CKTapProtoExceptionErrorCode.SW_FAIL:
-      "tap_protocol::TapProtoException::SW_FAIL",
-  CKTapProtoExceptionErrorCode.INVALID_CVC_LENGTH:
-      "tap_protocol::TapProtoException::INVALID_CVC_LENGTH",
-  CKTapProtoExceptionErrorCode.PICK_KEY_PAIR_FAIL:
-      "tap_protocol::TapProtoException::PICK_KEY_PAIR_FAIL",
-  CKTapProtoExceptionErrorCode.ECDH_FAIL:
-      "tap_protocol::TapProtoException::ECDH_FAIL",
-  CKTapProtoExceptionErrorCode.XCVC_FAIL:
-      "tap_protocol::TapProtoException::XCVC_FAIL",
-  CKTapProtoExceptionErrorCode.UNKNOW_PROTO_VERSION:
-      "tap_protocol::TapProtoException::UNKNOW_PROTO_VERSION",
-  CKTapProtoExceptionErrorCode.INVALID_PUBKEY_LENGTH:
-      "tap_protocol::TapProtoException::INVALID_PUBKEY_LENGTH",
-  CKTapProtoExceptionErrorCode.NO_PRIVATE_KEY_PICKED:
-      "tap_protocol::TapProtoException::NO_PRIVATE_KEY_PICKED",
-  CKTapProtoExceptionErrorCode.MALFORMED_BIP32_PATH:
-      "tap_protocol::TapProtoException::MALFORMED_BIP32_PATH",
-  CKTapProtoExceptionErrorCode.INVALID_HASH_LENGTH:
-      "tap_protocol::TapProtoException::INVALID_HASH_LENGTH",
-  CKTapProtoExceptionErrorCode.SIG_VERIFY_ERROR:
-      "tap_protocol::TapProtoException::SIG_VERIFY_ERROR",
-  CKTapProtoExceptionErrorCode.INVALID_DIGEST_LENGTH:
-      "tap_protocol::TapProtoException::INVALID_DIGEST_LENGTH",
-  CKTapProtoExceptionErrorCode.INVALID_PATH_LENGTH:
-      "tap_protocol::TapProtoException::INVALID_PATH_LENGTH",
-  CKTapProtoExceptionErrorCode.SERIALIZE_ERROR:
-      "tap_protocol::TapProtoException::SERIALIZE_ERROR",
-  CKTapProtoExceptionErrorCode.EXCEEDED_RETRY:
-      "tap_protocol::TapProtoException::EXCEEDED_RETRY",
-  CKTapProtoExceptionErrorCode.INVALID_CARD:
-      "tap_protocol::TapProtoException::INVALID_CARD",
-  CKTapProtoExceptionErrorCode.SIGN_ERROR:
-      "tap_protocol::TapProtoException::SIGN_ERROR",
-  CKTapProtoExceptionErrorCode.SIG_TO_PUBKEY_FAIL:
-      "tap_protocol::TapProtoException::SIG_TO_PUBKEY_FAIL",
-  CKTapProtoExceptionErrorCode.PSBT_PARSE_ERROR:
-      "tap_protocol::TapProtoException::PSBT_PARSE_ERROR",
-  CKTapProtoExceptionErrorCode.PSBT_INVALID:
-      "tap_protocol::TapProtoException::PSBT_INVALID",
-  CKTapProtoExceptionErrorCode.INVALID_ADDRESS_TYPE:
-      "tap_protocol::TapProtoException::INVALID_ADDRESS_TYPE",
-  CKTapProtoExceptionErrorCode.INVALID_BACKUP_KEY:
-      "tap_protocol::TapProtoException::INVALID_BACKUP_KEY",
-  CKTapProtoExceptionErrorCode.INVALID_PUBKEY:
-      "tap_protocol::TapProtoException::INVALID_PUBKEY",
-  CKTapProtoExceptionErrorCode.INVALID_PRIVKEY:
-      "tap_protocol::TapProtoException::INVALID_PRIVKEY",
-  CKTapProtoExceptionErrorCode.INVALID_SLOT:
-      "tap_protocol::TapProtoException::INVALID_SLOT",
+  CKTapProtoExceptionErrorCode.INVALID_DEVICE: "tap_protocol::TapProtoException::INVALID_DEVICE",
+  CKTapProtoExceptionErrorCode.UNLUCKY_NUMBER: "tap_protocol::TapProtoException::UNLUCKY_NUMBER",
+  CKTapProtoExceptionErrorCode.BAD_ARGUMENTS: "tap_protocol::TapProtoException::BAD_ARGUMENTS",
+  CKTapProtoExceptionErrorCode.BAD_AUTH: "tap_protocol::TapProtoException::BAD_AUTH",
+  CKTapProtoExceptionErrorCode.NEED_AUTH: "tap_protocol::TapProtoException::NEED_AUTH",
+  CKTapProtoExceptionErrorCode.UNKNOW_COMMAND: "tap_protocol::TapProtoException::UNKNOW_COMMAND",
+  CKTapProtoExceptionErrorCode.INVALID_COMMAND: "tap_protocol::TapProtoException::INVALID_COMMAND",
+  CKTapProtoExceptionErrorCode.INVALID_STATE: "tap_protocol::TapProtoException::INVALID_STATE",
+  CKTapProtoExceptionErrorCode.WEAK_NONCE: "tap_protocol::TapProtoException::WEAK_NONCE",
+  CKTapProtoExceptionErrorCode.BAD_CBOR: "tap_protocol::TapProtoException::BAD_CBOR",
+  CKTapProtoExceptionErrorCode.BACKUP_FIRST: "tap_protocol::TapProtoException::BACKUP_FIRST",
+  CKTapProtoExceptionErrorCode.RATE_LIMIT: "tap_protocol::TapProtoException::RATE_LIMIT",
+  CKTapProtoExceptionErrorCode.DEFAULT_ERROR: "tap_protocol::TapProtoException::DEFAULT_ERROR",
+  CKTapProtoExceptionErrorCode.MESSAGE_TOO_LONG: "tap_protocol::TapProtoException::MESSAGE_TOO_LONG",
+  CKTapProtoExceptionErrorCode.MISSING_KEY: "tap_protocol::TapProtoException::MISSING_KEY",
+  CKTapProtoExceptionErrorCode.ISO_SELECT_FAIL: "tap_protocol::TapProtoException::ISO_SELECT_FAIL",
+  CKTapProtoExceptionErrorCode.SW_FAIL: "tap_protocol::TapProtoException::SW_FAIL",
+  CKTapProtoExceptionErrorCode.INVALID_CVC_LENGTH: "tap_protocol::TapProtoException::INVALID_CVC_LENGTH",
+  CKTapProtoExceptionErrorCode.PICK_KEY_PAIR_FAIL: "tap_protocol::TapProtoException::PICK_KEY_PAIR_FAIL",
+  CKTapProtoExceptionErrorCode.ECDH_FAIL: "tap_protocol::TapProtoException::ECDH_FAIL",
+  CKTapProtoExceptionErrorCode.XCVC_FAIL: "tap_protocol::TapProtoException::XCVC_FAIL",
+  CKTapProtoExceptionErrorCode.UNKNOW_PROTO_VERSION: "tap_protocol::TapProtoException::UNKNOW_PROTO_VERSION",
+  CKTapProtoExceptionErrorCode.INVALID_PUBKEY_LENGTH: "tap_protocol::TapProtoException::INVALID_PUBKEY_LENGTH",
+  CKTapProtoExceptionErrorCode.NO_PRIVATE_KEY_PICKED: "tap_protocol::TapProtoException::NO_PRIVATE_KEY_PICKED",
+  CKTapProtoExceptionErrorCode.MALFORMED_BIP32_PATH: "tap_protocol::TapProtoException::MALFORMED_BIP32_PATH",
+  CKTapProtoExceptionErrorCode.INVALID_HASH_LENGTH: "tap_protocol::TapProtoException::INVALID_HASH_LENGTH",
+  CKTapProtoExceptionErrorCode.SIG_VERIFY_ERROR: "tap_protocol::TapProtoException::SIG_VERIFY_ERROR",
+  CKTapProtoExceptionErrorCode.INVALID_DIGEST_LENGTH: "tap_protocol::TapProtoException::INVALID_DIGEST_LENGTH",
+  CKTapProtoExceptionErrorCode.INVALID_PATH_LENGTH: "tap_protocol::TapProtoException::INVALID_PATH_LENGTH",
+  CKTapProtoExceptionErrorCode.SERIALIZE_ERROR: "tap_protocol::TapProtoException::SERIALIZE_ERROR",
+  CKTapProtoExceptionErrorCode.EXCEEDED_RETRY: "tap_protocol::TapProtoException::EXCEEDED_RETRY",
+  CKTapProtoExceptionErrorCode.INVALID_CARD: "tap_protocol::TapProtoException::INVALID_CARD",
+  CKTapProtoExceptionErrorCode.SIGN_ERROR: "tap_protocol::TapProtoException::SIGN_ERROR",
+  CKTapProtoExceptionErrorCode.SIG_TO_PUBKEY_FAIL: "tap_protocol::TapProtoException::SIG_TO_PUBKEY_FAIL",
+  CKTapProtoExceptionErrorCode.PSBT_PARSE_ERROR: "tap_protocol::TapProtoException::PSBT_PARSE_ERROR",
+  CKTapProtoExceptionErrorCode.PSBT_INVALID: "tap_protocol::TapProtoException::PSBT_INVALID",
+  CKTapProtoExceptionErrorCode.INVALID_ADDRESS_TYPE: "tap_protocol::TapProtoException::INVALID_ADDRESS_TYPE",
+  CKTapProtoExceptionErrorCode.INVALID_BACKUP_KEY: "tap_protocol::TapProtoException::INVALID_BACKUP_KEY",
+  CKTapProtoExceptionErrorCode.INVALID_PUBKEY: "tap_protocol::TapProtoException::INVALID_PUBKEY",
+  CKTapProtoExceptionErrorCode.INVALID_PRIVKEY: "tap_protocol::TapProtoException::INVALID_PRIVKEY",
+  CKTapProtoExceptionErrorCode.INVALID_SLOT: "tap_protocol::TapProtoException::INVALID_SLOT",
 };
 
 /// Maps thread states to a string-readable version
