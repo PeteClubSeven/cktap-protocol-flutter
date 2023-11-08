@@ -2,7 +2,6 @@
 
 // Third Party
 #include <tap_protocol/cktapcard.h>
-#include <tap_protocol/tap_protocol.h>
 
 /// Ensure parity of Satscard slot enums
 static_assert(CKTapSatscardSlotStatus::UNUSED == static_cast<int>(tap_protocol::Satscard::SlotStatus::UNUSED));

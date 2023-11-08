@@ -8,32 +8,27 @@
 // libc
 #include <stdint.h>
 
-FFI_PLUGIN_EXPORT typedef struct 
-{
+FFI_PLUGIN_EXPORT typedef struct {
     uint8_t* ptr;
     int32_t length;
 } CBinaryArray;
 
-FFI_PLUGIN_EXPORT typedef struct 
-{
+FFI_PLUGIN_EXPORT typedef struct {
     int32_t index;
     CKTapCardType type;
 } CKTapCardHandle;
 
-FFI_PLUGIN_EXPORT typedef struct 
-{
+FFI_PLUGIN_EXPORT typedef struct {
     CKTapCardHandle handle;
     CKTapInterfaceErrorCode errorCode;
 } CKTapOperationResponse;
 
-FFI_PLUGIN_EXPORT typedef struct
-{
+FFI_PLUGIN_EXPORT typedef struct {
     int32_t code;
     char* message;
 } CKTapProtoException;
 
-FFI_PLUGIN_EXPORT typedef struct
-{
+FFI_PLUGIN_EXPORT typedef struct {
     int32_t index;
     int32_t status;
     char* address;

@@ -35,45 +35,39 @@ CBinaryArray AllocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary)
 void FreeAllocatedCString(char*& cString);
 void FreeAllocatedBinaryArray(CBinaryArray& array);
 
-CKTapCardHandle ConstructTapCardHandle(const int32_t index, const int32_t type);
+CKTapCardHandle ConstructTapCardHandle(int32_t index, int32_t type);
 
 template <typename CardType, typename R, typename Func>
-R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, const Func& getterFunction)
-{
+R GetFromTapCard(const int32_t index, const int32_t type, R&& defaultReturn, const Func& getterFunction) {
     const auto handle = ConstructTapCardHandle(index, type);
-    const auto processCard = [&handle, &defaultReturn, &getterFunction](const auto& vector)
-    {
-        if (handle.index < 0 || handle.index >= vector.size() )
-        {
+    const auto processCard = [&handle, &defaultReturn, &getterFunction](const auto& vector) {
+        if (handle.index < 0 || handle.index >= vector.size()) {
             return std::move(defaultReturn);
         }
 
         const auto& card = vector[static_cast<size_t>(handle.index)];
-        if (!card)
-        {
+        if (!card) {
             return std::move(defaultReturn);
         }
         if ((card->IsTapsigner() && handle.type != CKTapCardType::Tapsigner) ||
-            (!card->IsTapsigner() && handle.type != CKTapCardType::Satscard))
-        {
+            (!card->IsTapsigner() && handle.type != CKTapCardType::Satscard)) {
             return std::move(defaultReturn);
         }
-        
+
         return std::move(getterFunction(*card));
     };
 
-    if constexpr (std::is_same_v<CardType, tap_protocol::Satscard>)
+    if constexpr(std::is_same_v<CardType, tap_protocol::Satscard>)
     {
         return std::move(processCard(g_satscards));
     }
-    else if constexpr (std::is_same_v<CardType, tap_protocol::Tapsigner>)
+    else if constexpr(std::is_same_v<CardType, tap_protocol::Tapsigner>)
     {
         return std::move(processCard(g_tapsigners));
     }
-    else if constexpr (std::is_same_v<CardType, tap_protocol::CKTapCard>)
+    else if constexpr(std::is_same_v<CardType, tap_protocol::CKTapCard>)
     {
-        switch (handle.type)
-        {
+        switch (handle.type) {
             case CKTapCardType::Satscard:
                 return std::move(processCard(g_satscards));
             case CKTapCardType::Tapsigner:
@@ -93,18 +87,13 @@ CKTapOperationResponse MakeTapOperationResponse(
 );
 
 template <typename TapCardType>
-size_t UpdateVectorWithTapCard(std::vector<std::unique_ptr<TapCardType>>& vector, std::unique_ptr<TapCardType>& card)
-{
-    if (!card)
-    {
+size_t UpdateVectorWithTapCard(std::vector<std::unique_ptr<TapCardType>>& vector, std::unique_ptr<TapCardType>& card) {
+    if (!card) {
         return invalidIndex;
     }
-    
-    for (size_t index { 0 }; index < vector.size(); ++index)
-    {
-        if (vector[index] && vector[index]->GetIdent() == card->GetIdent())
-        {
-    
+
+    for (size_t index{ 0 }; index < vector.size(); ++index) {
+        if (vector[index] && vector[index]->GetIdent() == card->GetIdent()) {
             vector[index] = std::move(card);
             return index;
         }
@@ -118,10 +107,8 @@ size_t UpdateVectorWithTapCard(std::vector<std::unique_ptr<TapCardType>>& vector
 
 /// @brief Special overload for unique pointers
 template <typename T, typename U>
-std::unique_ptr<T> dynamic_pointer_cast(std::unique_ptr<U>& pointer)
-{
-    if (T* castPointer = dynamic_cast<T*>(pointer.get()))
-    {
+std::unique_ptr<T> dynamic_pointer_cast(std::unique_ptr<U>& pointer) {
+    if (T* castPointer = dynamic_cast<T*>(pointer.get())) {
         pointer.release();
         return std::unique_ptr<T>{ castPointer };
     }
@@ -131,10 +118,8 @@ std::unique_ptr<T> dynamic_pointer_cast(std::unique_ptr<U>& pointer)
 
 /// @brief Special overload for unique pointers
 template <typename T, typename U>
-std::unique_ptr<T> static_pointer_cast(std::unique_ptr<U>& pointer)
-{
-    if (T* castPointer = static_cast<T*>(pointer.get()))
-    {
+std::unique_ptr<T> static_pointer_cast(std::unique_ptr<U>& pointer) {
+    if (T* castPointer = static_cast<T*>(pointer.get())) {
         pointer.release();
         return std::unique_ptr<T>{ castPointer };
     }

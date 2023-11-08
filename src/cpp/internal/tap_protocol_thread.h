@@ -14,15 +14,15 @@
 #include <optional>
 
 // Forward declarations
-namespace tap_protocol
-{
+namespace tap_protocol {
     class CKTapCard;
+
     class Satscard;
+
     class Tapsigner;
 }
 
-class TapProtocolThread
-{
+class TapProtocolThread {
 public:
 
     static TapProtocolThread* CreateNew();
@@ -40,7 +40,7 @@ public:
     bool GetTapProtocolException(CKTapProtoException& outException) const;
 
     std::optional<const tap_protocol::Bytes*> GetTransportRequest() const;
-    std::optional<uint8_t*> AllocateTransportResponseBuffer(const size_t sizeInBytes);
+    std::optional<uint8_t*> AllocateTransportResponseBuffer(size_t sizeInBytes);
     bool FinalizeTransportResponse();
 
     std::optional<bool> IsTapsigner() const;
@@ -53,17 +53,17 @@ private:
 
     void SignalTransportRequestReady(const tap_protocol::Bytes& bytes);
 
-    std::future<CKTapInterfaceErrorCode> _future { };
+    std::future<CKTapInterfaceErrorCode> _future{ };
 
-    std::atomic<CKTapThreadState> _state { CKTapThreadState::NotStarted };
-    std::atomic<CKTapInterfaceErrorCode> _recentError { CKTapInterfaceErrorCode::ThreadNotYetStarted };
-    
-    tap_protocol::TapProtoException _tapProtoException { 0, { } };
-    
-    tap_protocol::Bytes _pendingTransportRequest { };
-    tap_protocol::Bytes _transportResponse { };
+    std::atomic<CKTapThreadState> _state{ CKTapThreadState::NotStarted };
+    std::atomic<CKTapInterfaceErrorCode> _recentError{ CKTapInterfaceErrorCode::ThreadNotYetStarted };
 
-    std::unique_ptr<tap_protocol::CKTapCard> _card { };
+    tap_protocol::TapProtoException _tapProtoException{ 0, { } };
+
+    tap_protocol::Bytes _pendingTransportRequest{ };
+    tap_protocol::Bytes _transportResponse{ };
+
+    std::unique_ptr<tap_protocol::CKTapCard> _card{ };
 };
 
 #endif // __CKTAP_PROTOCOL__INTERNAL_TAPPROTOCOLTHREAD_H__

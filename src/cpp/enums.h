@@ -7,16 +7,14 @@
 // libc
 #include <stdint.h>
 
-FFI_PLUGIN_EXPORT typedef enum CKTapCardType 
-{
+FFI_PLUGIN_EXPORT typedef enum CKTapCardType {
     UnknownCard = 0,
     Satscard = 1,
     Tapsigner = 2,
 } CKTapCardType;
 
 /// @brief Represents errors that may occur when the library is used incorrectly
-FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode 
-{
+FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode {
     Pending,
     Success,
 
@@ -42,8 +40,7 @@ FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode
 } CKTapInterfaceErrorCode;
 
 /// @brief Mirrors tap_protocol::TapProtoException
-FFI_PLUGIN_EXPORT typedef enum CKTapProtoExceptionErrorCode
-{
+FFI_PLUGIN_EXPORT typedef enum CKTapProtoExceptionErrorCode {
     INVALID_DEVICE = 100,
     UNLUCKY_NUMBER = 205,
     BAD_ARGUMENTS = 400,
@@ -88,16 +85,14 @@ FFI_PLUGIN_EXPORT typedef enum CKTapProtoExceptionErrorCode
 } CKTapProtoExceptionErrorCode;
 
 /// @brief Mirrors tap_protocol::Satscard::SlotStatus
-FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus
-{
+FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus {
     UNUSED,
     SEALED,
     UNSEALED,
 } CKTapSatscardSlotStatus;
 
 /// @brief The current state of the background thread which handles tap-protocol commands
-FFI_PLUGIN_EXPORT typedef enum CKTapThreadState 
-{
+FFI_PLUGIN_EXPORT typedef enum CKTapThreadState {
     // Ready state
     NotStarted,
 
