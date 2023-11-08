@@ -10,7 +10,7 @@
 // ignore_for_file: type=lint
 import 'dart:ffi' as ffi;
 
-/// Bindings for `src/cktap_protocol.h`.
+/// Bindings for the source code in ./src/cpp
 ///
 /// Regenerate bindings with `flutter pub run ffigen --config ffigen.yaml`.
 ///
@@ -28,6 +28,247 @@ class CKTapProtocolBindings {
       ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
           lookup)
       : _lookup = lookup;
+
+  ffi.Pointer<ffi.Char> CKTapCard_GetAppletVersionCString(
+    int handle,
+    int type,
+  ) {
+    return _CKTapCard_GetAppletVersionCString(
+      handle,
+      type,
+    );
+  }
+
+  late final _CKTapCard_GetAppletVersionCStringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Int32, ffi.Int32)>>('CKTapCard_GetAppletVersionCString');
+  late final _CKTapCard_GetAppletVersionCString =
+      _CKTapCard_GetAppletVersionCStringPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function(int, int)>();
+
+  int CKTapCard_GetAuthDelay(
+    int handle,
+    int type,
+  ) {
+    return _CKTapCard_GetAuthDelay(
+      handle,
+      type,
+    );
+  }
+
+  late final _CKTapCard_GetAuthDelayPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'CKTapCard_GetAuthDelay');
+  late final _CKTapCard_GetAuthDelay =
+      _CKTapCard_GetAuthDelayPtr.asFunction<int Function(int, int)>();
+
+  int CKTapCard_GetBirthHeight(
+    int handle,
+    int type,
+  ) {
+    return _CKTapCard_GetBirthHeight(
+      handle,
+      type,
+    );
+  }
+
+  late final _CKTapCard_GetBirthHeightPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'CKTapCard_GetBirthHeight');
+  late final _CKTapCard_GetBirthHeight =
+      _CKTapCard_GetBirthHeightPtr.asFunction<int Function(int, int)>();
+
+  /// ----------------------------------------------
+  /// CKTapCard:
+  ffi.Pointer<ffi.Char> CKTapCard_GetIdentCString(
+    int handle,
+    int type,
+  ) {
+    return _CKTapCard_GetIdentCString(
+      handle,
+      type,
+    );
+  }
+
+  late final _CKTapCard_GetIdentCStringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Int32, ffi.Int32)>>('CKTapCard_GetIdentCString');
+  late final _CKTapCard_GetIdentCString = _CKTapCard_GetIdentCStringPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int, int)>();
+
+  int CKTapCard_IsCertsChecked(
+    int handle,
+    int type,
+  ) {
+    return _CKTapCard_IsCertsChecked(
+      handle,
+      type,
+    );
+  }
+
+  late final _CKTapCard_IsCertsCheckedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'CKTapCard_IsCertsChecked');
+  late final _CKTapCard_IsCertsChecked =
+      _CKTapCard_IsCertsCheckedPtr.asFunction<int Function(int, int)>();
+
+  int CKTapCard_IsTampered(
+    int handle,
+    int type,
+  ) {
+    return _CKTapCard_IsTampered(
+      handle,
+      type,
+    );
+  }
+
+  late final _CKTapCard_IsTamperedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'CKTapCard_IsTampered');
+  late final _CKTapCard_IsTampered =
+      _CKTapCard_IsTamperedPtr.asFunction<int Function(int, int)>();
+
+  int CKTapCard_IsTestnet(
+    int handle,
+    int type,
+  ) {
+    return _CKTapCard_IsTestnet(
+      handle,
+      type,
+    );
+  }
+
+  late final _CKTapCard_IsTestnetPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'CKTapCard_IsTestnet');
+  late final _CKTapCard_IsTestnet =
+      _CKTapCard_IsTestnetPtr.asFunction<int Function(int, int)>();
+
+  int CKTapCard_NeedSetup(
+    int handle,
+    int type,
+  ) {
+    return _CKTapCard_NeedSetup(
+      handle,
+      type,
+    );
+  }
+
+  late final _CKTapCard_NeedSetupPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'CKTapCard_NeedSetup');
+  late final _CKTapCard_NeedSetup =
+      _CKTapCard_NeedSetupPtr.asFunction<int Function(int, int)>();
+
+  /// Ensures that the transport response buffer will be appropriately sized
+  /// Returns a pointer to the buffer if valid, nullptr if not
+  ffi.Pointer<ffi.Uint8> Core_AllocateTransportResponseBuffer(
+    int sizeInBytes,
+  ) {
+    return _Core_AllocateTransportResponseBuffer(
+      sizeInBytes,
+    );
+  }
+
+  late final _Core_AllocateTransportResponseBufferPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint8> Function(ffi.Int32)>>(
+          'Core_AllocateTransportResponseBuffer');
+  late final _Core_AllocateTransportResponseBuffer =
+      _Core_AllocateTransportResponseBufferPtr.asFunction<
+          ffi.Pointer<ffi.Uint8> Function(int)>();
+
+  /// Attempts to perform an initial handshake with a CKTapCard
+  int Core_BeginAsyncHandshake() {
+    return _Core_BeginAsyncHandshake();
+  }
+
+  late final _Core_BeginAsyncHandshakePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'Core_BeginAsyncHandshake');
+  late final _Core_BeginAsyncHandshake =
+      _Core_BeginAsyncHandshakePtr.asFunction<int Function()>();
+
+  /// Must be called last to store and retrieve Satscard/Tapsigner data
+  CKTapOperationResponse Core_EndOperation() {
+    return _Core_EndOperation();
+  }
+
+  late final _Core_EndOperationPtr =
+      _lookup<ffi.NativeFunction<CKTapOperationResponse Function()>>(
+          'Core_EndOperation');
+  late final _Core_EndOperation =
+      _Core_EndOperationPtr.asFunction<CKTapOperationResponse Function()>();
+
+  /// Must be called at the end of every async action
+  int Core_FinalizeAsyncAction() {
+    return _Core_FinalizeAsyncAction();
+  }
+
+  late final _Core_FinalizeAsyncActionPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'Core_FinalizeAsyncAction');
+  late final _Core_FinalizeAsyncAction =
+      _Core_FinalizeAsyncActionPtr.asFunction<int Function()>();
+
+  /// Informs the native thread that it's now safe to read the previously allocated buffer
+  int Core_FinalizeTransportResponse() {
+    return _Core_FinalizeTransportResponse();
+  }
+
+  late final _Core_FinalizeTransportResponsePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'Core_FinalizeTransportResponse');
+  late final _Core_FinalizeTransportResponse =
+      _Core_FinalizeTransportResponsePtr.asFunction<int Function()>();
+
+  /// Gets the most recent tap_protocol::TapProtoException ONLY if the current thread state is
+  /// CKTapThreadState::TapProtocolError
+  CKTapProtoException Core_GetTapProtoException() {
+    return _Core_GetTapProtoException();
+  }
+
+  late final _Core_GetTapProtoExceptionPtr =
+      _lookup<ffi.NativeFunction<CKTapProtoException Function()>>(
+          'Core_GetTapProtoException');
+  late final _Core_GetTapProtoException = _Core_GetTapProtoExceptionPtr
+      .asFunction<CKTapProtoException Function()>();
+
+  /// Gets the current native thread state atomically
+  int Core_GetThreadState() {
+    return _Core_GetThreadState();
+  }
+
+  late final _Core_GetThreadStatePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('Core_GetThreadState');
+  late final _Core_GetThreadState =
+      _Core_GetThreadStatePtr.asFunction<int Function()>();
+
+  /// Retrieves the size of the current transport request in bytes
+  /// Returns 0 if the native thread isn't ready or is invalid
+  int Core_GetTransportRequestLength() {
+    return _Core_GetTransportRequestLength();
+  }
+
+  late final _Core_GetTransportRequestLengthPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'Core_GetTransportRequestLength');
+  late final _Core_GetTransportRequestLength =
+      _Core_GetTransportRequestLengthPtr.asFunction<int Function()>();
+
+  /// Retrieves a pointer to the current transport request
+  /// Returns nullptr if the native thread isn't ready or is invalid
+  ffi.Pointer<ffi.Uint8> Core_GetTransportRequestPointer() {
+    return _Core_GetTransportRequestPointer();
+  }
+
+  late final _Core_GetTransportRequestPointerPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint8> Function()>>(
+          'Core_GetTransportRequestPointer');
+  late final _Core_GetTransportRequestPointer =
+      _Core_GetTransportRequestPointerPtr.asFunction<
+          ffi.Pointer<ffi.Uint8> Function()>();
 
   /// Ensures the library and native thread are initialized
   int Core_InitializeLibrary() {
@@ -49,247 +290,6 @@ class CKTapProtocolBindings {
       _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('Core_NewOperation');
   late final _Core_NewOperation =
       _Core_NewOperationPtr.asFunction<int Function()>();
-
-  /// Must be called last to store and retrieve Satscard/Tapsigner data
-  CKTapOperationResponse Core_EndOperation() {
-    return _Core_EndOperation();
-  }
-
-  late final _Core_EndOperationPtr =
-      _lookup<ffi.NativeFunction<CKTapOperationResponse Function()>>(
-          'Core_EndOperation');
-  late final _Core_EndOperation =
-      _Core_EndOperationPtr.asFunction<CKTapOperationResponse Function()>();
-
-  /// Attempts to perform an initial handshake with a CKTapCard
-  int Core_BeginAsyncHandshake() {
-    return _Core_BeginAsyncHandshake();
-  }
-
-  late final _Core_BeginAsyncHandshakePtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
-          'Core_BeginAsyncHandshake');
-  late final _Core_BeginAsyncHandshake =
-      _Core_BeginAsyncHandshakePtr.asFunction<int Function()>();
-
-  /// Must be called at the end of every async action
-  int Core_FinalizeAsyncAction() {
-    return _Core_FinalizeAsyncAction();
-  }
-
-  late final _Core_FinalizeAsyncActionPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
-          'Core_FinalizeAsyncAction');
-  late final _Core_FinalizeAsyncAction =
-      _Core_FinalizeAsyncActionPtr.asFunction<int Function()>();
-
-  /// Retrieves a pointer to the current transport request
-  /// Returns nullptr if the native thread isn't ready or is invalid
-  ffi.Pointer<ffi.Uint8> Core_GetTransportRequestPointer() {
-    return _Core_GetTransportRequestPointer();
-  }
-
-  late final _Core_GetTransportRequestPointerPtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint8> Function()>>(
-          'Core_GetTransportRequestPointer');
-  late final _Core_GetTransportRequestPointer =
-      _Core_GetTransportRequestPointerPtr.asFunction<
-          ffi.Pointer<ffi.Uint8> Function()>();
-
-  /// Retrieves the size of the current transport request in bytes
-  /// Returns 0 if the native thread isn't ready or is invalid
-  int Core_GetTransportRequestLength() {
-    return _Core_GetTransportRequestLength();
-  }
-
-  late final _Core_GetTransportRequestLengthPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
-          'Core_GetTransportRequestLength');
-  late final _Core_GetTransportRequestLength =
-      _Core_GetTransportRequestLengthPtr.asFunction<int Function()>();
-
-  /// Ensures that the transport response buffer will be appropriately sized
-  /// Returns a pointer to the buffer if valid, nullptr if not
-  ffi.Pointer<ffi.Uint8> Core_AllocateTransportResponseBuffer(
-    int sizeInBytes,
-  ) {
-    return _Core_AllocateTransportResponseBuffer(
-      sizeInBytes,
-    );
-  }
-
-  late final _Core_AllocateTransportResponseBufferPtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint8> Function(ffi.Int32)>>(
-          'Core_AllocateTransportResponseBuffer');
-  late final _Core_AllocateTransportResponseBuffer =
-      _Core_AllocateTransportResponseBufferPtr.asFunction<
-          ffi.Pointer<ffi.Uint8> Function(int)>();
-
-  /// Informs the native thread that it's now safe to read the previously allocated buffer
-  int Core_FinalizeTransportResponse() {
-    return _Core_FinalizeTransportResponse();
-  }
-
-  late final _Core_FinalizeTransportResponsePtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
-          'Core_FinalizeTransportResponse');
-  late final _Core_FinalizeTransportResponse =
-      _Core_FinalizeTransportResponsePtr.asFunction<int Function()>();
-
-  /// Gets the current native thread state atomically
-  int Core_GetThreadState() {
-    return _Core_GetThreadState();
-  }
-
-  late final _Core_GetThreadStatePtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('Core_GetThreadState');
-  late final _Core_GetThreadState =
-      _Core_GetThreadStatePtr.asFunction<int Function()>();
-
-  /// Gets the most recent tap_protocol::TapProtoException ONLY if the current thread state is
-  /// CKTapThreadState::TapProtocolError
-  CKTapProtoException Core_GetTapProtoException() {
-    return _Core_GetTapProtoException();
-  }
-
-  late final _Core_GetTapProtoExceptionPtr =
-      _lookup<ffi.NativeFunction<CKTapProtoException Function()>>(
-          'Core_GetTapProtoException');
-  late final _Core_GetTapProtoException = _Core_GetTapProtoExceptionPtr
-      .asFunction<CKTapProtoException Function()>();
-
-  /// ----------------------------------------------
-  /// CKTapCard:
-  ffi.Pointer<ffi.Char> CKTapCard_GetIdentCString(
-    int handle,
-    int type,
-  ) {
-    return _CKTapCard_GetIdentCString(
-      handle,
-      type,
-    );
-  }
-
-  late final _CKTapCard_GetIdentCStringPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Int32, ffi.Int32)>>('CKTapCard_GetIdentCString');
-  late final _CKTapCard_GetIdentCString = _CKTapCard_GetIdentCStringPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(int, int)>();
-
-  ffi.Pointer<ffi.Char> CKTapCard_GetAppletVersionCString(
-    int handle,
-    int type,
-  ) {
-    return _CKTapCard_GetAppletVersionCString(
-      handle,
-      type,
-    );
-  }
-
-  late final _CKTapCard_GetAppletVersionCStringPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Int32, ffi.Int32)>>('CKTapCard_GetAppletVersionCString');
-  late final _CKTapCard_GetAppletVersionCString =
-      _CKTapCard_GetAppletVersionCStringPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(int, int)>();
-
-  int CKTapCard_GetBirthHeight(
-    int handle,
-    int type,
-  ) {
-    return _CKTapCard_GetBirthHeight(
-      handle,
-      type,
-    );
-  }
-
-  late final _CKTapCard_GetBirthHeightPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
-          'CKTapCard_GetBirthHeight');
-  late final _CKTapCard_GetBirthHeight =
-      _CKTapCard_GetBirthHeightPtr.asFunction<int Function(int, int)>();
-
-  int CKTapCard_IsTestnet(
-    int handle,
-    int type,
-  ) {
-    return _CKTapCard_IsTestnet(
-      handle,
-      type,
-    );
-  }
-
-  late final _CKTapCard_IsTestnetPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
-          'CKTapCard_IsTestnet');
-  late final _CKTapCard_IsTestnet =
-      _CKTapCard_IsTestnetPtr.asFunction<int Function(int, int)>();
-
-  int CKTapCard_GetAuthDelay(
-    int handle,
-    int type,
-  ) {
-    return _CKTapCard_GetAuthDelay(
-      handle,
-      type,
-    );
-  }
-
-  late final _CKTapCard_GetAuthDelayPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
-          'CKTapCard_GetAuthDelay');
-  late final _CKTapCard_GetAuthDelay =
-      _CKTapCard_GetAuthDelayPtr.asFunction<int Function(int, int)>();
-
-  int CKTapCard_IsTampered(
-    int handle,
-    int type,
-  ) {
-    return _CKTapCard_IsTampered(
-      handle,
-      type,
-    );
-  }
-
-  late final _CKTapCard_IsTamperedPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
-          'CKTapCard_IsTampered');
-  late final _CKTapCard_IsTampered =
-      _CKTapCard_IsTamperedPtr.asFunction<int Function(int, int)>();
-
-  int CKTapCard_IsCertsChecked(
-    int handle,
-    int type,
-  ) {
-    return _CKTapCard_IsCertsChecked(
-      handle,
-      type,
-    );
-  }
-
-  late final _CKTapCard_IsCertsCheckedPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
-          'CKTapCard_IsCertsChecked');
-  late final _CKTapCard_IsCertsChecked =
-      _CKTapCard_IsCertsCheckedPtr.asFunction<int Function(int, int)>();
-
-  int CKTapCard_NeedSetup(
-    int handle,
-    int type,
-  ) {
-    return _CKTapCard_NeedSetup(
-      handle,
-      type,
-    );
-  }
-
-  late final _CKTapCard_NeedSetupPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
-          'CKTapCard_NeedSetup');
-  late final _CKTapCard_NeedSetup =
-      _CKTapCard_NeedSetupPtr.asFunction<int Function(int, int)>();
 
   /// ----------------------------------------------
   /// Satscard:
@@ -374,6 +374,23 @@ class CKTapProtocolBindings {
   late final _Satscard_IsUsedUp =
       _Satscard_IsUsedUpPtr.asFunction<int Function(int, int)>();
 
+  ffi.Pointer<ffi.Char> Tapsigner_GetDerivationPath(
+    int handle,
+    int type,
+  ) {
+    return _Tapsigner_GetDerivationPath(
+      handle,
+      type,
+    );
+  }
+
+  late final _Tapsigner_GetDerivationPathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Int32, ffi.Int32)>>('Tapsigner_GetDerivationPath');
+  late final _Tapsigner_GetDerivationPath = _Tapsigner_GetDerivationPathPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(int, int)>();
+
   /// ----------------------------------------------
   /// Tapsigner:
   int Tapsigner_GetNumberOfBackups(
@@ -391,23 +408,6 @@ class CKTapProtocolBindings {
           'Tapsigner_GetNumberOfBackups');
   late final _Tapsigner_GetNumberOfBackups =
       _Tapsigner_GetNumberOfBackupsPtr.asFunction<int Function(int, int)>();
-
-  ffi.Pointer<ffi.Char> Tapsigner_GetDerivationPath(
-    int handle,
-    int type,
-  ) {
-    return _Tapsigner_GetDerivationPath(
-      handle,
-      type,
-    );
-  }
-
-  late final _Tapsigner_GetDerivationPathPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Int32, ffi.Int32)>>('Tapsigner_GetDerivationPath');
-  late final _Tapsigner_GetDerivationPath = _Tapsigner_GetDerivationPathPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(int, int)>();
 
   /// ----------------------------------------------
   /// Utility:
@@ -455,6 +455,21 @@ class CKTapProtocolBindings {
       _Utility_FreeStringPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 }
 
+class CBinaryArray extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int length;
+}
+
+class CKTapCardHandle extends ffi.Struct {
+  @ffi.Int32()
+  external int index;
+
+  @ffi.Int32()
+  external int type;
+}
+
 abstract class CKTapCardType {
   static const int UnknownCard = 0;
   static const int Satscard = 1;
@@ -484,6 +499,20 @@ abstract class CKTapInterfaceErrorCode {
   static const int TimeoutDuringTransport = 18;
   static const int UnableToFinalizeAsyncAction = 19;
   static const int UnknownErrorDuringHandshake = 20;
+}
+
+class CKTapOperationResponse extends ffi.Struct {
+  external CKTapCardHandle handle;
+
+  @ffi.Int32()
+  external int errorCode;
+}
+
+class CKTapProtoException extends ffi.Struct {
+  @ffi.Int32()
+  external int code;
+
+  external ffi.Pointer<ffi.Char> message;
 }
 
 /// @brief Mirrors tap_protocol::TapProtoException
@@ -557,35 +586,6 @@ abstract class CKTapThreadState {
   static const int Failed = 7;
   static const int TapProtocolError = 8;
   static const int Timeout = 9;
-}
-
-class CBinaryArray extends ffi.Struct {
-  external ffi.Pointer<ffi.Uint8> ptr;
-
-  @ffi.Int32()
-  external int length;
-}
-
-class CKTapCardHandle extends ffi.Struct {
-  @ffi.Int32()
-  external int index;
-
-  @ffi.Int32()
-  external int type;
-}
-
-class CKTapOperationResponse extends ffi.Struct {
-  external CKTapCardHandle handle;
-
-  @ffi.Int32()
-  external int errorCode;
-}
-
-class CKTapProtoException extends ffi.Struct {
-  @ffi.Int32()
-  external int code;
-
-  external ffi.Pointer<ffi.Char> message;
 }
 
 class IntermediateSatscardSlot extends ffi.Struct {

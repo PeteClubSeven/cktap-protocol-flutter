@@ -1,8 +1,8 @@
-#include <Exports.h>
+#include <exports.h>
 
 // Project
-#include <Internal/TapProtocolThread.h>
-#include <Internal/Utils.h>
+#include <internal/tap_protocol_thread.h>
+#include <internal/utils.h>
 
 // Third party
 #include <tap_protocol/cktapcard.h>

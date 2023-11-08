@@ -2,11 +2,11 @@
 #define __CKTAP_PROTOCOL__STRUCTS_H__
 
 // Project
-#include "Enums.h"
-#include "Macros.h"
+#include <enums.h>
+#include <macros.h>
 
 // libc
-#include "stdint.h"
+#include <stdint.h>
 
 FFI_PLUGIN_EXPORT typedef struct 
 {

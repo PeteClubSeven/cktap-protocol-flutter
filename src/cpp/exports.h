@@ -2,10 +2,10 @@
 #define __CKTAP_PROTOCOL__EXPORTS_H__
 
 // Project
-#include "Structs.h"
+#include <structs.h>
 
 // libc
-#include "stdint.h"
+#include <stdint.h>
 
 // ----------------------------------------------
 // Core Bindings:

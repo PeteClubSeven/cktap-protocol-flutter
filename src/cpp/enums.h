@@ -2,10 +2,10 @@
 #define __CKTAP_PROTOCOL__ENUMS_H__
 
 // Project
-#include "Macros.h"
+#include <macros.h>
 
 // libc
-#include "stdint.h"
+#include <stdint.h>
 
 FFI_PLUGIN_EXPORT typedef enum CKTapCardType 
 {

@@ -1,7 +1,7 @@
-#include <Internal/Utils.h>
+#include <internal/utils.h>
 
 // Project
-#include <Internal/TapProtocolThread.h>
+#include <internal/tap_protocol_thread.h>
 
 // Third party
 #include <tap_protocol/cktapcard.h>

@@ -2,8 +2,8 @@
 #define __CKTAP_PROTOCOL__INTERNAL_UTILS_H__
 
 // Project
-#include <Enums.h>
-#include <Structs.h>
+#include <enums.h>
+#include <structs.h>
 
 // Third party
 #include <tap_protocol/cktapcard.h>
