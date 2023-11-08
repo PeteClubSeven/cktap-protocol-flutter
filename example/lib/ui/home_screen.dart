@@ -25,9 +25,9 @@ class HomeScreenState extends State<HomeScreen> {
     // Start NFC service
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
-        if (CKTapCardProtocol.isCoinkiteCard(tag)) {
+        if (CKTapProtocol.isLikelyCoinkiteCard(tag)) {
           try {
-            final card = await CKTapCardProtocol.createCKTapCard(tag);
+            final card = await CKTapProtocol.createCKTapCard(tag);
             if (context.mounted) {
               final bloc = BlocProvider.of<CardBloc>(context);
               bloc.add(CardDetected(card));
