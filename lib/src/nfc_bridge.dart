@@ -14,6 +14,7 @@ enum NfcProtocol {
 
 /// Facilitates communication between the library and NFC devices. Currently
 /// only supports Android and iOS (see cktapcard.h)
+/// TODO: Make an abstract base class to allow users to define their own NFC bridges. This would allow the library to be decoupled from nfc_manager, this will be especially useful since v4.0.0 drastically changes the API
 class NfcBridge {
   /// Original tag used to construct the bridge
   final NfcTag _tag;
@@ -64,8 +65,9 @@ class NfcBridge {
       } else if (_iso7816 != null) {
         return (await _iso7816!.sendCommandRaw(bytes)).payload;
       }
-    } on PlatformException catch(e) {
-      throw NfcCommunicationException(e.toString(), _tag, getCommunicationType());
+    } on PlatformException catch (e) {
+      throw NfcCommunicationException(
+          e.toString(), _tag, getCommunicationType());
     }
 
     throw UnsupportedError(
