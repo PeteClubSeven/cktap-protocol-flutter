@@ -15,12 +15,6 @@ class CKTapProtocol {
   /// Gets or creates the shared instance
   static CKTapProtocol get _internal => _instance ??= CKTapProtocol();
 
-  /// Attempts to communicate with the given NFC device to determine if it is a
-  /// Coinkite NFC card (e.g. a Satscard or Tapsigner) and returns it
-  static Future<CKTapCard> createCKTapCard(NfcTag tag) async {
-    return await _internal._createCKTapCard(tag);
-  }
-
   /// Performs a preliminary check to see if the given tag is potentially a
   /// compatible NFC card. This can only be confirmed by communicating via NFC
   /// with the cards
@@ -49,7 +43,13 @@ class CKTapProtocol {
     return ndefRecordPayload.startsWith("tapsigner.com/start", 1);
   }
 
-  Future<CKTapCard> _createCKTapCard(NfcTag tag) async {
+  /// Attempts to communicate with the given NFC device to determine if it is a
+  /// Coinkite NFC card (e.g. a Satscard or Tapsigner) and returns it
+  static Future<CKTapCard> readCard(NfcTag tag, {String spendCode = ""}) async {
+    return await _internal._readCard(tag, spendCode);
+  }
+
+  Future<CKTapCard> _readCard(NfcTag tag, String spendCode) async {
     var nfc = NfcBridge.fromTag(tag);
     try {
       await prepareNativeThread();

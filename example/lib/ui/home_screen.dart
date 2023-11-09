@@ -27,7 +27,7 @@ class HomeScreenState extends State<HomeScreen> {
       onDiscovered: (NfcTag tag) async {
         if (CKTapProtocol.isLikelyCoinkiteCard(tag)) {
           try {
-            final card = await CKTapProtocol.createCKTapCard(tag);
+            final card = await CKTapProtocol.readCard(tag);
             if (context.mounted) {
               final bloc = BlocProvider.of<CardBloc>(context);
               bloc.add(CardDetected(card));
