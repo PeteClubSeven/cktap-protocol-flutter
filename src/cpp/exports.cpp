@@ -81,6 +81,15 @@ FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation() {
     return response;
 }
 
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation() {
+    if (g_protocolThread == nullptr) {
+        return CKTapInterfaceErrorCode::libraryNotInitialized;
+    }
+
+    g_protocolThread->requestCancel();
+    return CKTapInterfaceErrorCode::success;
+}
+
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake() {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;
@@ -91,7 +100,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake() {
 
     if (!g_protocolThread->beginCardHandshake()) {
         // The thread failed to start so we should diagnose why
-        return g_protocolThread->finalizeCardHandshake() ?
+        return g_protocolThread->finalizeOperation() ?
             g_protocolThread->getRecentErrorCode() :
             CKTapInterfaceErrorCode::unknownErrorDuringHandshake;
     }
@@ -110,7 +119,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_finalizeAsyncAction() {
         return CKTapInterfaceErrorCode::attemptToFinalizeActiveThread;
     }
 
-    return g_protocolThread->finalizeCardHandshake() ?
+    return g_protocolThread->finalizeOperation() ?
         g_protocolThread->getRecentErrorCode() :
         CKTapInterfaceErrorCode::unableToFinalizeAsyncAction;
 }

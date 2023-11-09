@@ -27,9 +27,10 @@ public:
 
     static TapProtocolThread* createNew();
     CKTapInterfaceErrorCode reset();
+    void requestCancel();
 
     bool beginCardHandshake();
-    bool finalizeCardHandshake();
+    bool finalizeOperation();
 
     bool hasStarted() const;
     bool hasFailed() const;
@@ -49,20 +50,19 @@ public:
 
 private:
 
+    void _cancelIfNecessary();
     std::unique_ptr<tap_protocol::CKTapCard> _performHandshake();
-
     void _signalTransportRequestReady(const tap_protocol::Bytes& bytes);
 
     std::future<CKTapInterfaceErrorCode> _future{ };
 
     std::atomic<CKTapThreadState> _state{ CKTapThreadState::notStarted };
+    std::atomic<bool> _shouldCancel { false };
     std::atomic<CKTapInterfaceErrorCode> _recentError{ CKTapInterfaceErrorCode::threadNotYetStarted };
 
     tap_protocol::TapProtoException _tapProtoException{ 0, { } };
-
     tap_protocol::Bytes _pendingTransportRequest{ };
     tap_protocol::Bytes _transportResponse{ };
-
     std::unique_ptr<tap_protocol::CKTapCard> _card{ };
 };
 

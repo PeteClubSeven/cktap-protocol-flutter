@@ -10,6 +10,25 @@ import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
 import 'package:cktap_protocol/src/nfc_bridge.dart';
 
+/// Attempts to cancel the current operation and waits until it has
+Future<void> cancelNativeOperation() async {
+  // We don't need to do anything if the thread is inactive
+  if (!_isNativeThreadActive()) {
+    return;
+  }
+
+  ensureSuccessful(nativeLibrary.Core_requestCancelOperation());
+  while (_isNativeThreadActive()) {
+    await Future.delayed(Duration.zero);
+  }
+
+  ensureNativeThreadState(CKTapThreadState.canceled);
+  var errorCode = nativeLibrary.Core_finalizeAsyncAction();
+  if (errorCode != CKTapInterfaceErrorCode.operationCanceled) {
+    ensureSuccessful(errorCode);
+  }
+}
+
 /// Tries to retrieve the card data from the native thread and return in a Dart-native format
 Future<CKTapCard> finalizeCardCreation() async {
   int threadState = nativeLibrary.Core_getThreadState();
