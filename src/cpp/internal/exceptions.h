@@ -4,6 +4,18 @@
 // STL
 #include <stdexcept>
 
+/// Thrown when the protocol thread cancels its current operation
+class CancelationException final : public std::runtime_error {
+public:
+    explicit CancelationException(const std::string& message)
+        : std::runtime_error(message) {
+    }
+
+    explicit CancelationException(const char* message)
+        : std::runtime_error(message) {
+    }
+};
+
 /// Thrown when the protocol thread times out
 class TimeoutException final : public std::runtime_error {
 public:

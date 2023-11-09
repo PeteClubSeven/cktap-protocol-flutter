@@ -292,6 +292,18 @@ class NativeBindings {
   late final _Core_newOperation =
       _Core_newOperationPtr.asFunction<int Function()>();
 
+  /// Signals cancellation of the current operation, causing the thread to enter a
+  /// resettable state
+  int Core_requestCancelOperation() {
+    return _Core_requestCancelOperation();
+  }
+
+  late final _Core_requestCancelOperationPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'Core_requestCancelOperation');
+  late final _Core_requestCancelOperation =
+      _Core_requestCancelOperationPtr.asFunction<int Function()>();
+
   /// ----------------------------------------------
   /// Satscard:
   /// TODO: Simply data retrieval to avoid overhead of so many FFI calls and lookups
@@ -490,18 +502,19 @@ abstract class CKTapInterfaceErrorCode {
   static const int failedToPerformHandshake = 6;
   static const int invalidHandlingOfTapCardDuringFinalization = 7;
   static const int libraryNotInitialized = 8;
-  static const int operationStillInProgress = 9;
+  static const int operationCanceled = 9;
   static const int operationFailed = 10;
-  static const int threadAlreadyInUse = 11;
-  static const int threadAllocationFailed = 12;
-  static const int threadNotReadyForResponse = 13;
-  static const int threadNotResetForHandshake = 14;
-  static const int threadNotYetFinalized = 15;
-  static const int threadNotYetStarted = 16;
-  static const int threadResponseFinalizationFailed = 17;
-  static const int timeoutDuringTransport = 18;
-  static const int unableToFinalizeAsyncAction = 19;
-  static const int unknownErrorDuringHandshake = 20;
+  static const int operationStillInProgress = 11;
+  static const int threadAlreadyInUse = 12;
+  static const int threadAllocationFailed = 13;
+  static const int threadNotReadyForResponse = 14;
+  static const int threadNotResetForHandshake = 15;
+  static const int threadNotYetFinalized = 16;
+  static const int threadNotYetStarted = 17;
+  static const int threadResponseFinalizationFailed = 18;
+  static const int timeoutDuringTransport = 19;
+  static const int unableToFinalizeAsyncAction = 20;
+  static const int unknownErrorDuringHandshake = 21;
 }
 
 class CKTapOperationResponse extends ffi.Struct {

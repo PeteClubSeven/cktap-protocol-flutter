@@ -12,9 +12,11 @@ import 'package:nfc_manager/nfc_manager.dart';
 /// Interfaces with a native implementation of the tap protocol to perform
 /// various operations on Coinkite NFC devices
 class CKTapImplementation {
-
   /// A copy of bindings to the native C++ library
   final NativeBindings bindings;
+
+  /// The most recent cleanup operation
+  Future? _cleanupFuture;
 
   /// A singleton for use across the plugin
   static CKTapImplementation? _staticInstance;
@@ -43,19 +45,39 @@ class CKTapImplementation {
 
   Future<CKTapCard> readCard(NfcTag tag, String spendCode) async {
     var nfc = NfcBridge.fromTag(tag);
+    _awaitCleanup();
+
     try {
       await prepareNativeThread();
       await prepareForCardHandshake();
       await processTransportRequests(nfc);
       return await finalizeCardCreation();
-    } on NfcCommunicationException catch (e) {
-
+    } on NfcCommunicationException catch (_) {
+      _cancelOperation();
       rethrow;
     } catch (e, s) {
+      _cancelOperation();
       print(e);
       print(s);
+      rethrow;
     }
+  }
 
-    return Future.error(-6);
+  Future<void> _awaitCleanup() async {
+    if (_cleanupFuture == null) {
+      return;
+    }
+    await _cleanupFuture;
+    _cleanupFuture = null;
+  }
+
+  Future<void> _cancelOperation() {
+    return _cleanupFuture = cancelNativeOperation()
+        .timeout(const Duration(seconds: 2))
+        .then((_) => _cleanupFuture = null)
+        .onError((e, s) {
+      print(e);
+      print(s);
+    });
   }
 }

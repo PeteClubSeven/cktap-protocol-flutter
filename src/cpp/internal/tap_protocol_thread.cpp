@@ -31,6 +31,7 @@ CKTapInterfaceErrorCode TapProtocolThread::reset() {
 
     _future = std::future<CKTapInterfaceErrorCode>{ };
     _state = CKTapThreadState::notStarted;
+    _shouldCancel = false;
     _recentError = CKTapInterfaceErrorCode::pending;
     _tapProtoException = tap_protocol::TapProtoException{ 0, { } };
     _pendingTransportRequest.clear();
@@ -39,6 +40,10 @@ CKTapInterfaceErrorCode TapProtocolThread::reset() {
 
     return CKTapInterfaceErrorCode::success;
 };
+
+void TapProtocolThread::requestCancel() {
+    _shouldCancel = true;
+}
 
 bool TapProtocolThread::beginCardHandshake() {
     _state = CKTapThreadState::asyncActionStarting;
@@ -57,6 +62,9 @@ bool TapProtocolThread::beginCardHandshake() {
         _tapProtoException = std::move(e);
         _state = CKTapThreadState::tapProtocolError;
         return CKTapInterfaceErrorCode::caughtTapProtocolException;
+    } catch (const CancelationException& e) {
+        _state = CKTapThreadState::canceled;
+        return CKTapInterfaceErrorCode::operationCanceled;
     } catch (const TimeoutException& e) {
         _state = CKTapThreadState::timeout;
         return CKTapInterfaceErrorCode::timeoutDuringTransport;
@@ -69,7 +77,7 @@ bool TapProtocolThread::beginCardHandshake() {
 }
 
 
-bool TapProtocolThread::finalizeCardHandshake() {
+bool TapProtocolThread::finalizeOperation() {
     if ((hasFinished() || hasFailed()) && _future.valid()) {
         _recentError = _future.get();
         return true;
@@ -135,7 +143,13 @@ bool TapProtocolThread::finalizeTransportResponse() {
     }
 
     _state = CKTapThreadState::transportResponseReady;
-    return _state == CKTapThreadState::transportResponseReady;
+    return true;
+}
+
+void TapProtocolThread::_cancelIfNecessary() {
+    if (_shouldCancel) {
+        throw CancelationException("Canceling operation in TapProtocolThread");
+    }
 }
 
 std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::_performHandshake() {
@@ -155,6 +169,7 @@ std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::_performHandshake() 
         auto currentTime = std::chrono::high_resolution_clock::now();
         const auto endTime = currentTime + 1min;
         do {
+            _cancelIfNecessary();
             std::this_thread::sleep_for(100ns);
             std::this_thread::yield();
             currentTime = std::chrono::high_resolution_clock::now();
@@ -168,12 +183,14 @@ std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::_performHandshake() 
             );
         }
 
+        _cancelIfNecessary();
         _state = CKTapThreadState::processingTransportResponse;
         return _transportResponse;
     }));
 
     // More transport operations may need to be performed when we turn the card into a Tapsigner or Satscard
     _state = CKTapThreadState::awaitingTransportRequest;
+    _cancelIfNecessary();
     if (card.IsTapsigner()) {
         return tap_protocol::ToTapsigner(std::move(card));
     } else {

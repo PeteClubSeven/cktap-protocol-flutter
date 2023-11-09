@@ -17,6 +17,9 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_initializeLibrary();
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_newOperation();
 /// Must be called last to store and retrieve Satscard/Tapsigner data
 FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation();
+/// Signals cancellation of the current operation, causing the thread to enter a
+/// resettable state
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation();
 
 /// Attempts to perform an initial handshake with a CKTapCard
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake();

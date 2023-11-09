@@ -26,10 +26,6 @@ void ensureNativeThreadStates(Iterable<int> allowedStates) {
 }
 
 void ensureSuccessful(int interfaceErrorCode) {
-  if (interfaceErrorCode == CKTapInterfaceErrorCode.success) {
-    return;
-  }
-
   switch (interfaceErrorCode) {
     case CKTapInterfaceErrorCode.success:
       return;
