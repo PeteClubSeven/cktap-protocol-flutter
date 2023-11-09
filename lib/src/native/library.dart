@@ -1,19 +1,26 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:cktap_protocol/src/cktap_implementation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 
-/// The bindings to the native functions in [CKTapProtocolBindings] and its dependencies.
-final CKTapProtocolBindings nativeLibrary = CKTapProtocolBindings(() {
-  const List<String> dependencies = ['tap-protocol'];
-  const String pluginLibName = 'cktap_protocol';
+/// Gets an instance of the native library bindings
+NativeBindings get nativeLibrary => CKTapImplementation.instance.bindings;
 
-  for (final libName in dependencies) {
-    _loadLibrary(libName);
+/// Loads the library of the given name in the expected format for the current platform
+DynamicLibrary loadLibrary(final String libName) {
+  if (Platform.isMacOS || Platform.isIOS) {
+    return DynamicLibrary.open('$libName.framework/$libName');
   }
-
-  return _loadLibrary(pluginLibName);
-}());
+  if (Platform.isAndroid || Platform.isLinux) {
+    return DynamicLibrary.open('lib$libName.so');
+  }
+  if (Platform.isWindows) {
+    return DynamicLibrary.open('$libName.dll');
+  }
+  throw UnsupportedError(
+      'Unknown platform (${Platform.operatingSystem}) for lib: $libName');
+}
 
 /// Maps internal interface error code numbers to a string-readable version
 final Map<int, String> tapInterfaceErrorLiteralMap = {
@@ -99,18 +106,3 @@ final Map<int, String> tapThreadStateLiteralMap = {
   CKTapThreadState.tapProtocolError: "tapProtocolError",
   CKTapThreadState.timeout: "timeout",
 };
-
-/// Loads the library of the given name in the expected format for the current platform
-DynamicLibrary _loadLibrary(final String libName) {
-  if (Platform.isMacOS || Platform.isIOS) {
-    return DynamicLibrary.open('$libName.framework/$libName');
-  }
-  if (Platform.isAndroid || Platform.isLinux) {
-    return DynamicLibrary.open('lib$libName.so');
-  }
-  if (Platform.isWindows) {
-    return DynamicLibrary.open('$libName.dll');
-  }
-  throw UnsupportedError(
-      'Unknown platform (${Platform.operatingSystem}) for lib: $libName');
-}

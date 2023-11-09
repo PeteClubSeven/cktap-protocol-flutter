@@ -10,16 +10,6 @@ import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
 import 'package:cktap_protocol/src/nfc_bridge.dart';
 
-/// Attempts to return the native thread to a workable clean state
-Future<void> prepareNativeThread() async {
-  if (_isNativeThreadActive()) {
-    throw ProtocolConcurrencyError("Can't prepare the native thread");
-  }
-
-  ensureSuccessful(nativeLibrary.Core_initializeLibrary());
-  ensureSuccessful(nativeLibrary.Core_newOperation());
-}
-
 /// Tries to retrieve the card data from the native thread and return in a Dart-native format
 Future<CKTapCard> finalizeCardCreation() async {
   int threadState = nativeLibrary.Core_getThreadState();
@@ -54,6 +44,15 @@ Future<void> prepareForCardHandshake() async {
   ensureSuccessful(nativeLibrary.Core_beginAsyncHandshake());
 }
 
+/// Attempts to return the native thread to a workable clean state
+Future<void> prepareNativeThread() async {
+  if (_isNativeThreadActive()) {
+    throw ProtocolConcurrencyError("Can't prepare the native thread");
+  }
+
+  ensureSuccessful(nativeLibrary.Core_newOperation());
+}
+
 /// Handles the sending and receiving of data between the native library and an
 /// NFC device until completion or failure
 Future<void> processTransportRequests(NfcBridge nfc) async {
@@ -80,13 +79,6 @@ Future<void> processTransportRequests(NfcBridge nfc) async {
   ensureSuccessful(nativeLibrary.Core_finalizeAsyncAction());
 }
 
-/// Stops transport request loops when given any "final" states"
-bool _isNativeThreadActive() {
-  int threadState = nativeLibrary.Core_getThreadState();
-  return threadState != CKTapThreadState.notStarted &&
-      threadState < CKTapThreadState.finished;
-}
-
 /// Converts the native transport request to a Dart readable format.
 /// Should only be called when there is a transport request ready.
 Uint8List _getNativeTransportRequest() {
@@ -100,6 +92,13 @@ Uint8List _getNativeTransportRequest() {
   assert(requestLength != 0);
 
   return requestPointer.asTypedList(requestLength);
+}
+
+/// Stops transport request loops when given any "final" states"
+bool _isNativeThreadActive() {
+  int threadState = nativeLibrary.Core_getThreadState();
+  return threadState != CKTapThreadState.notStarted &&
+      threadState < CKTapThreadState.finished;
 }
 
 /// Passes a Dart-typed response from an NFC device to the native thread.

@@ -1,5 +1,5 @@
 # Run with `flutter pub run ffigen --config ffigen.yaml`.
-name: CKTapProtocolBindings
+name: NativeBindings
 description: |
   Bindings for the source code in ./src/cpp
 

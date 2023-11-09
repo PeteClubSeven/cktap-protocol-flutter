@@ -1,19 +1,12 @@
 import 'dart:async';
 
 import 'package:cktap_protocol/cktapcard.dart';
-import 'package:cktap_protocol/exceptions.dart';
-import 'package:cktap_protocol/src/native/thread.dart';
-import 'package:cktap_protocol/src/nfc_bridge.dart';
+import 'package:cktap_protocol/src/cktap_implementation.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
 /// Implements the basic functionality required to interact with Coinkite NFC
 /// cards
 class CKTapProtocol {
-  /// An instance of the protocol
-  static CKTapProtocol? _instance;
-
-  /// Gets or creates the shared instance
-  static CKTapProtocol get _internal => _instance ??= CKTapProtocol();
 
   /// Performs a preliminary check to see if the given tag is potentially a
   /// compatible NFC card. This can only be confirmed by communicating via NFC
@@ -46,24 +39,6 @@ class CKTapProtocol {
   /// Attempts to communicate with the given NFC device to determine if it is a
   /// Coinkite NFC card (e.g. a Satscard or Tapsigner) and returns it
   static Future<CKTapCard> readCard(NfcTag tag, {String spendCode = ""}) async {
-    return await _internal._readCard(tag, spendCode);
-  }
-
-  Future<CKTapCard> _readCard(NfcTag tag, String spendCode) async {
-    var nfc = NfcBridge.fromTag(tag);
-    try {
-      await prepareNativeThread();
-      await prepareForCardHandshake();
-      await processTransportRequests(nfc);
-      return await finalizeCardCreation();
-    } on NfcCommunicationException catch (e) {
-      // TODO: Cancel thread if its still operating
-      rethrow;
-    } catch (e, s) {
-      print(e);
-      print(s);
-    }
-
-    return Future.error(-6);
+    return await CKTapImplementation.instance.readCard(tag, spendCode);
   }
 }
