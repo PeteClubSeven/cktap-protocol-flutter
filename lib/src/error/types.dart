@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
 
 /// A base class for library-facing exceptions which MUST be handled internally
@@ -8,21 +9,15 @@ abstract class CKTapInternalException implements Exception {}
 /// A base class for library errors which should never happen
 abstract class CKTapError extends Error {}
 
-/// Thrown when encountering an interface error unexpectedly
-class TapInterfaceError extends CKTapError {
-  final int code;
-  final String literal;
+class InvalidCardTypeError extends CKTapError {
+  final int handle;
+  final CardType type;
 
-  TapInterfaceError._internal(this.code, this.literal);
-
-  factory TapInterfaceError.fromCode(int errorCode) {
-    return TapInterfaceError._internal(
-        errorCode, getLiteralFromTapInterfaceErrorCode(errorCode));
-  }
+  InvalidCardTypeError(this.handle, this.type);
 
   @override
   String toString() =>
-      "An internal error occurred in the CKTap library, code $code: $literal";
+      "Attempt to use an invalid card type ($type) with handle: $handle";
 }
 
 /// Thrown when the native thread is in an invalid/unusable state
@@ -46,4 +41,21 @@ class ProtocolConcurrencyError extends CKTapError {
 
   @override
   String toString() => "Parallel CKTap operation failed: $message";
+}
+
+/// Thrown when encountering an interface error unexpectedly
+class TapInterfaceError extends CKTapError {
+  final int code;
+  final String literal;
+
+  TapInterfaceError._internal(this.code, this.literal);
+
+  factory TapInterfaceError.fromCode(int errorCode) {
+    return TapInterfaceError._internal(
+        errorCode, getLiteralFromTapInterfaceErrorCode(errorCode));
+  }
+
+  @override
+  String toString() =>
+      "An internal error occurred in the CKTap library, code $code: $literal";
 }

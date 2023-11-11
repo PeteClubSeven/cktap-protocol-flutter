@@ -46,36 +46,25 @@ FFI_PLUGIN_EXPORT CKTapThreadState Core_getThreadState();
 FFI_PLUGIN_EXPORT CKTapProtoException Core_getTapProtoException();
 
 // ----------------------------------------------
-// CKTapCard:
-// TODO: Simply data retrieval to avoid overhead of so many FFI calls and lookups
-FFI_PLUGIN_EXPORT char* CKTapCard_getIdentCString(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT char* CKTapCard_getAppletVersionCString(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_getBirthHeight(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_isTestnet(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_getAuthDelay(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_isTampered(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_isCertsChecked(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t CKTapCard_needSetup(int32_t handle, int32_t type);
-
-// ----------------------------------------------
 // Satscard:
-// TODO: Simply data retrieval to avoid overhead of so many FFI calls and lookups
-FFI_PLUGIN_EXPORT IntermediateSatscardSlot Satscard_getActiveSlot(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t Satscard_getActiveSlotIndex(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t Satscard_getNumSlots(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t Satscard_hasUnusedSlots(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT int32_t Satscard_isUsedUp(int32_t handle, int32_t type);
+
+/// Gets a C representation of parameters required to construct a [Satscard] in dart. Note: must use
+/// [Utility_freeSatscardConstructorParams] when you are finished using the data to deallocate memory
+FFI_PLUGIN_EXPORT SatscardConstructorParams Satscard_createConstructorParams(int32_t handle);
 
 // ----------------------------------------------
 // Tapsigner:
-// TODO: Simply data retrieval to avoid overhead of so many FFI calls and lookups
-FFI_PLUGIN_EXPORT int32_t Tapsigner_getNumberOfBackups(int32_t handle, int32_t type);
-FFI_PLUGIN_EXPORT char* Tapsigner_getDerivationPath(int32_t handle, int32_t type);
+
+/// Gets a C representation of parameters required to construct a [Tapsigner] in dart. Note: must use
+/// [Utility_freeTapsignerConstructorParams] when you are finished using the data to deallocate memory
+FFI_PLUGIN_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(int32_t handle);
 
 // ----------------------------------------------
 // Utility:
-FFI_PLUGIN_EXPORT void Utility_freeBinaryArray(CBinaryArray array);
-FFI_PLUGIN_EXPORT void Utility_freeIntermediateSatscardSlot(IntermediateSatscardSlot slot);
-FFI_PLUGIN_EXPORT void Utility_freeString(char* cString);
+FFI_PLUGIN_EXPORT void Utility_freeCBinaryArray(CBinaryArray array);
+FFI_PLUGIN_EXPORT void Utility_freeCString(char* cString);
+FFI_PLUGIN_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorParams params);
+FFI_PLUGIN_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params);
+FFI_PLUGIN_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params);
 
 #endif // __CKTAP_PROTOCOL__EXPORTS_H__

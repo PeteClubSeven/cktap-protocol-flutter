@@ -7,6 +7,7 @@ import 'package:cktap_protocol/exceptions.dart';
 import 'package:cktap_protocol/src/error/types.dart';
 import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
+import 'package:cktap_protocol/src/native/factories.dart';
 import 'package:cktap_protocol/src/native/library.dart';
 import 'package:cktap_protocol/src/nfc_bridge.dart';
 
@@ -29,7 +30,8 @@ Future<void> cancelNativeOperation() async {
   }
 }
 
-/// Tries to retrieve the card data from the native thread and return in a Dart-native format
+/// Tries to retrieve the card data from the native thread and return in a
+/// Dart-native format
 Future<CKTapCard> finalizeCardCreation() async {
   int threadState = nativeLibrary.Core_getThreadState();
   if (threadState == CKTapThreadState.finished) {
@@ -38,9 +40,8 @@ Future<CKTapCard> finalizeCardCreation() async {
 
     switch (response.handle.type) {
       case CKTapCardType.satscard:
-        return Satscard(response.handle.index, response.handle.type);
       case CKTapCardType.tapsigner:
-        return Tapsigner(response.handle.index, response.handle.type);
+        return makeCardFromHandle(response.handle);
       default:
         throw UnsupportedError(
             "Can't create CKTapCard of type: ${response.handle.type}");

@@ -13,16 +13,7 @@ std::unique_ptr<TapProtocolThread> g_protocolThread{ };
 std::vector<std::unique_ptr<tap_protocol::Satscard>> g_satscards{ };
 std::vector<std::unique_ptr<tap_protocol::Tapsigner>> g_tapsigners{ };
 
-char* allocateCStringFromCpp(const std::string& cppString) {
-    if (cppString.empty()) {
-        return nullptr;
-    }
-
-    char* cString = strdup(cppString.c_str());
-    return cString;
-}
-
-CBinaryArray allocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary) {
+CBinaryArray allocateCBinaryArrayFromJSON(const nlohmann::json::binary_t& binary) {
     CBinaryArray array;
     std::memset(&array, 0, sizeof(CBinaryArray));
 
@@ -39,14 +30,38 @@ CBinaryArray allocateBinaryArrayFromJSON(const nlohmann::json::binary_t& binary)
     return array;
 }
 
-void freeAllocatedCString(char*& cString) {
-    if (cString != nullptr) {
-        std::free(cString);
-        cString = nullptr;
+char* allocateCStringFromCpp(const std::string& cppString) {
+    if (cppString.empty()) {
+        return nullptr;
     }
+
+    char* cString = strdup(cppString.c_str());
+    return cString;
 }
 
-void freeAllocatedBinaryArray(CBinaryArray& array) {
+void fillConstructorParams(CKTapCardConstructorParams& params, const size_t index, const tap_protocol::CKTapCard& card) {
+    params.handle = static_cast<int32_t>(index);
+    params.type = card.IsTapsigner() ? CKTapCardType::tapsigner : CKTapCardType::satscard;
+    params.ident = allocateCStringFromCpp(card.GetIdent());
+    params.appletVersion = allocateCStringFromCpp(card.GetAppletVersion());
+    params.authDelay = card.GetAuthDelay();
+    params.birthHeight = card.GetBirthHeight();
+    params.isCertsChecked = card.IsCertsChecked() ? 1 : 0;
+    params.isTampered = card.IsTampered() ? 1 : 0;
+    params.isTestnet = card.IsTestnet() ? 1 : 0;
+    params.needsSetup = card.NeedSetup() ? 1 : 0;
+}
+
+void fillConstructorParams(SlotConstructorParams& params, const tap_protocol::Satscard::Slot& slot) {
+    params.status = static_cast<int32_t>(slot.status);
+    params.address = allocateCStringFromCpp(slot.address);
+    params.privkey = allocateCBinaryArrayFromJSON(slot.privkey);
+    params.pubkey = allocateCBinaryArrayFromJSON(slot.pubkey);
+    params.masterPK = allocateCBinaryArrayFromJSON(slot.master_pk);
+    params.chainCode = allocateCBinaryArrayFromJSON(slot.chain_code);
+}
+
+void freeCBinaryArray(CBinaryArray& array) {
     if (array.ptr != nullptr) {
         std::free(array.ptr);
         array.ptr = nullptr;
@@ -54,16 +69,46 @@ void freeAllocatedBinaryArray(CBinaryArray& array) {
     }
 }
 
-CKTapCardHandle constructTapCardHandle(const int32_t index, const int32_t type) {
+void freeCKTapCardConstructorParams(CKTapCardConstructorParams& params) {
+    freeCString(params.ident);
+    freeCString(params.appletVersion);
+}
+
+void freeCString(char*& cString) {
+    if (cString != nullptr) {
+        std::free(cString);
+        cString = nullptr;
+    }
+}
+
+void freeSatscardConstructorParams(SatscardConstructorParams& params) {
+    freeCKTapCardConstructorParams(params.base);
+    freeSlotConstructorParams(params.activeSlot);
+}
+
+void freeSlotConstructorParams(SlotConstructorParams& params) {
+    freeCString(params.address);
+    freeCBinaryArray(params.privkey);
+    freeCBinaryArray(params.pubkey);
+    freeCBinaryArray(params.masterPK);
+    freeCBinaryArray(params.chainCode);
+}
+
+void freeTapsignerConstructorParams(TapsignerConstructorParams& params) {
+    freeCKTapCardConstructorParams(params.base);
+    freeCString(params.derivationPath);
+}
+
+CKTapCardHandle makeTapCardHandle(const int32_t index, const int32_t type) {
     CKTapCardHandle handle = {
         .index = index,
-        .type = intToTapCardType(type),
+        .type = makeTapCardType(type),
     };
 
     return handle;
 }
 
-CKTapCardType intToTapCardType(const int32_t type) {
+CKTapCardType makeTapCardType(const int32_t type) {
     switch (type) {
         case CKTapCardType::satscard:
             return CKTapCardType::satscard;

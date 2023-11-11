@@ -29,6 +29,19 @@ FFI_PLUGIN_EXPORT typedef struct {
 } CKTapProtoException;
 
 FFI_PLUGIN_EXPORT typedef struct {
+    int32_t handle;
+    int32_t type;
+    char* ident;
+    char* appletVersion;
+    int32_t authDelay;
+    int32_t birthHeight;
+    int8_t isCertsChecked;
+    int8_t isTampered;
+    int8_t isTestnet;
+    int8_t needsSetup;
+} CKTapCardConstructorParams;
+
+FFI_PLUGIN_EXPORT typedef struct {
     int32_t index;
     int32_t status;
     char* address;
@@ -38,6 +51,23 @@ FFI_PLUGIN_EXPORT typedef struct {
     CBinaryArray pubkey;
     CBinaryArray masterPK;
     CBinaryArray chainCode;
-} IntermediateSatscardSlot;
+} SlotConstructorParams;
+
+FFI_PLUGIN_EXPORT typedef struct {
+    CKTapInterfaceErrorCode errorCode;
+    CKTapCardConstructorParams base;
+    SlotConstructorParams activeSlot;
+    int32_t activeSlotIndex;
+    int32_t numSlots;
+    int8_t hasUnusedSlots;
+    int8_t isUsedUp;
+} SatscardConstructorParams;
+
+FFI_PLUGIN_EXPORT typedef struct {
+    CKTapInterfaceErrorCode errorCode;
+    CKTapCardConstructorParams base;
+    int32_t numberOfBackups;
+    char* derivationPath;
+} TapsignerConstructorParams;
 
 #endif // __CKTAP_PROTOCOL__STRUCTS_H__

@@ -54,7 +54,7 @@ FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation() {
     }
 
     auto response = makeTapOperationResponse(g_protocolThread->getRecentErrorCode());
-    auto index = invalidIndex;
+    size_t index;
     if (g_protocolThread->isTapsigner().value()) {
         auto tapsigner = g_protocolThread->releaseTapsigner();
         if (!tapsigner) {
@@ -187,157 +187,67 @@ FFI_PLUGIN_EXPORT CKTapProtoException Core_getTapProtoException() {
 }
 
 // ----------------------------------------------
-// CKTapCard:
-
-FFI_PLUGIN_EXPORT char* CKTapCard_getIdentCString(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::CKTapCard, char*>(handle, type, nullptr, [](const auto& card) {
-            return allocateCStringFromCpp(card.GetIdent());
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT char* CKTapCard_getAppletVersionCString(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::CKTapCard, char*>(handle, type, nullptr, [](const auto& card) {
-            return allocateCStringFromCpp(card.GetAppletVersion());
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t CKTapCard_getBirthHeight(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::CKTapCard>(handle, type, 0, [](const auto& card) {
-            return card.GetBirthHeight();
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t CKTapCard_isTestnet(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::CKTapCard>(handle, type, 0, [](const auto& card) {
-            return card.IsTestnet() ? 1 : 0;
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t CKTapCard_getAuthDelay(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::CKTapCard>(handle, type, 0, [](const auto& card) {
-            return card.GetAuthDelay();
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t CKTapCard_isTampered(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::CKTapCard>(handle, type, 0, [](const auto& card) {
-            return card.IsTampered() ? 1 : 0;
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t CKTapCard_isCertsChecked(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::CKTapCard>(handle, type, 0, [](const auto& card) {
-            return card.IsCertsChecked() ? 1 : 0;
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t CKTapCard_needSetup(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::CKTapCard>(handle, type, 0, [](const auto& card) {
-            return card.NeedSetup() ? 1 : 0;
-        }
-    );
-}
-
-// ----------------------------------------------
 // Satscard:
 
-FFI_PLUGIN_EXPORT IntermediateSatscardSlot Satscard_getActiveSlot(int32_t handle, int32_t type) {
-    IntermediateSatscardSlot intermediary;
-    std::memset(&intermediary, 0, sizeof(IntermediateSatscardSlot));
+FFI_PLUGIN_EXPORT SatscardConstructorParams Satscard_createConstructorParams(int32_t handle) {
+    SatscardConstructorParams params;
+    std::memset(&params, 0, sizeof(params));
 
-    // Set an invalid index of -1 to indicate failure
-    constexpr int32_t invalidSlotIndex{ -1 };
-    intermediary.index = getFromTapCard<tap_protocol::Satscard>(handle, type, invalidSlotIndex, [&intermediary](const auto& card) {
-            const tap_protocol::Satscard::Slot slot = card.GetActiveSlot();
-
-            intermediary.status = static_cast<int32_t>(slot.status);
-            intermediary.address = allocateCStringFromCpp(slot.address);
-            intermediary.privkey = allocateBinaryArrayFromJSON(slot.privkey);
-            intermediary.pubkey = allocateBinaryArrayFromJSON(slot.pubkey);
-            intermediary.masterPK = allocateBinaryArrayFromJSON(slot.master_pk);
-            intermediary.chainCode = allocateBinaryArrayFromJSON(slot.chain_code);
-
-            return slot.index;
-        }
-    );
-
-    return intermediary;
-}
-
-FFI_PLUGIN_EXPORT int32_t Satscard_getActiveSlotIndex(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::Satscard>(handle, type, 0, [](const auto& card) {
-            return card.GetActiveSlotIndex();
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t Satscard_getNumSlots(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::Satscard>(handle, type, 0, [](const auto& card) {
-            return card.GetNumSlots();
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t Satscard_hasUnusedSlots(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::Satscard>(handle, type, 0, [](const auto& card) {
-            return card.HasUnusedSlots() ? 1 : 0;
-        }
-    );
-}
-
-FFI_PLUGIN_EXPORT int32_t Satscard_isUsedUp(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::Satscard>(handle, type, 0, [](const auto& card) {
-            return card.IsUsedUp() ? 1 : 0;
-        }
-    );
+    const bool result = readTapCard<tap_protocol::Satscard>(handle, [handle, &params](const tap_protocol::Satscard& card) {
+        fillConstructorParams(params.base, handle, card);
+        fillConstructorParams(params.activeSlot, card.GetActiveSlot());
+        params.activeSlotIndex = card.GetActiveSlotIndex();
+        params.numSlots = card.GetNumSlots();
+        params.hasUnusedSlots = card.HasUnusedSlots() ? 1 : 0;
+        params.isUsedUp = card.IsUsedUp() ? 1 : 0;
+    });
+    params.errorCode = result ?
+        CKTapInterfaceErrorCode::success :
+        CKTapInterfaceErrorCode::unknownSatscardHandle;
+    return params;
 }
 
 // ----------------------------------------------
 // Tapsigner:
 
-FFI_PLUGIN_EXPORT int32_t Tapsigner_getNumberOfBackups(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::Tapsigner>(handle, type, -1, [](const auto& card) {
-            return card.GetNumberOfBackups();
-        }
-    );
-}
+FFI_PLUGIN_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(int32_t handle) {
+    TapsignerConstructorParams params;
+    std::memset(&params, 0, sizeof(params));
 
-FFI_PLUGIN_EXPORT char* Tapsigner_getDerivationPath(int32_t handle, int32_t type) {
-    return getFromTapCard<tap_protocol::Tapsigner, char*>(handle, type, nullptr, [](const auto& card) {
-            char* value = nullptr;
-            if (const auto optionalPath = card.GetDerivationPath()) {
-                if (optionalPath.has_value()) {
-                    value = allocateCStringFromCpp(optionalPath.value());
-                }
+    const bool result = readTapCard<tap_protocol::Tapsigner>(handle, [handle, &params](const tap_protocol::Tapsigner& card) {
+        fillConstructorParams(params.base, handle, card);
+        params.numberOfBackups = card.GetNumberOfBackups();
+        if (const auto path = card.GetDerivationPath()) {
+            if (path.has_value()) {
+                params.derivationPath = allocateCStringFromCpp(path.value());
             }
-
-            return value;
         }
-    );
+    });
+    params.errorCode = result ?
+        CKTapInterfaceErrorCode::success :
+        CKTapInterfaceErrorCode::unknownTapsignerHandle;
+    return params;
 }
 
 // ----------------------------------------------
 // Utility:
 
-FFI_PLUGIN_EXPORT void Utility_freeBinaryArray(CBinaryArray array) {
-    freeAllocatedBinaryArray(array);
+FFI_PLUGIN_EXPORT void Utility_freeCBinaryArray(CBinaryArray array) {
+    freeCBinaryArray(array);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeIntermediateSatscardSlot(IntermediateSatscardSlot slot) {
-    freeAllocatedCString(slot.address);
-    freeAllocatedBinaryArray(slot.privkey);
-    freeAllocatedBinaryArray(slot.pubkey);
-    freeAllocatedBinaryArray(slot.masterPK);
-    freeAllocatedBinaryArray(slot.chainCode);
+FFI_PLUGIN_EXPORT void Utility_freeCString(char* cString) {
+    freeCString(cString);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeString(char* cString) {
-    freeAllocatedCString(cString);
+FFI_PLUGIN_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorParams params) {
+    freeSatscardConstructorParams(params);
+}
+
+FFI_PLUGIN_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params) {
+    freeSlotConstructorParams(params);
+}
+
+FFI_PLUGIN_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params) {
+    freeTapsignerConstructorParams(params);
 }

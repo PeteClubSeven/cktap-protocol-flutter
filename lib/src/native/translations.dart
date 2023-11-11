@@ -14,7 +14,7 @@ Uint8List dartListFromCBinaryArray(CBinaryArray array,
     list.setAll(0, array.ptr.asTypedList(array.length));
 
     if (freeArray) {
-      nativeLibrary.Utility_freeBinaryArray(array);
+      nativeLibrary.Utility_freeCBinaryArray(array);
     }
     return list;
   }
@@ -30,32 +30,12 @@ String dartStringFromCString(Pointer<Char> cString,
 
     // Ensure we clean up the string
     if (freeCString) {
-      nativeLibrary.Utility_freeString(cString);
+      nativeLibrary.Utility_freeCString(cString);
     }
     return dartString;
   }
 
   return "";
-}
-
-Slot getActiveSatscardSlotFrom(int handle, int type) {
-  IntermediateSatscardSlot intermediary =
-      nativeLibrary.Satscard_getActiveSlot(handle, type);
-  if (intermediary.index < 0) {
-    return Slot.invalid();
-  }
-
-  var slot = Slot.setAll(
-      intermediary.index,
-      intToSlotStatus(intermediary.status),
-      dartStringFromCString(intermediary.address),
-      dartListFromCBinaryArray(intermediary.privkey),
-      dartListFromCBinaryArray(intermediary.pubkey),
-      dartListFromCBinaryArray(intermediary.masterPK),
-      dartListFromCBinaryArray(intermediary.chainCode));
-
-  nativeLibrary.Utility_freeIntermediateSatscardSlot(intermediary);
-  return slot;
 }
 
 String getLiteralFromTapInterfaceErrorCode(int code) {

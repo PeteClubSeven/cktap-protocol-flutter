@@ -58,8 +58,8 @@ bool TapProtocolThread::beginCardHandshake() {
             _state = CKTapThreadState::failed;
             return CKTapInterfaceErrorCode::failedToPerformHandshake;
         }
-    } catch (tap_protocol::TapProtoException e) {
-        _tapProtoException = std::move(e);
+    } catch (const tap_protocol::TapProtoException& e) {
+        _tapProtoException = e;
         _state = CKTapThreadState::tapProtocolError;
         return CKTapInterfaceErrorCode::caughtTapProtocolException;
     } catch (const CancelationException& e) {

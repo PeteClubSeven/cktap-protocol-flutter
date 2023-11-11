@@ -46,6 +46,8 @@ final Map<int, String> tapInterfaceErrorLiteralMap = {
   CKTapInterfaceErrorCode.timeoutDuringTransport: "timeoutDuringTransport",
   CKTapInterfaceErrorCode.unableToFinalizeAsyncAction: "unableToFinalizeAsyncAction",
   CKTapInterfaceErrorCode.unknownErrorDuringHandshake: "unknownErrorDuringHandshake",
+  CKTapInterfaceErrorCode.unknownSatscardHandle: "unknownSatscardHandle",
+  CKTapInterfaceErrorCode.unknownTapsignerHandle: "unknownTapsignerHandle",
 };
 
 /// Maps Nunchuk tap_protocol error code numbers to a string-readable version
