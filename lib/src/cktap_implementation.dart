@@ -72,12 +72,9 @@ class CKTapImplementation {
   }
 
   Future<void> _cancelOperation() {
-    return _cleanupFuture = cancelNativeOperation()
-        .timeout(const Duration(seconds: 2))
-        .then((_) => _cleanupFuture = null)
-        .onError((e, s) {
+    return _cleanupFuture = cancelNativeOperation().catchError((e, s) {
       print(e);
       print(s);
-    });
+    }).whenComplete(() => _cleanupFuture = null);
   }
 }

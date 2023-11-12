@@ -13,21 +13,27 @@ import 'package:cktap_protocol/src/nfc_bridge.dart';
 
 /// Attempts to cancel the current operation and waits until it has
 Future<void> cancelNativeOperation() async {
-  // We don't need to do anything if the thread is inactive
-  if (!_isNativeThreadActive()) {
-    return;
-  }
+  return Future.sync(() async {
+    // We don't need to do anything if the thread is inactive
+    if (!_isNativeThreadActive()) {
+      return;
+    }
 
-  ensureSuccessful(nativeLibrary.Core_requestCancelOperation());
-  while (_isNativeThreadActive()) {
-    await Future.delayed(Duration.zero);
-  }
+    ensureSuccessful(nativeLibrary.Core_requestCancelOperation());
+    final stopwatch = Stopwatch()..start();
+    while (_isNativeThreadActive()) {
+      if (stopwatch.elapsed.inSeconds >= 2) {
+        throw TimeoutException("CKTapProtocol couldn't cancel the native operation");
+      }
+      await Future.delayed(const Duration(microseconds: 50));
+    }
 
-  ensureNativeThreadState(CKTapThreadState.canceled);
-  var errorCode = nativeLibrary.Core_finalizeAsyncAction();
-  if (errorCode != CKTapInterfaceErrorCode.operationCanceled) {
-    ensureSuccessful(errorCode);
-  }
+    ensureNativeThreadState(CKTapThreadState.canceled);
+    var errorCode = nativeLibrary.Core_finalizeAsyncAction();
+    if (errorCode != CKTapInterfaceErrorCode.operationCanceled) {
+      ensureSuccessful(errorCode);
+    }
+  });
 }
 
 /// Tries to retrieve the card data from the native thread and return in a
