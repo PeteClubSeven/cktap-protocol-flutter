@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:cktap_protocol/cktapcard.dart';
-import 'package:cktap_protocol/exceptions.dart';
 import 'package:cktap_protocol/src/error/types.dart';
 import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
 import 'package:cktap_protocol/src/native/thread.dart';
+import 'package:cktap_protocol/src/native/translations.dart';
 import 'package:cktap_protocol/src/nfc_bridge.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
@@ -51,7 +51,8 @@ class CKTapImplementation {
   /// performed. This normally wouldn't be necessary but because we have a
   /// native background thread we can only guarantee the library is free of race
   /// conditions by flagging when an async operation is in progress
-  Future<T> performNativeOperation<T>(Future<T> Function() action) async {
+  Future<T> performNativeOperation<T>(
+      Future<T> Function(NativeBindings) action) async {
     return Future.sync(() async {
       if (_isPerformingNativeAction) {
         throw ProtocolConcurrencyError(
@@ -63,7 +64,7 @@ class CKTapImplementation {
       _awaitCleanup();
       try {
         _isPerformingNativeAction = true;
-        return await action();
+        return await action(bindings);
       } catch (e, s) {
         print(e);
         print(s);
@@ -77,11 +78,35 @@ class CKTapImplementation {
 
   Future<CKTapCard> readCard(NfcTag tag, String spendCode) async {
     final nfc = NfcBridge.fromTag(tag);
-    return performNativeOperation(() {
+    return performNativeOperation((_) {
       prepareNativeThread();
       prepareForCardHandshake();
       return processTransportRequests(nfc);
     }).then((_) => finalizeCardCreation());
+  }
+
+  Future<Slot> satscardGetActiveSlot(int satscard) async {
+    return performNativeOperation((bindings) async {
+      var response = bindings.Satscard_getActiveSlot(satscard);
+      try {
+        ensureStatus(response.status);
+        return Slot(response.params);
+      } finally {
+        bindings.Utility_freeSatscardGetSlotResponse(response);
+      }
+    });
+  }
+
+  Future<String> slotToWif(int satscard, int slot) async {
+    return performNativeOperation((bindings) async {
+      var response = bindings.Satscard_slotToWif(satscard, slot);
+      try {
+        ensureStatus(response.status);
+        return dartStringFromCString(response.wif);
+      } finally {
+        bindings.Utility_freeSlotToWifResponse(response);
+      }
+    });
   }
 
   Future<void> _awaitCleanup() async {

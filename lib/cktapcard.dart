@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:cktap_protocol/src/cktap_implementation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
 
@@ -33,29 +34,42 @@ abstract class CKTapCard {
         needSetup = params.needsSetup > 0;
 }
 
-enum CardType {
-  unknown,
-  satscard,
-  tapsigner,
-}
-
 class Satscard extends CKTapCard {
-  final Slot activeSlot;
   final int activeSlotIndex;
   final int numSlots;
   final bool hasUnusedSlots;
   final bool isUsedUp;
 
+  Future<Slot> getActiveSlot() {
+    return CKTapImplementation.instance.satscardGetActiveSlot(handle);
+  }
+
   Satscard(SatscardConstructorParams params)
-      : activeSlot = Slot(params.activeSlot),
-        activeSlotIndex = params.activeSlotIndex,
+      : activeSlotIndex = params.activeSlotIndex,
         numSlots = params.numSlots,
         hasUnusedSlots = params.hasUnusedSlots > 0,
         isUsedUp = params.isUsedUp > 0,
         super(params.base);
 }
 
+class Tapsigner extends CKTapCard {
+  final int numberOfBackups;
+  final String derivationPath;
+
+  Tapsigner(TapsignerConstructorParams params)
+      : numberOfBackups = params.numberOfBackups,
+        derivationPath = dartStringFromCString(params.derivationPath),
+        super(params.base);
+}
+
+enum CardType {
+  unknown,
+  satscard,
+  tapsigner,
+}
+
 class Slot {
+  final int _owner;
   final int index;
   final SlotStatus status;
   final String address;
@@ -66,10 +80,13 @@ class Slot {
   final Uint8List masterPK;
   final Uint8List chainCode;
 
-  bool get isValid => index >= 0;
+  Future<String> toWif() {
+    return CKTapImplementation.instance.slotToWif(_owner, index);
+  }
 
   Slot(SlotConstructorParams params)
-      : index = params.index,
+      : _owner = params.satscardHandle,
+        index = params.index,
         status = intToSlotStatus(params.status),
         address = dartStringFromCString(params.address),
         privkey = dartListFromCBinaryArray(params.privkey),
@@ -83,14 +100,4 @@ enum SlotStatus {
   sealed,
   unsealed,
   invalid,
-}
-
-class Tapsigner extends CKTapCard {
-  final int numberOfBackups;
-  final String derivationPath;
-
-  Tapsigner(TapsignerConstructorParams params)
-      : numberOfBackups = params.numberOfBackups,
-        derivationPath = dartStringFromCString(params.derivationPath),
-        super(params.base);
 }

@@ -9,10 +9,6 @@
 // STL
 #include <cstring>
 
-std::unique_ptr<TapProtocolThread> g_protocolThread{ };
-std::vector<std::unique_ptr<tap_protocol::Satscard>> g_satscards{ };
-std::vector<std::unique_ptr<tap_protocol::Tapsigner>> g_tapsigners{ };
-
 CBinaryArray allocateCBinaryArrayFromJSON(const nlohmann::json::binary_t& binary) {
     CBinaryArray array;
     std::memset(&array, 0, sizeof(CBinaryArray));
@@ -28,6 +24,15 @@ CBinaryArray allocateCBinaryArrayFromJSON(const nlohmann::json::binary_t& binary
     }
 
     return array;
+}
+
+CKTapProtoException allocateCKTapProtoException(const tap_protocol::TapProtoException& e) {
+    CKTapProtoException result = {
+        .code = e.code(),
+        .message = strdup(e.what()),
+    };
+
+    return result;
 }
 
 char* allocateCStringFromCpp(const std::string& cppString) {
@@ -52,7 +57,8 @@ void fillConstructorParams(CKTapCardConstructorParams& params, const size_t inde
     params.needsSetup = card.NeedSetup() ? 1 : 0;
 }
 
-void fillConstructorParams(SlotConstructorParams& params, const tap_protocol::Satscard::Slot& slot) {
+void fillConstructorParams(SlotConstructorParams& params, const int32_t handle, const tap_protocol::Satscard::Slot& slot) {
+    params.satscardHandle = handle;
     params.status = static_cast<int32_t>(slot.status);
     params.address = allocateCStringFromCpp(slot.address);
     params.privkey = allocateCBinaryArrayFromJSON(slot.privkey);
@@ -74,6 +80,14 @@ void freeCKTapCardConstructorParams(CKTapCardConstructorParams& params) {
     freeCString(params.appletVersion);
 }
 
+void freeCKTapInterfaceStatus(CKTapInterfaceStatus& status) {
+    freeCKTapProtoException(status.exception);
+}
+
+void freeCKTapProtoException(CKTapProtoException& exception) {
+    freeCString(exception.message);
+}
+
 void freeCString(char*& cString) {
     if (cString != nullptr) {
         std::free(cString);
@@ -83,7 +97,11 @@ void freeCString(char*& cString) {
 
 void freeSatscardConstructorParams(SatscardConstructorParams& params) {
     freeCKTapCardConstructorParams(params.base);
-    freeSlotConstructorParams(params.activeSlot);
+}
+
+void freeSatscardGetSlotResponse(SatscardGetSlotResponse& response) {
+    freeCKTapInterfaceStatus(response.status);
+    freeSlotConstructorParams(response.params);
 }
 
 void freeSlotConstructorParams(SlotConstructorParams& params) {
@@ -92,6 +110,11 @@ void freeSlotConstructorParams(SlotConstructorParams& params) {
     freeCBinaryArray(params.pubkey);
     freeCBinaryArray(params.masterPK);
     freeCBinaryArray(params.chainCode);
+}
+
+void freeSlotToWifResponse(SlotToWifResponse response) {
+    freeCKTapInterfaceStatus(response.status);
+    freeCString(response.wif);
 }
 
 void freeTapsignerConstructorParams(TapsignerConstructorParams& params) {
@@ -121,8 +144,7 @@ CKTapCardType makeTapCardType(const int32_t type) {
 
 CKTapOperationResponse makeTapOperationResponse(CKTapInterfaceErrorCode errorCode, int32_t index, CKTapCardType type) {
     CKTapOperationResponse response = {
-        .handle.index = index,
-        .handle.type = type,
+        .handle = makeTapCardHandle(index, type),
         .errorCode = errorCode,
     };
 

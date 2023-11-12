@@ -46,7 +46,9 @@ final Map<int, String> tapInterfaceErrorLiteralMap = {
   CKTapInterfaceErrorCode.timeoutDuringTransport: "timeoutDuringTransport",
   CKTapInterfaceErrorCode.unableToFinalizeAsyncAction: "unableToFinalizeAsyncAction",
   CKTapInterfaceErrorCode.unknownErrorDuringHandshake: "unknownErrorDuringHandshake",
+  CKTapInterfaceErrorCode.unknownErrorDuringTapProtocolFunction: "unknownErrorDuringTapProtocolFunction",
   CKTapInterfaceErrorCode.unknownSatscardHandle: "unknownSatscardHandle",
+  CKTapInterfaceErrorCode.unknownSlotForGivenSatscardHandle: "unknownSlotForGivenSatscardHandle",
   CKTapInterfaceErrorCode.unknownTapsignerHandle: "unknownTapsignerHandle",
 };
 

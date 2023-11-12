@@ -13,9 +13,17 @@ class CardBloc extends Bloc<CardEvent, CardState> {
             : InvalidCardState());
       } else {
         var satscard = event.card.toSatscard();
-        emit(satscard != null
-            ? DumpSatscardState(satscard)
-            : InvalidCardState());
+        if (satscard != null) {
+          var activeSlot = await satscard.getActiveSlot();
+          try {
+            var wif = await activeSlot.toWif();
+          } catch (e) {
+            print(e);
+          }
+          emit(DumpSatscardState(satscard, activeSlot));
+        } else {
+          emit(InvalidCardState());
+        }
       }
     });
     on<CardError>((_, emit) async {

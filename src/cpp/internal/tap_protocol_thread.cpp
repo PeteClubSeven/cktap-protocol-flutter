@@ -112,9 +112,8 @@ CKTapInterfaceErrorCode TapProtocolThread::getRecentErrorCode() const {
 
 bool TapProtocolThread::getTapProtocolException(CKTapProtoException& outException) const {
     if (_state == CKTapThreadState::tapProtocolError) {
-        outException.code = _tapProtoException.code();
-        outException.message = strdup(_tapProtoException.what());
-        return _state == CKTapThreadState::tapProtocolError;
+        outException = allocateCKTapProtoException(_tapProtoException);
+        return true;
     }
 
     return false;

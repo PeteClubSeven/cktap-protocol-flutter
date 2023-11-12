@@ -4,8 +4,9 @@ abstract class CardState {}
 
 class DumpSatscardState extends CardState {
   final Satscard satscard;
+  final Slot activeSlot;
 
-  DumpSatscardState(this.satscard);
+  DumpSatscardState(this.satscard, this.activeSlot);
 }
 
 class DumpTapsignerState extends CardState {

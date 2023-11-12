@@ -25,12 +25,17 @@ void ensureNativeThreadStates(Iterable<int> allowedStates) {
   throw InvalidThreadStateError(lastState, threadState);
 }
 
-void ensureSuccessful(int interfaceErrorCode) {
+void ensureStatus(final CKTapInterfaceStatus status) =>
+    ensureSuccessful(status.errorCode, status.exception);
+
+void ensureSuccessful(int interfaceErrorCode, [CKTapProtoException? e]) {
   switch (interfaceErrorCode) {
     case CKTapInterfaceErrorCode.success:
       return;
     case CKTapInterfaceErrorCode.caughtTapProtocolException:
-      throw TapProtoException.fromNative();
+      throw e == null
+          ? TapProtoException.fromNative()
+          : TapProtoException.fromException(e);
 
     default:
       throw TapInterfaceError.fromCode(interfaceErrorCode);

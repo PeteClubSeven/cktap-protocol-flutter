@@ -1,6 +1,7 @@
 #include <exports.h>
 
 // Project
+#include <internal/globals.h>
 #include <internal/tap_protocol_thread.h>
 #include <internal/utils.h>
 
@@ -142,7 +143,7 @@ FFI_PLUGIN_EXPORT int32_t Core_getTransportRequestLength() {
     return optionalBytes.has_value() ? static_cast<int32_t>(optionalBytes.value()->size()) : 0;
 }
 
-FFI_PLUGIN_EXPORT uint8_t* Core_allocateTransportResponseBuffer(int32_t sizeInBytes) {
+FFI_PLUGIN_EXPORT uint8_t* Core_allocateTransportResponseBuffer(const int32_t sizeInBytes) {
     if (g_protocolThread == nullptr) {
         return nullptr;
     }
@@ -189,32 +190,62 @@ FFI_PLUGIN_EXPORT CKTapProtoException Core_getTapProtoException() {
 // ----------------------------------------------
 // Satscard:
 
-FFI_PLUGIN_EXPORT SatscardConstructorParams Satscard_createConstructorParams(int32_t handle) {
+FFI_PLUGIN_EXPORT SatscardConstructorParams Satscard_createConstructorParams(const int32_t handle) {
     SatscardConstructorParams params;
     std::memset(&params, 0, sizeof(params));
 
-    const bool result = readTapCard<tap_protocol::Satscard>(handle, [handle, &params](const tap_protocol::Satscard& card) {
+    params.status = accessTapCard<tap_protocol::Satscard>(handle, [handle, &params](const auto& wrapper) {
+        const auto& card = *wrapper.card;
         fillConstructorParams(params.base, handle, card);
-        fillConstructorParams(params.activeSlot, card.GetActiveSlot());
         params.activeSlotIndex = card.GetActiveSlotIndex();
         params.numSlots = card.GetNumSlots();
         params.hasUnusedSlots = card.HasUnusedSlots() ? 1 : 0;
         params.isUsedUp = card.IsUsedUp() ? 1 : 0;
+        return CKTapInterfaceErrorCode::success;
     });
-    params.errorCode = result ?
-        CKTapInterfaceErrorCode::success :
-        CKTapInterfaceErrorCode::unknownSatscardHandle;
     return params;
+}
+
+FFI_PLUGIN_EXPORT SatscardGetSlotResponse Satscard_getActiveSlot(const int32_t handle) {
+    SatscardGetSlotResponse response;
+    std::memset(&response, 0, sizeof(response));
+
+    response.status = accessTapCard<tap_protocol::Satscard>(handle, [=, &response](auto& wrapper) {
+        auto slot = wrapper.card->GetActiveSlot();
+        const auto index = slot.index;
+        if (index >= wrapper.slots.size()) {
+            wrapper.slots.resize(slot.index + 1);
+        }
+        fillConstructorParams(response.params, handle, slot);
+        wrapper.slots[index] = std::make_unique<tap_protocol::Satscard::Slot>(std::move(slot));
+        return CKTapInterfaceErrorCode::success;
+    });
+    return response;
+}
+
+FFI_PLUGIN_EXPORT SlotToWifResponse Satscard_slotToWif(const int32_t handle, const int32_t index) {
+    SlotToWifResponse response;
+    std::memset(&response, 0, sizeof(response));
+
+    response.status = accessTapCard<tap_protocol::Satscard>(handle, [=, &response](const auto& wrapper) {
+        if (index < 0 || index >= wrapper.slots.size() || !wrapper.slots[index]) {
+            return CKTapInterfaceErrorCode::unknownSlotForGivenSatscardHandle;
+        }
+        response.wif = allocateCStringFromCpp(wrapper.slots[index]->to_wif());
+        return CKTapInterfaceErrorCode::success;
+    });
+    return response;
 }
 
 // ----------------------------------------------
 // Tapsigner:
 
-FFI_PLUGIN_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(int32_t handle) {
+FFI_PLUGIN_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(const int32_t handle) {
     TapsignerConstructorParams params;
     std::memset(&params, 0, sizeof(params));
 
-    const bool result = readTapCard<tap_protocol::Tapsigner>(handle, [handle, &params](const tap_protocol::Tapsigner& card) {
+    params.status = accessTapCard<tap_protocol::Tapsigner>(handle, [handle, &params](const auto& wrapper) {
+        const auto& card = *wrapper.card;
         fillConstructorParams(params.base, handle, card);
         params.numberOfBackups = card.GetNumberOfBackups();
         if (const auto path = card.GetDerivationPath()) {
@@ -222,10 +253,8 @@ FFI_PLUGIN_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(i
                 params.derivationPath = allocateCStringFromCpp(path.value());
             }
         }
+        return CKTapInterfaceErrorCode::success;
     });
-    params.errorCode = result ?
-        CKTapInterfaceErrorCode::success :
-        CKTapInterfaceErrorCode::unknownTapsignerHandle;
     return params;
 }
 
@@ -236,6 +265,14 @@ FFI_PLUGIN_EXPORT void Utility_freeCBinaryArray(CBinaryArray array) {
     freeCBinaryArray(array);
 }
 
+FFI_PLUGIN_EXPORT void Utility_freeCKTapInterfaceStatus(CKTapInterfaceStatus status) {
+    freeCKTapInterfaceStatus(status);
+}
+
+FFI_PLUGIN_EXPORT void Utility_freeCKTapProtoException(CKTapProtoException exception) {
+    freeCKTapProtoException(exception);
+}
+
 FFI_PLUGIN_EXPORT void Utility_freeCString(char* cString) {
     freeCString(cString);
 }
@@ -244,8 +281,16 @@ FFI_PLUGIN_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructor
     freeSatscardConstructorParams(params);
 }
 
+FFI_PLUGIN_EXPORT void Utility_freeSatscardGetSlotResponse(SatscardGetSlotResponse response) {
+    freeSatscardGetSlotResponse(response);
+}
+
 FFI_PLUGIN_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params) {
     freeSlotConstructorParams(params);
+}
+
+FFI_PLUGIN_EXPORT void Utility_freeSlotToWifResponse(SlotToWifResponse response) {
+    freeSlotToWifResponse(response);
 }
 
 FFI_PLUGIN_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params) {

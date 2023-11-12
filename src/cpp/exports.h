@@ -51,6 +51,8 @@ FFI_PLUGIN_EXPORT CKTapProtoException Core_getTapProtoException();
 /// Gets a C representation of parameters required to construct a [Satscard] in dart. Note: must use
 /// [Utility_freeSatscardConstructorParams] when you are finished using the data to deallocate memory
 FFI_PLUGIN_EXPORT SatscardConstructorParams Satscard_createConstructorParams(int32_t handle);
+FFI_PLUGIN_EXPORT SatscardGetSlotResponse Satscard_getActiveSlot(int32_t handle);
+FFI_PLUGIN_EXPORT SlotToWifResponse Satscard_slotToWif(int32_t handle, int32_t index);
 
 // ----------------------------------------------
 // Tapsigner:
@@ -62,9 +64,13 @@ FFI_PLUGIN_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(i
 // ----------------------------------------------
 // Utility:
 FFI_PLUGIN_EXPORT void Utility_freeCBinaryArray(CBinaryArray array);
+FFI_PLUGIN_EXPORT void Utility_freeCKTapInterfaceStatus(CKTapInterfaceStatus status);
+FFI_PLUGIN_EXPORT void Utility_freeCKTapProtoException(CKTapProtoException exception);
 FFI_PLUGIN_EXPORT void Utility_freeCString(char* cString);
+FFI_PLUGIN_EXPORT void Utility_freeSatscardGetSlotResponse(SatscardGetSlotResponse response);
 FFI_PLUGIN_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorParams params);
 FFI_PLUGIN_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params);
+FFI_PLUGIN_EXPORT void Utility_freeSlotToWifResponse(SlotToWifResponse response);
 FFI_PLUGIN_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params);
 
 #endif // __CKTAP_PROTOCOL__EXPORTS_H__

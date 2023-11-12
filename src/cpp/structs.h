@@ -14,6 +14,11 @@ FFI_PLUGIN_EXPORT typedef struct {
 } CBinaryArray;
 
 FFI_PLUGIN_EXPORT typedef struct {
+    int32_t code;
+    char* message;
+} CKTapProtoException;
+
+FFI_PLUGIN_EXPORT typedef struct {
     int32_t index;
     CKTapCardType type;
 } CKTapCardHandle;
@@ -23,10 +28,11 @@ FFI_PLUGIN_EXPORT typedef struct {
     CKTapInterfaceErrorCode errorCode;
 } CKTapOperationResponse;
 
+/// Used when accessing tap_protocol methods that can throw
 FFI_PLUGIN_EXPORT typedef struct {
-    int32_t code;
-    char* message;
-} CKTapProtoException;
+    CKTapInterfaceErrorCode errorCode;
+    CKTapProtoException exception;
+} CKTapInterfaceStatus;
 
 FFI_PLUGIN_EXPORT typedef struct {
     int32_t handle;
@@ -42,11 +48,12 @@ FFI_PLUGIN_EXPORT typedef struct {
 } CKTapCardConstructorParams;
 
 FFI_PLUGIN_EXPORT typedef struct {
+    int32_t satscardHandle;
     int32_t index;
     int32_t status;
     char* address;
 
-    // Requires the CVC to acquire
+    /// Requires the CVC to acquire
     CBinaryArray privkey;
     CBinaryArray pubkey;
     CBinaryArray masterPK;
@@ -54,9 +61,13 @@ FFI_PLUGIN_EXPORT typedef struct {
 } SlotConstructorParams;
 
 FFI_PLUGIN_EXPORT typedef struct {
-    CKTapInterfaceErrorCode errorCode;
+    CKTapInterfaceStatus status;
+    char* wif;
+} SlotToWifResponse;
+
+FFI_PLUGIN_EXPORT typedef struct {
+    CKTapInterfaceStatus status;
     CKTapCardConstructorParams base;
-    SlotConstructorParams activeSlot;
     int32_t activeSlotIndex;
     int32_t numSlots;
     int8_t hasUnusedSlots;
@@ -64,7 +75,12 @@ FFI_PLUGIN_EXPORT typedef struct {
 } SatscardConstructorParams;
 
 FFI_PLUGIN_EXPORT typedef struct {
-    CKTapInterfaceErrorCode errorCode;
+    CKTapInterfaceStatus status;
+    SlotConstructorParams params;
+} SatscardGetSlotResponse;
+
+FFI_PLUGIN_EXPORT typedef struct {
+    CKTapInterfaceStatus status;
     CKTapCardConstructorParams base;
     int32_t numberOfBackups;
     char* derivationPath;

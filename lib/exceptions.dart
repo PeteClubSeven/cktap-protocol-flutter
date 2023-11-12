@@ -57,14 +57,19 @@ class TapProtoException implements CKTapException {
         getLiteralFromTapProtoExceptionErrorCode(errorCode), message);
   }
 
+  factory TapProtoException.fromException(final CKTapProtoException e) {
+    final message = dartStringFromCString(e.message);
+    return TapProtoException.fromCode(e.code, message);
+  }
+
   factory TapProtoException.fromNative() {
     ensureNativeThreadState(CKTapThreadState.tapProtocolError);
     final exception = nativeLibrary.Core_getTapProtoException();
-    final message = dartStringFromCString(exception.message, freeCString: true);
+    final message = dartStringFromCString(exception.message);
+    nativeLibrary.Utility_freeCKTapProtoException(exception);
     return TapProtoException.fromCode(exception.code, message);
   }
 
   @override
-  String toString() => "tap_protocol::TapProtoException::$literal ($code)"
-      "$message";
+  String toString() => "$literal ($code): $message";
 }

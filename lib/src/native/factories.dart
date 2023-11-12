@@ -1,5 +1,6 @@
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/error/types.dart';
+import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
@@ -21,8 +22,10 @@ CKTapCard makeCardOfType(int handle, CardType type) {
 Satscard makeSatscardFromHandle(int handle) {
   final params = nativeLibrary.Satscard_createConstructorParams(handle);
   try {
-    if (params.errorCode == CKTapInterfaceErrorCode.unknownSatscardHandle) {
+    if (params.status.errorCode == CKTapInterfaceErrorCode.unknownSatscardHandle) {
       throw InvalidCardTypeError(handle, CardType.satscard);
+    } else {
+      ensureStatus(params.status);
     }
     var card = Satscard(params);
     return card;
@@ -34,8 +37,10 @@ Satscard makeSatscardFromHandle(int handle) {
 Tapsigner makeTapsignerFromHandle(int handle) {
   final params = nativeLibrary.Tapsigner_createConstructorParams(handle);
   try {
-    if (params.errorCode == CKTapInterfaceErrorCode.unknownTapsignerHandle) {
+    if (params.status.errorCode == CKTapInterfaceErrorCode.unknownTapsignerHandle) {
       throw InvalidCardTypeError(handle, CardType.tapsigner);
+    } else {
+      ensureStatus(params.status);
     }
     var card = Tapsigner(params);
     return card;

@@ -187,6 +187,36 @@ class NativeBindings {
       _Satscard_createConstructorParamsPtr.asFunction<
           SatscardConstructorParams Function(int)>();
 
+  SatscardGetSlotResponse Satscard_getActiveSlot(
+    int handle,
+  ) {
+    return _Satscard_getActiveSlot(
+      handle,
+    );
+  }
+
+  late final _Satscard_getActiveSlotPtr =
+      _lookup<ffi.NativeFunction<SatscardGetSlotResponse Function(ffi.Int32)>>(
+          'Satscard_getActiveSlot');
+  late final _Satscard_getActiveSlot = _Satscard_getActiveSlotPtr.asFunction<
+      SatscardGetSlotResponse Function(int)>();
+
+  SlotToWifResponse Satscard_slotToWif(
+    int handle,
+    int index,
+  ) {
+    return _Satscard_slotToWif(
+      handle,
+      index,
+    );
+  }
+
+  late final _Satscard_slotToWifPtr = _lookup<
+          ffi.NativeFunction<SlotToWifResponse Function(ffi.Int32, ffi.Int32)>>(
+      'Satscard_slotToWif');
+  late final _Satscard_slotToWif =
+      _Satscard_slotToWifPtr.asFunction<SlotToWifResponse Function(int, int)>();
+
   /// Gets a C representation of parameters required to construct a [Tapsigner] in dart. Note: must use
   /// [Utility_freeTapsignerConstructorParams] when you are finished using the data to deallocate memory
   TapsignerConstructorParams Tapsigner_createConstructorParams(
@@ -220,6 +250,36 @@ class NativeBindings {
   late final _Utility_freeCBinaryArray =
       _Utility_freeCBinaryArrayPtr.asFunction<void Function(CBinaryArray)>();
 
+  void Utility_freeCKTapInterfaceStatus(
+    CKTapInterfaceStatus status,
+  ) {
+    return _Utility_freeCKTapInterfaceStatus(
+      status,
+    );
+  }
+
+  late final _Utility_freeCKTapInterfaceStatusPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(CKTapInterfaceStatus)>>(
+          'Utility_freeCKTapInterfaceStatus');
+  late final _Utility_freeCKTapInterfaceStatus =
+      _Utility_freeCKTapInterfaceStatusPtr.asFunction<
+          void Function(CKTapInterfaceStatus)>();
+
+  void Utility_freeCKTapProtoException(
+    CKTapProtoException exception,
+  ) {
+    return _Utility_freeCKTapProtoException(
+      exception,
+    );
+  }
+
+  late final _Utility_freeCKTapProtoExceptionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(CKTapProtoException)>>(
+          'Utility_freeCKTapProtoException');
+  late final _Utility_freeCKTapProtoException =
+      _Utility_freeCKTapProtoExceptionPtr.asFunction<
+          void Function(CKTapProtoException)>();
+
   void Utility_freeCString(
     ffi.Pointer<ffi.Char> cString,
   ) {
@@ -249,6 +309,21 @@ class NativeBindings {
       _Utility_freeSatscardConstructorParamsPtr.asFunction<
           void Function(SatscardConstructorParams)>();
 
+  void Utility_freeSatscardGetSlotResponse(
+    SatscardGetSlotResponse response,
+  ) {
+    return _Utility_freeSatscardGetSlotResponse(
+      response,
+    );
+  }
+
+  late final _Utility_freeSatscardGetSlotResponsePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(SatscardGetSlotResponse)>>(
+          'Utility_freeSatscardGetSlotResponse');
+  late final _Utility_freeSatscardGetSlotResponse =
+      _Utility_freeSatscardGetSlotResponsePtr.asFunction<
+          void Function(SatscardGetSlotResponse)>();
+
   void Utility_freeSlotConstructorParams(
     SlotConstructorParams params,
   ) {
@@ -263,6 +338,20 @@ class NativeBindings {
   late final _Utility_freeSlotConstructorParams =
       _Utility_freeSlotConstructorParamsPtr.asFunction<
           void Function(SlotConstructorParams)>();
+
+  void Utility_freeSlotToWifResponse(
+    SlotToWifResponse response,
+  ) {
+    return _Utility_freeSlotToWifResponse(
+      response,
+    );
+  }
+
+  late final _Utility_freeSlotToWifResponsePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(SlotToWifResponse)>>(
+          'Utility_freeSlotToWifResponse');
+  late final _Utility_freeSlotToWifResponse = _Utility_freeSlotToWifResponsePtr
+      .asFunction<void Function(SlotToWifResponse)>();
 
   void Utility_freeTapsignerConstructorParams(
     TapsignerConstructorParams params,
@@ -355,8 +444,18 @@ abstract class CKTapInterfaceErrorCode {
   static const int timeoutDuringTransport = 19;
   static const int unableToFinalizeAsyncAction = 20;
   static const int unknownErrorDuringHandshake = 21;
-  static const int unknownSatscardHandle = 22;
-  static const int unknownTapsignerHandle = 23;
+  static const int unknownErrorDuringTapProtocolFunction = 22;
+  static const int unknownSatscardHandle = 23;
+  static const int unknownSlotForGivenSatscardHandle = 24;
+  static const int unknownTapsignerHandle = 25;
+}
+
+/// Used when accessing tap_protocol methods that can throw
+class CKTapInterfaceStatus extends ffi.Struct {
+  @ffi.Int32()
+  external int errorCode;
+
+  external CKTapProtoException exception;
 }
 
 class CKTapOperationResponse extends ffi.Struct {
@@ -448,12 +547,9 @@ abstract class CKTapThreadState {
 }
 
 class SatscardConstructorParams extends ffi.Struct {
-  @ffi.Int32()
-  external int errorCode;
+  external CKTapInterfaceStatus status;
 
   external CKTapCardConstructorParams base;
-
-  external SlotConstructorParams activeSlot;
 
   @ffi.Int32()
   external int activeSlotIndex;
@@ -468,7 +564,16 @@ class SatscardConstructorParams extends ffi.Struct {
   external int isUsedUp;
 }
 
+class SatscardGetSlotResponse extends ffi.Struct {
+  external CKTapInterfaceStatus status;
+
+  external SlotConstructorParams params;
+}
+
 class SlotConstructorParams extends ffi.Struct {
+  @ffi.Int32()
+  external int satscardHandle;
+
   @ffi.Int32()
   external int index;
 
@@ -487,9 +592,14 @@ class SlotConstructorParams extends ffi.Struct {
   external CBinaryArray chainCode;
 }
 
+class SlotToWifResponse extends ffi.Struct {
+  external CKTapInterfaceStatus status;
+
+  external ffi.Pointer<ffi.Char> wif;
+}
+
 class TapsignerConstructorParams extends ffi.Struct {
-  @ffi.Int32()
-  external int errorCode;
+  external CKTapInterfaceStatus status;
 
   external CKTapCardConstructorParams base;
 

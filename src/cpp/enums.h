@@ -38,7 +38,9 @@ FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode {
     timeoutDuringTransport,
     unableToFinalizeAsyncAction,
     unknownErrorDuringHandshake,
+    unknownErrorDuringTapProtocolFunction,
     unknownSatscardHandle,
+    unknownSlotForGivenSatscardHandle,
     unknownTapsignerHandle,
 } CKTapInterfaceErrorCode;
 
