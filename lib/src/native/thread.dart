@@ -38,40 +38,40 @@ Future<void> cancelNativeOperation() async {
 
 /// Tries to retrieve the card data from the native thread and return in a
 /// Dart-native format
-Future<CKTapCard> finalizeCardCreation() async {
-  int threadState = nativeLibrary.Core_getThreadState();
-  if (threadState == CKTapThreadState.finished) {
-    CKTapOperationResponse response = nativeLibrary.Core_endOperation();
-    ensureSuccessful(response.errorCode);
+CKTapCard finalizeCardCreation() {
+    int threadState = nativeLibrary.Core_getThreadState();
+    if (threadState == CKTapThreadState.finished) {
+      CKTapOperationResponse response = nativeLibrary.Core_endOperation();
+      ensureSuccessful(response.errorCode);
 
-    switch (response.handle.type) {
-      case CKTapCardType.satscard:
-      case CKTapCardType.tapsigner:
-        return makeCardFromHandle(response.handle);
-      default:
-        throw UnsupportedError(
-            "Can't create CKTapCard of type: ${response.handle.type}");
+      switch (response.handle.type) {
+        case CKTapCardType.satscard:
+        case CKTapCardType.tapsigner:
+          return makeCardFromHandle(response.handle);
+        default:
+          throw UnsupportedError(
+              "Can't create CKTapCard of type: ${response.handle.type}");
+      }
     }
-  }
 
-  switch (threadState) {
-    case CKTapThreadState.timeout:
-      throw TimeoutException("CKTap card creation timed out");
-    case CKTapThreadState.canceled:
-      throw OperationCanceledException("CKTap card creation canceled");
-    default:
-      throw InvalidThreadStateError(CKTapThreadState.finished, threadState);
-  }
+    switch (threadState) {
+      case CKTapThreadState.timeout:
+        throw TimeoutException("CKTap card creation timed out");
+      case CKTapThreadState.canceled:
+        throw OperationCanceledException("CKTap card creation canceled");
+      default:
+        throw InvalidThreadStateError(CKTapThreadState.finished, threadState);
+    }
 }
 
 /// Tells the native thread to start the handshaking process
-Future<void> prepareForCardHandshake() async {
+void prepareForCardHandshake() {
   ensureNativeThreadState(CKTapThreadState.notStarted);
   ensureSuccessful(nativeLibrary.Core_beginAsyncHandshake());
 }
 
 /// Attempts to return the native thread to a workable clean state
-Future<void> prepareNativeThread() async {
+void prepareNativeThread() {
   if (_isNativeThreadActive()) {
     throw ProtocolConcurrencyError("Can't prepare the native thread");
   }
@@ -82,27 +82,29 @@ Future<void> prepareNativeThread() async {
 /// Handles the sending and receiving of data between the native library and an
 /// NFC device until completion or failure
 Future<void> processTransportRequests(NfcBridge nfc) async {
-  ensureNativeThreadStates([
-    CKTapThreadState.asyncActionStarting,
-    CKTapThreadState.awaitingTransportRequest,
-    CKTapThreadState.transportRequestReady
-  ]);
+  return Future.sync(() async {
+    ensureNativeThreadStates([
+      CKTapThreadState.asyncActionStarting,
+      CKTapThreadState.awaitingTransportRequest,
+      CKTapThreadState.transportRequestReady
+    ]);
 
-  while (_isNativeThreadActive()) {
-    // Allow the background thread to reach the desired state
-    if (nativeLibrary.Core_getThreadState() !=
-        CKTapThreadState.transportRequestReady) {
-      await Future.delayed(Duration.zero);
-      continue;
+    while (_isNativeThreadActive()) {
+      // Allow the background thread to reach the desired state
+      if (nativeLibrary.Core_getThreadState() !=
+          CKTapThreadState.transportRequestReady) {
+        await Future.delayed(const Duration(microseconds: 50));
+        continue;
+      }
+
+      // Communicate any necessary data with the NFC card
+      var transportResponse = await nfc.send(_getNativeTransportRequest());
+      var errorCode = _setNativeTransportResponse(transportResponse);
+      ensureSuccessful(errorCode);
     }
 
-    // Communicate any necessary data with the NFC card
-    var transportResponse = await nfc.send(_getNativeTransportRequest());
-    var errorCode = _setNativeTransportResponse(transportResponse);
-    ensureSuccessful(errorCode);
-  }
-
-  ensureSuccessful(nativeLibrary.Core_finalizeAsyncAction());
+    ensureSuccessful(nativeLibrary.Core_finalizeAsyncAction());
+  });
 }
 
 /// Converts the native transport request to a Dart readable format.
