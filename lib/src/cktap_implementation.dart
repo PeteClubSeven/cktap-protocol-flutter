@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/exceptions.dart';
+import 'package:cktap_protocol/src/error/types.dart';
 import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
@@ -14,6 +15,9 @@ import 'package:nfc_manager/nfc_manager.dart';
 class CKTapImplementation {
   /// A copy of bindings to the native C++ library
   final NativeBindings bindings;
+
+  /// See [CKTapImplementation.performAsyncOperation]
+  bool _isPerformingNativeAction = false;
 
   /// The most recent cleanup operation
   Future? _cleanupFuture;
@@ -43,24 +47,41 @@ class CKTapImplementation {
   static CKTapImplementation get instance =>
       _staticInstance ??= CKTapImplementation._initialize();
 
-  Future<CKTapCard> readCard(NfcTag tag, String spendCode) async {
-    var nfc = NfcBridge.fromTag(tag);
-    _awaitCleanup();
+  /// A naive approach to ensuring concurrent operations are not being
+  /// performed. This normally wouldn't be necessary but because we have a
+  /// native background thread we can only guarantee the library is free of race
+  /// conditions by flagging when an async operation is in progress
+  Future<T> performNativeOperation<T>(Future<T> Function() action) async {
+    return Future.sync(() async {
+      if (_isPerformingNativeAction) {
+        throw ProtocolConcurrencyError(
+            "Attempt to perform a concurrent native action in CKTapProtocol");
+      }
 
-    try {
-      await prepareNativeThread();
-      await prepareForCardHandshake();
-      await processTransportRequests(nfc);
-      return await finalizeCardCreation();
-    } on NfcCommunicationException catch (_) {
-      _cancelOperation();
-      rethrow;
-    } catch (e, s) {
-      _cancelOperation();
-      print(e);
-      print(s);
-      rethrow;
-    }
+      // Cleanup is a special case where we can just safely wait for cleanup if
+      // the user of the library tries performing a second action too quickly
+      _awaitCleanup();
+      try {
+        _isPerformingNativeAction = true;
+        return await action();
+      } catch (e, s) {
+        print(e);
+        print(s);
+        _cancelOperation();
+        rethrow;
+      } finally {
+        _isPerformingNativeAction = false;
+      }
+    });
+  }
+
+  Future<CKTapCard> readCard(NfcTag tag, String spendCode) async {
+    final nfc = NfcBridge.fromTag(tag);
+    return performNativeOperation(() {
+      prepareNativeThread();
+      prepareForCardHandshake();
+      return processTransportRequests(nfc);
+    }).then((_) => finalizeCardCreation());
   }
 
   Future<void> _awaitCleanup() async {
