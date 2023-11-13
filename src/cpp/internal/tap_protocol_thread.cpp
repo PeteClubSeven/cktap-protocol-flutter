@@ -13,18 +13,19 @@
 
 using namespace std::chrono_literals;
 
-TapProtocolThread* TapProtocolThread::createNew() {
-    if (auto thread = new TapProtocolThread{ }) {
+TapProtocolThread* TapProtocolThread::createNew() noexcept {
+    try {
+        auto thread = new TapProtocolThread{ };
         if (thread->reset() == CKTapInterfaceErrorCode::success) {
             return thread;
         }
 
         delete thread;
-    }
+    } catch (...) { }
     return nullptr;
 }
 
-CKTapInterfaceErrorCode TapProtocolThread::reset() {
+CKTapInterfaceErrorCode TapProtocolThread::reset() noexcept {
     if (isThreadActive()) {
         return CKTapInterfaceErrorCode::threadAlreadyInUse;
     }
@@ -36,7 +37,7 @@ CKTapInterfaceErrorCode TapProtocolThread::reset() {
     _tapProtoException = tap_protocol::TapProtoException{ 0, { } };
     _pendingTransportRequest.clear();
     _transportResponse.clear();
-    _card.reset();
+    _constructedCard.reset();
 
     return CKTapInterfaceErrorCode::success;
 };

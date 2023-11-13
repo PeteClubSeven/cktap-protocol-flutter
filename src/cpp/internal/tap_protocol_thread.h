@@ -23,8 +23,8 @@ namespace tap_protocol {
 class TapProtocolThread {
 public:
 
-    static TapProtocolThread* createNew();
-    CKTapInterfaceErrorCode reset();
+    static TapProtocolThread* createNew() noexcept;
+    CKTapInterfaceErrorCode reset() noexcept;
     void requestCancel();
 
     bool beginCardHandshake(int32_t cardType);
