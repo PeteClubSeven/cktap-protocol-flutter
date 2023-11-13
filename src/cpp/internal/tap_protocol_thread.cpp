@@ -56,7 +56,7 @@ bool TapProtocolThread::beginCardHandshake(const int32_t cardType) {
             if ((cardType == CKTapCardType::satscard && !card->IsTapsigner()) ||
                 (cardType == CKTapCardType::tapsigner && card->IsTapsigner()) ||
                 (cardType == CKTapCardType::unknownCard)) {
-                _card = std::move(card);
+                _constructedCard = std::move(card);
                 _state = CKTapThreadState::finished;
                 return CKTapInterfaceErrorCode::success;
             }
@@ -153,23 +153,27 @@ bool TapProtocolThread::finalizeTransportResponse() {
     return true;
 }
 
-std::optional<bool> TapProtocolThread::isTapsigner() const {
+std::optional<CKTapCardType> TapProtocolThread::getConstructedCardType() const {
     if (!isThreadActive()) {
-        return _card->IsTapsigner();
+        if (_constructedCard == nullptr) {
+            return CKTapCardType::unknownCard;
+        }
+        return _constructedCard->IsTapsigner() ?
+            CKTapCardType::tapsigner :
+            CKTapCardType::satscard;
     }
-
     return { };
 }
 
-std::unique_ptr<tap_protocol::Satscard> TapProtocolThread::releaseSatscard() {
+std::unique_ptr<tap_protocol::Satscard> TapProtocolThread::releaseConstructedSatscard() {
     return !isThreadActive() ?
-        std::move(dynamic_pointer_cast<tap_protocol::Satscard>(_card)) :
+        std::move(dynamic_pointer_cast<tap_protocol::Satscard>(_constructedCard)) :
         nullptr;
 }
 
-std::unique_ptr<tap_protocol::Tapsigner> TapProtocolThread::releaseTapsigner() {
+std::unique_ptr<tap_protocol::Tapsigner> TapProtocolThread::releaseConstructedTapsigner() {
     return !isThreadActive() ?
-        std::move(dynamic_pointer_cast<tap_protocol::Tapsigner>(_card)) :
+        std::move(dynamic_pointer_cast<tap_protocol::Tapsigner>(_constructedCard)) :
         nullptr;
 }
 

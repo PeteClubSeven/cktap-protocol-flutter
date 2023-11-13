@@ -50,32 +50,35 @@ FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation() {
     if (g_protocolThread->getRecentErrorCode() == CKTapInterfaceErrorCode::pending) {
         return makeTapOperationResponse(CKTapInterfaceErrorCode::threadNotYetFinalized);
     }
-    if (g_protocolThread->hasFailed() || !g_protocolThread->isTapsigner().has_value()) {
+    if (g_protocolThread->hasFailed() || !g_protocolThread->getConstructedCardType().has_value()) {
         return makeTapOperationResponse(CKTapInterfaceErrorCode::operationFailed);
     }
 
     auto response = makeTapOperationResponse(g_protocolThread->getRecentErrorCode());
+    response.handle.type = g_protocolThread->getConstructedCardType().value();
     size_t index;
-    if (g_protocolThread->isTapsigner().value()) {
-        auto tapsigner = g_protocolThread->releaseTapsigner();
+    if (response.handle.type == CKTapCardType::tapsigner) {
+        auto tapsigner = g_protocolThread->releaseConstructedTapsigner();
         if (!tapsigner) {
             return makeTapOperationResponse(CKTapInterfaceErrorCode::expectedTapsignerButReceivedNothing);
         }
 
         index = updateVectorWithCard(g_tapsigners, tapsigner);
         response.handle.type = CKTapCardType::tapsigner;
-    } else {
-        auto satscard = g_protocolThread->releaseSatscard();
+    } else if (response.handle.type == CKTapCardType::satscard) {
+        auto satscard = g_protocolThread->releaseConstructedSatscard();
         if (!satscard) {
             return makeTapOperationResponse(CKTapInterfaceErrorCode::expectedSatscardButReceivedNothing);
         }
 
         index = updateVectorWithCard(g_satscards, satscard);
         response.handle.type = CKTapCardType::satscard;
+    } else {
+        return makeTapOperationResponse(CKTapInterfaceErrorCode::invalidCardDuringHandshake);
     }
 
     if (index == invalidIndex) {
-        return makeTapOperationResponse(CKTapInterfaceErrorCode::invalidHandlingOfTapCardDuringFinalization);
+        return makeTapOperationResponse(CKTapInterfaceErrorCode::invalidHandlingOfCardDuringFinalization);
     }
 
     response.handle.index = static_cast<int32_t>(index);

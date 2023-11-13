@@ -433,25 +433,26 @@ abstract class CKTapInterfaceErrorCode {
   static const int expectedSatscardButReceivedNothing = 4;
   static const int expectedTapsignerButReceivedNothing = 5;
   static const int failedToPerformHandshake = 6;
-  static const int invalidHandlingOfTapCardDuringFinalization = 7;
-  static const int libraryNotInitialized = 8;
-  static const int operationCanceled = 9;
-  static const int operationFailed = 10;
-  static const int operationStillInProgress = 11;
-  static const int threadAlreadyInUse = 12;
-  static const int threadAllocationFailed = 13;
-  static const int threadNotReadyForResponse = 14;
-  static const int threadNotResetForHandshake = 15;
-  static const int threadNotYetFinalized = 16;
-  static const int threadNotYetStarted = 17;
-  static const int threadResponseFinalizationFailed = 18;
-  static const int timeoutDuringTransport = 19;
-  static const int unableToFinalizeAsyncAction = 20;
-  static const int unknownErrorDuringHandshake = 21;
-  static const int unknownErrorDuringTapProtocolFunction = 22;
-  static const int unknownSatscardHandle = 23;
-  static const int unknownSlotForGivenSatscardHandle = 24;
-  static const int unknownTapsignerHandle = 25;
+  static const int invalidCardDuringHandshake = 7;
+  static const int invalidHandlingOfCardDuringFinalization = 8;
+  static const int libraryNotInitialized = 9;
+  static const int operationCanceled = 10;
+  static const int operationFailed = 11;
+  static const int operationStillInProgress = 12;
+  static const int threadAlreadyInUse = 13;
+  static const int threadAllocationFailed = 14;
+  static const int threadNotReadyForResponse = 15;
+  static const int threadNotResetForHandshake = 16;
+  static const int threadNotYetFinalized = 17;
+  static const int threadNotYetStarted = 18;
+  static const int threadResponseFinalizationFailed = 19;
+  static const int timeoutDuringTransport = 20;
+  static const int unableToFinalizeAsyncAction = 21;
+  static const int unknownErrorDuringHandshake = 22;
+  static const int unknownErrorDuringTapProtocolFunction = 23;
+  static const int unknownSatscardHandle = 24;
+  static const int unknownSlotForGivenSatscardHandle = 25;
+  static const int unknownTapsignerHandle = 26;
 }
 
 /// Used when accessing tap_protocol methods that can throw

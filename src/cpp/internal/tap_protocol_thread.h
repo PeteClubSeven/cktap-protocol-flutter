@@ -42,9 +42,9 @@ public:
     std::optional<uint8_t*> allocateTransportResponseBuffer(size_t sizeInBytes);
     bool finalizeTransportResponse();
 
-    std::optional<bool> isTapsigner() const;
-    std::unique_ptr<tap_protocol::Satscard> releaseSatscard();
-    std::unique_ptr<tap_protocol::Tapsigner> releaseTapsigner();
+    std::optional<CKTapCardType> getConstructedCardType() const;
+    std::unique_ptr<tap_protocol::Satscard> releaseConstructedSatscard();
+    std::unique_ptr<tap_protocol::Tapsigner> releaseConstructedTapsigner();
 
 private:
 
@@ -61,7 +61,10 @@ private:
     tap_protocol::TapProtoException _tapProtoException{ 0, { } };
     tap_protocol::Bytes _pendingTransportRequest{ };
     tap_protocol::Bytes _transportResponse{ };
-    std::unique_ptr<tap_protocol::CKTapCard> _card{ };
+
+    std::unique_ptr<tap_protocol::CKTapCard> _constructedCard{ };
+    std::weak_ptr<tap_protocol::Satscard> _satscard{ };
+    std::weak_ptr<tap_protocol::Tapsigner> _tapsigner{ };
 };
 
 #endif // __CKTAP_PROTOCOL__INTERNAL_TAPPROTOCOLTHREAD_H__
