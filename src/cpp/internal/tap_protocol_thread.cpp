@@ -153,6 +153,26 @@ bool TapProtocolThread::finalizeTransportResponse() {
     return true;
 }
 
+std::optional<bool> TapProtocolThread::isTapsigner() const {
+    if (!isThreadActive()) {
+        return _card->IsTapsigner();
+    }
+
+    return { };
+}
+
+std::unique_ptr<tap_protocol::Satscard> TapProtocolThread::releaseSatscard() {
+    return !isThreadActive() ?
+        std::move(dynamic_pointer_cast<tap_protocol::Satscard>(_card)) :
+        nullptr;
+}
+
+std::unique_ptr<tap_protocol::Tapsigner> TapProtocolThread::releaseTapsigner() {
+    return !isThreadActive() ?
+        std::move(dynamic_pointer_cast<tap_protocol::Tapsigner>(_card)) :
+        nullptr;
+}
+
 void TapProtocolThread::_cancelIfNecessary() {
     if (_shouldCancel) {
         throw CancelationException("Canceling operation in TapProtocolThread");
@@ -225,24 +245,4 @@ void TapProtocolThread::_signalTransportRequestReady(const tap_protocol::Bytes& 
 
     _pendingTransportRequest = bytes;
     _state = CKTapThreadState::transportRequestReady;
-}
-
-std::optional<bool> TapProtocolThread::isTapsigner() const {
-    if (!isThreadActive()) {
-        return _card->IsTapsigner();
-    }
-
-    return { };
-}
-
-std::unique_ptr<tap_protocol::Satscard> TapProtocolThread::releaseSatscard() {
-    return !isThreadActive() ?
-        std::move(dynamic_pointer_cast<tap_protocol::Satscard>(_card)) :
-        nullptr;
-}
-
-std::unique_ptr<tap_protocol::Tapsigner> TapProtocolThread::releaseTapsigner() {
-    return !isThreadActive() ?
-        std::move(dynamic_pointer_cast<tap_protocol::Tapsigner>(_card)) :
-        nullptr;
 }

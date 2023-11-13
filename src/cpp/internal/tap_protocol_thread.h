@@ -16,9 +16,7 @@
 // Forward declarations
 namespace tap_protocol {
     class CKTapCard;
-
     class Satscard;
-
     class Tapsigner;
 }
 
