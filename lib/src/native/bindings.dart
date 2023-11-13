@@ -47,15 +47,19 @@ class NativeBindings {
           ffi.Pointer<ffi.Uint8> Function(int)>();
 
   /// Attempts to perform an initial handshake with a CKTapCard
-  int Core_beginAsyncHandshake() {
-    return _Core_beginAsyncHandshake();
+  int Core_beginAsyncHandshake(
+    int cardType,
+  ) {
+    return _Core_beginAsyncHandshake(
+      cardType,
+    );
   }
 
   late final _Core_beginAsyncHandshakePtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32)>>(
           'Core_beginAsyncHandshake');
   late final _Core_beginAsyncHandshake =
-      _Core_beginAsyncHandshakePtr.asFunction<int Function()>();
+      _Core_beginAsyncHandshakePtr.asFunction<int Function(int)>();
 
   /// Must be called last to store and retrieve Satscard/Tapsigner data
   CKTapOperationResponse Core_endOperation() {
@@ -542,8 +546,9 @@ abstract class CKTapThreadState {
   /// Fail states
   static const int canceled = 7;
   static const int failed = 8;
-  static const int tapProtocolError = 9;
-  static const int timeout = 10;
+  static const int invalidCardProduced = 9;
+  static const int tapProtocolError = 10;
+  static const int timeout = 11;
 }
 
 class SatscardConstructorParams extends ffi.Struct {

@@ -108,6 +108,7 @@ final Map<int, String> tapThreadStateLiteralMap = {
   CKTapThreadState.finished: "finished",
   CKTapThreadState.canceled: "canceled",
   CKTapThreadState.failed: "failed",
+  CKTapThreadState.invalidCardProduced: "invalidCardProduced",
   CKTapThreadState.tapProtocolError: "tapProtocolError",
   CKTapThreadState.timeout: "timeout",
 };

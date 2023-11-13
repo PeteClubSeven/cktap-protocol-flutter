@@ -29,7 +29,7 @@ public:
     CKTapInterfaceErrorCode reset();
     void requestCancel();
 
-    bool beginCardHandshake();
+    bool beginCardHandshake(int32_t cardType);
     bool finalizeOperation();
 
     bool hasStarted() const;
@@ -51,7 +51,7 @@ public:
 private:
 
     void _cancelIfNecessary();
-    std::unique_ptr<tap_protocol::CKTapCard> _performHandshake();
+    std::unique_ptr<tap_protocol::CKTapCard> _performHandshake(int32_t cardType);
     void _signalTransportRequestReady(const tap_protocol::Bytes& bytes);
 
     std::future<CKTapInterfaceErrorCode> _future{ };

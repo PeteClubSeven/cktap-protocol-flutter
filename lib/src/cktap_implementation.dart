@@ -76,12 +76,12 @@ class CKTapImplementation {
     });
   }
 
-  Future<CKTapCard> readCard(NfcTag tag, String spendCode) async {
+  Future<CKTapCard> readCard(NfcTag tag, String spendCode, CardType type) async {
     final nfc = NfcBridge.fromTag(tag);
     return performNativeOperation((_) {
       prepareNativeThread();
-      prepareForCardHandshake();
-      return processTransportRequests(nfc);
+      prepareForCardHandshake(type);
+      return processTransportRequests(nfc, type);
     }).then((_) => finalizeCardCreation());
   }
 

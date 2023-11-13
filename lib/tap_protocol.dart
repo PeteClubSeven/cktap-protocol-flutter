@@ -37,8 +37,12 @@ class CKTapProtocol {
   }
 
   /// Attempts to communicate with the given NFC device to determine if it is a
-  /// Coinkite NFC card (e.g. a Satscard or Tapsigner) and returns it
-  static Future<CKTapCard> readCard(NfcTag tag, {String spendCode = ""}) async {
-    return await CKTapImplementation.instance.readCard(tag, spendCode);
+  /// Coinkite NFC card (e.g. a Satscard or Tapsigner) and returns it. If you
+  /// are expecting a certain card type you can specify it. This will be faster
+  /// if the given tag is a match however it will fail entirely if the wrong
+  /// card type is given, e.g. Tapsigner instead of a Satscard
+  static Future<CKTapCard> readCard(NfcTag tag,
+      {String spendCode = "", CardType type = CardType.unknown}) async {
+    return await CKTapImplementation.instance.readCard(tag, spendCode, type);
   }
 }

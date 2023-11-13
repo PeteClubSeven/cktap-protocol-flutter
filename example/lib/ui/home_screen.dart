@@ -1,3 +1,4 @@
+import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/tap_protocol.dart';
 import 'package:cktap_protocol_example/bloc/card_events.dart';
 import 'package:flutter/material.dart';
@@ -26,13 +27,30 @@ class HomeScreenState extends State<HomeScreen> {
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
         if (CKTapProtocol.isLikelyCoinkiteCard(tag)) {
+          // We can just do CKTapProtocol.readCard(tag) but for the sake of
+          // speed/testing we'll try to instantiate the cards directly
           try {
-            final card = await CKTapProtocol.readCard(tag);
             if (context.mounted) {
               final bloc = BlocProvider.of<CardBloc>(context);
-              bloc.add(CardDetected(card));
+              final ndef = Ndef.from(tag);
+              if (ndef != null && ndef.cachedMessage != null) {
+                for (final record in ndef.cachedMessage!.records) {
+                  final payload = String.fromCharCodes(record.payload);
+                  if (CKTapProtocol.isLikelySatscard(payload)) {
+                    var satscard = await CKTapProtocol.readCard(
+                        tag, type: CardType.satscard);
+                    bloc.add(CardDetected(satscard));
+                  } else if (CKTapProtocol.isLikelyTapsigner(payload)) {
+                    var tapsigner = await CKTapProtocol.readCard(
+                        tag, type: CardType.tapsigner);
+                    bloc.add(CardDetected(tapsigner));
+                  }
+                }
+              }
             }
-          } catch (_) {
+          } catch (e, s) {
+            print(e);
+            print(s);
             if (context.mounted) {
               final bloc = BlocProvider.of<CardBloc>(context);
               bloc.add(CardError());

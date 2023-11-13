@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
@@ -9,6 +10,18 @@ import 'package:nfc_manager/nfc_manager.dart';
 
 /// The base class for user-facing exceptions thrown by this plugin
 abstract class CKTapException implements Exception {}
+
+/// Thrown when attempting to perform a handshake of an expected type but the
+/// user has presented an invalid card
+class InvalidCardException implements CKTapException {
+  final CardType type;
+
+  InvalidCardException(this.type);
+
+  @override
+  toString() =>
+      "Expected $type but the user didn't present a card of that type";
+}
 
 /// Thrown when a given NfcTag doesn't support the required protocols for the
 /// platform. Currently only IsoDep on Android and ISO7816 on iOS are supported

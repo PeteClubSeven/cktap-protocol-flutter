@@ -65,9 +65,9 @@ CKTapCard finalizeCardCreation() {
 }
 
 /// Tells the native thread to start the handshaking process
-void prepareForCardHandshake() {
+void prepareForCardHandshake(CardType type) {
   ensureNativeThreadState(CKTapThreadState.notStarted);
-  ensureSuccessful(nativeLibrary.Core_beginAsyncHandshake());
+  ensureSuccessful(nativeLibrary.Core_beginAsyncHandshake(type.index));
 }
 
 /// Attempts to return the native thread to a workable clean state
@@ -81,7 +81,7 @@ void prepareNativeThread() {
 
 /// Handles the sending and receiving of data between the native library and an
 /// NFC device until completion or failure
-Future<void> processTransportRequests(NfcBridge nfc) async {
+Future<void> processTransportRequests(NfcBridge nfc, CardType type) async {
   return Future.sync(() async {
     ensureNativeThreadStates([
       CKTapThreadState.asyncActionStarting,
@@ -103,6 +103,9 @@ Future<void> processTransportRequests(NfcBridge nfc) async {
       ensureSuccessful(errorCode);
     }
 
+    if (nativeLibrary.Core_getThreadState() == CKTapThreadState.invalidCardProduced) {
+      throw InvalidCardException(type);
+    }
     ensureSuccessful(nativeLibrary.Core_finalizeAsyncAction());
   });
 }

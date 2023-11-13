@@ -91,7 +91,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation() {
     return CKTapInterfaceErrorCode::success;
 }
 
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake() {
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake(const int32_t cardType) {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;
     }
@@ -99,7 +99,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake() {
         return CKTapInterfaceErrorCode::threadNotResetForHandshake;
     }
 
-    if (!g_protocolThread->beginCardHandshake()) {
+    if (!g_protocolThread->beginCardHandshake(cardType)) {
         // The thread failed to start so we should diagnose why
         return g_protocolThread->finalizeOperation() ?
             g_protocolThread->getRecentErrorCode() :

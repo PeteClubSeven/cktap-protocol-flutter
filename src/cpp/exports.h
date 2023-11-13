@@ -22,7 +22,7 @@ FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation();
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation();
 
 /// Attempts to perform an initial handshake with a CKTapCard
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake();
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake(int32_t cardType);
 /// Must be called at the end of every async action
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_finalizeAsyncAction();
 

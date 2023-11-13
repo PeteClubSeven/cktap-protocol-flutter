@@ -114,6 +114,7 @@ FFI_PLUGIN_EXPORT typedef enum CKTapThreadState {
     // Fail states
     canceled,
     failed,
+    invalidCardProduced,
     tapProtocolError,
     timeout,
 
