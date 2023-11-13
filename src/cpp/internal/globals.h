@@ -15,17 +15,17 @@
 // Types
 class TapProtocolThread;
 struct SatscardWrapper {
-    std::unique_ptr<tap_protocol::Satscard> card { };
+    std::shared_ptr<tap_protocol::Satscard> card { };
     std::vector<std::unique_ptr<tap_protocol::Satscard::Slot>> slots { };
 
-    SatscardWrapper(std::unique_ptr<tap_protocol::Satscard> satscard)
+    SatscardWrapper(std::shared_ptr<tap_protocol::Satscard> satscard)
         : card{ std::move(satscard) }, slots{ } {
     }
 };
 struct TapsignerWrapper {
-    std::unique_ptr<tap_protocol::Tapsigner> card { };
+    std::shared_ptr<tap_protocol::Tapsigner> card { };
 
-    TapsignerWrapper(std::unique_ptr<tap_protocol::Tapsigner> tapsigner)
+    TapsignerWrapper(std::shared_ptr<tap_protocol::Tapsigner> tapsigner)
         : card{ std::move(tapsigner) } {
     }
 };
@@ -101,10 +101,10 @@ CKTapInterfaceStatus accessTapCard(const int32_t index, const Func& readFunction
 }
 
 template <typename WrapperType, typename CardType>
-size_t updateVectorWithTapCard(std::vector<WrapperType>& vector, std::unique_ptr<CardType>& card) {
+size_t updateVectorWithCard(std::vector<WrapperType>& vector, std::unique_ptr<CardType>& card) {
     static_assert(std::is_same_v<
-        std::remove_reference_t<decltype(card)>,
-        std::remove_reference_t<decltype(vector[0].card)>
+        std::remove_reference_t<decltype(*card)>,
+        std::remove_reference_t<decltype(*vector[0].card)>
     >);
 
     if (!card) {
@@ -113,13 +113,13 @@ size_t updateVectorWithTapCard(std::vector<WrapperType>& vector, std::unique_ptr
     for (size_t index{ 0 }; index < vector.size(); ++index) {
         auto& stored = vector[index];
         if (stored.card && stored.card->GetIdent() == card->GetIdent()) {
-            stored = WrapperType { std::move(card) };
+            stored = WrapperType { std::shared_ptr<CardType>(std::move(card)) };
             return index;
         }
     }
 
     const auto index = vector.size();
-    vector.emplace_back(std::move(card));
+    vector.emplace_back(std::shared_ptr<CardType>(std::move(card)));
     return index;
 }
 

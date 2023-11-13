@@ -62,7 +62,7 @@ FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation() {
             return makeTapOperationResponse(CKTapInterfaceErrorCode::expectedTapsignerButReceivedNothing);
         }
 
-        index = updateVectorWithTapCard(g_tapsigners, tapsigner);
+        index = updateVectorWithCard(g_tapsigners, tapsigner);
         response.handle.type = CKTapCardType::tapsigner;
     } else {
         auto satscard = g_protocolThread->releaseSatscard();
@@ -70,7 +70,7 @@ FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation() {
             return makeTapOperationResponse(CKTapInterfaceErrorCode::expectedSatscardButReceivedNothing);
         }
 
-        index = updateVectorWithTapCard(g_satscards, satscard);
+        index = updateVectorWithCard(g_satscards, satscard);
         response.handle.type = CKTapCardType::satscard;
     }
 
