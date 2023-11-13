@@ -23,7 +23,8 @@ Future<void> cancelNativeOperation() async {
     final stopwatch = Stopwatch()..start();
     while (_isNativeThreadActive()) {
       if (stopwatch.elapsed.inSeconds >= 2) {
-        throw TimeoutException("CKTapProtocol couldn't cancel the native operation");
+        throw TimeoutException(
+            "CKTapProtocol couldn't cancel the native operation");
       }
       await Future.delayed(const Duration(microseconds: 50));
     }
@@ -39,29 +40,29 @@ Future<void> cancelNativeOperation() async {
 /// Tries to retrieve the card data from the native thread and return in a
 /// Dart-native format
 CKTapCard finalizeCardCreation() {
-    int threadState = nativeLibrary.Core_getThreadState();
-    if (threadState == CKTapThreadState.finished) {
-      CKTapOperationResponse response = nativeLibrary.Core_endOperation();
-      ensureSuccessful(response.errorCode);
+  int threadState = nativeLibrary.Core_getThreadState();
+  if (threadState == CKTapThreadState.finished) {
+    CKTapOperationResponse response = nativeLibrary.Core_endOperation();
+    ensureSuccessful(response.errorCode);
 
-      switch (response.handle.type) {
-        case CKTapCardType.satscard:
-        case CKTapCardType.tapsigner:
-          return makeCardFromHandle(response.handle);
-        default:
-          throw UnsupportedError(
-              "Can't create CKTapCard of type: ${response.handle.type}");
-      }
-    }
-
-    switch (threadState) {
-      case CKTapThreadState.timeout:
-        throw TimeoutException("CKTap card creation timed out");
-      case CKTapThreadState.canceled:
-        throw OperationCanceledException("CKTap card creation canceled");
+    switch (response.handle.type) {
+      case CKTapCardType.satscard:
+      case CKTapCardType.tapsigner:
+        return makeCardFromHandle(response.handle);
       default:
-        throw InvalidThreadStateError(CKTapThreadState.finished, threadState);
+        throw UnsupportedError(
+            "Can't create CKTapCard of type: ${response.handle.type}");
     }
+  }
+
+  switch (threadState) {
+    case CKTapThreadState.timeout:
+      throw TimeoutException("CKTap card creation timed out");
+    case CKTapThreadState.canceled:
+      throw OperationCanceledException("CKTap card creation canceled");
+    default:
+      throw InvalidThreadStateError(CKTapThreadState.finished, threadState);
+  }
 }
 
 /// Tells the native thread to start the handshaking process
@@ -106,7 +107,8 @@ Future<void> processTransportRequests(
       ensureSuccessful(errorCode);
     }
 
-    if (nativeLibrary.Core_getThreadState() == CKTapThreadState.invalidCardProduced) {
+    if (nativeLibrary.Core_getThreadState() ==
+        CKTapThreadState.invalidCardProduced) {
       throw InvalidCardException(type);
     }
     ensureSuccessful(nativeLibrary.Core_finalizeAsyncAction());

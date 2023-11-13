@@ -10,7 +10,6 @@ public:
     explicit CancelationException(const std::string& message)
         : std::runtime_error(message) {
     }
-
     explicit CancelationException(const char* message)
         : std::runtime_error(message) {
     }
@@ -22,7 +21,6 @@ public:
     explicit TimeoutException(const std::string& message)
         : std::runtime_error(message) {
     }
-
     explicit TimeoutException(const char* message)
         : std::runtime_error(message) {
     }
