@@ -9,7 +9,7 @@ import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/factories.dart';
 import 'package:cktap_protocol/src/native/library.dart';
-import 'package:cktap_protocol/src/nfc_bridge.dart';
+import 'package:cktap_protocol/transport.dart';
 
 /// Attempts to cancel the current operation and waits until it has
 Future<void> cancelNativeOperation() async {
@@ -81,7 +81,8 @@ void prepareNativeThread() {
 
 /// Handles the sending and receiving of data between the native library and an
 /// NFC device until completion or failure
-Future<void> processTransportRequests(NfcBridge nfc, CardType type) async {
+Future<void> processTransportRequests(
+    Transport transport, CardType type) async {
   return Future.sync(() async {
     ensureNativeThreadStates([
       CKTapThreadState.asyncActionStarting,
@@ -98,7 +99,9 @@ Future<void> processTransportRequests(NfcBridge nfc, CardType type) async {
       }
 
       // Communicate any necessary data with the NFC card
-      var transportResponse = await nfc.send(_getNativeTransportRequest());
+      // TODO: Adjust for iOS
+      var transportResponse =
+          await transport.sendBytes(_getNativeTransportRequest());
       var errorCode = _setNativeTransportResponse(transportResponse);
       ensureSuccessful(errorCode);
     }

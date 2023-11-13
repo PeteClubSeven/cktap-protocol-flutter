@@ -5,7 +5,7 @@ import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
-import 'package:cktap_protocol/src/nfc_bridge.dart';
+import 'package:cktap_protocol/transport.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
 /// The base class for user-facing exceptions thrown by this plugin

@@ -7,8 +7,7 @@ import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
 import 'package:cktap_protocol/src/native/thread.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
-import 'package:cktap_protocol/src/nfc_bridge.dart';
-import 'package:nfc_manager/nfc_manager.dart';
+import 'package:cktap_protocol/transport.dart';
 
 /// Interfaces with a native implementation of the tap protocol to perform
 /// various operations on Coinkite NFC devices
@@ -76,12 +75,12 @@ class CKTapImplementation {
     });
   }
 
-  Future<CKTapCard> readCard(NfcTag tag, String spendCode, CardType type) async {
-    final nfc = NfcBridge.fromTag(tag);
+  Future<CKTapCard> readCard(
+      Transport transport, String spendCode, CardType type) async {
     return performNativeOperation((_) {
       prepareNativeThread();
       prepareForCardHandshake(type);
-      return processTransportRequests(nfc, type);
+      return processTransportRequests(transport, type);
     }).then((_) => finalizeCardCreation());
   }
 

@@ -1,5 +1,6 @@
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/tap_protocol.dart';
+import 'package:cktap_protocol/transport.dart';
 import 'package:cktap_protocol_example/bloc/card_events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,11 +39,11 @@ class HomeScreenState extends State<HomeScreen> {
                   final payload = String.fromCharCodes(record.payload);
                   if (CKTapProtocol.isLikelySatscard(payload)) {
                     var satscard = await CKTapProtocol.readCard(
-                        tag, type: CardType.satscard);
+                        TransportNfcManager.fromTag(tag), type: CardType.satscard);
                     bloc.add(CardDetected(satscard));
                   } else if (CKTapProtocol.isLikelyTapsigner(payload)) {
                     var tapsigner = await CKTapProtocol.readCard(
-                        tag, type: CardType.tapsigner);
+                        TransportNfcManager.fromTag(tag), type: CardType.tapsigner);
                     bloc.add(CardDetected(tapsigner));
                   }
                 }
