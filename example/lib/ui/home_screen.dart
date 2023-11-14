@@ -41,13 +41,20 @@ class HomeScreenState extends State<HomeScreen> {
               if (ndef != null && ndef.cachedMessage != null) {
                 for (final record in ndef.cachedMessage!.records) {
                   final payload = String.fromCharCodes(record.payload);
+                  var transport = TransportNfcManager.fromTag(tag);
                   if (CKTapProtocol.isLikelySatscard(payload)) {
-                    var satscard = await CKTapProtocol.readCard(
-                        TransportNfcManager.fromTag(tag), type: CardType.satscard);
+                    var satscard = await CKTapProtocol.readCard(transport,
+                        type: CardType.satscard);
+                    if (satscard.authDelay > 0) {
+                      //await satscard.wait(transport);
+                    }
                     bloc.add(CardDetected(satscard));
                   } else if (CKTapProtocol.isLikelyTapsigner(payload)) {
-                    var tapsigner = await CKTapProtocol.readCard(
-                        TransportNfcManager.fromTag(tag), type: CardType.tapsigner);
+                    var tapsigner = await CKTapProtocol.readCard(transport,
+                        type: CardType.tapsigner);
+                    if (tapsigner.authDelay > 0) {
+                      //await tapsigner.wait(transport);
+                    }
                     bloc.add(CardDetected(tapsigner));
                   }
                 }

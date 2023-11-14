@@ -29,6 +29,27 @@ class NativeBindings {
           lookup)
       : _lookup = lookup;
 
+  /// ----------------------------------------------
+  /// CKTapCard:
+  int CKTapCard_beginWait() {
+    return _CKTapCard_beginWait();
+  }
+
+  late final _CKTapCard_beginWaitPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('CKTapCard_beginWait');
+  late final _CKTapCard_beginWait =
+      _CKTapCard_beginWaitPtr.asFunction<int Function()>();
+
+  WaitResponseParams CKTapCard_getWaitResponse() {
+    return _CKTapCard_getWaitResponse();
+  }
+
+  late final _CKTapCard_getWaitResponsePtr =
+      _lookup<ffi.NativeFunction<WaitResponseParams Function()>>(
+          'CKTapCard_getWaitResponse');
+  late final _CKTapCard_getWaitResponse =
+      _CKTapCard_getWaitResponsePtr.asFunction<WaitResponseParams Function()>();
+
   /// Ensures that the transport response buffer will be appropriately sized
   /// Returns a pointer to the buffer if valid, nullptr if not
   ffi.Pointer<ffi.Uint8> Core_allocateTransportResponseBuffer(
@@ -456,25 +477,29 @@ abstract class CKTapInterfaceErrorCode {
   static const int invalidCardDuringHandshake = 9;
   static const int invalidCardOperation = 10;
   static const int invalidHandlingOfCardDuringFinalization = 11;
-  static const int libraryNotInitialized = 12;
-  static const int operationCanceled = 13;
-  static const int operationFailed = 14;
-  static const int operationStillInProgress = 15;
-  static const int threadAlreadyInUse = 16;
-  static const int threadAllocationFailed = 17;
-  static const int threadNotReadyForResponse = 18;
-  static const int threadNotResetForHandshake = 19;
-  static const int threadNotYetFinalized = 20;
-  static const int threadNotYetStarted = 21;
-  static const int threadResponseFinalizationFailed = 22;
-  static const int timeoutDuringTransport = 23;
-  static const int unableToFinalizeAsyncAction = 24;
-  static const int unknownErrorDuringAsyncOperation = 25;
-  static const int unknownErrorDuringHandshake = 26;
-  static const int unknownErrorDuringTapProtocolFunction = 27;
-  static const int unknownSatscardHandle = 28;
-  static const int unknownSlotForGivenSatscardHandle = 29;
-  static const int unknownTapsignerHandle = 30;
+  static const int invalidResponseFromCardOperation = 12;
+  static const int invalidThreadStateDuringTransportSignaling = 13;
+  static const int libraryNotInitialized = 14;
+  static const int operationCanceled = 15;
+  static const int operationFailed = 16;
+  static const int operationStillInProgress = 17;
+  static const int threadAlreadyInUse = 18;
+  static const int threadAllocationFailed = 19;
+  static const int threadNotAwaitingCardOperation = 20;
+  static const int threadNotReadyForResponse = 21;
+  static const int threadNotResetForHandshake = 22;
+  static const int threadNotYetFinalized = 23;
+  static const int threadNotYetStarted = 24;
+  static const int threadResponseFinalizationFailed = 25;
+  static const int timeoutDuringTransport = 26;
+  static const int unableToFinalizeAsyncAction = 27;
+  static const int unexpectedStdException = 28;
+  static const int unknownErrorDuringAsyncOperation = 29;
+  static const int unknownErrorDuringHandshake = 30;
+  static const int unknownErrorDuringTapProtocolFunction = 31;
+  static const int unknownSatscardHandle = 32;
+  static const int unknownSlotForGivenSatscardHandle = 33;
+  static const int unknownTapsignerHandle = 34;
 }
 
 /// Used when accessing tap_protocol methods that can throw
@@ -573,6 +598,7 @@ abstract class CKTapThreadState {
   static const int invalidCardProduced = 10;
   static const int tapProtocolError = 11;
   static const int timeout = 12;
+  static const int transportException = 13;
 }
 
 class SatscardConstructorParams extends ffi.Struct {
@@ -636,4 +662,14 @@ class TapsignerConstructorParams extends ffi.Struct {
   external int numberOfBackups;
 
   external ffi.Pointer<ffi.Char> derivationPath;
+}
+
+class WaitResponseParams extends ffi.Struct {
+  external CKTapInterfaceStatus status;
+
+  @ffi.Int8()
+  external int success;
+
+  @ffi.Int32()
+  external int authDelay;
 }

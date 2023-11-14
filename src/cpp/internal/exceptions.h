@@ -26,4 +26,15 @@ public:
     }
 };
 
+/// Thrown when the async thread enters an invalid state whilst processing transport requests
+class TransportException final : public std::runtime_error {
+public:
+    explicit TransportException(const std::string& message)
+        : std::runtime_error(message) {
+    }
+    explicit TransportException(const char* message)
+        : std::runtime_error(message) {
+    }
+};
+
 #endif // __CKTAP_PROTOCOL__INTERNAL_EXCEPTIONS_H__

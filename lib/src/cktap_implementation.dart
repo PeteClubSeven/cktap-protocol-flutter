@@ -75,6 +75,18 @@ class CKTapImplementation {
     });
   }
 
+  Future<WaitResponse> cktapcardWait(
+      Transport transport, int handle, CardType type) {
+    return _performAsyncCardOperation(handle, type, (bindings) {
+      ensureSuccessful(bindings.CKTapCard_beginWait());
+      return processTransportRequests(transport, type).then((_) {
+        var response = bindings.CKTapCard_getWaitResponse();
+        ensureStatus(response.status, free: true);
+        return WaitResponse(response.success > 0, response.authDelay);
+      });
+    });
+  }
+
   Future<CKTapCard> readCard(
       Transport transport, String spendCode, CardType type) async {
     return performNativeOperation((_) {
@@ -117,5 +129,14 @@ class CKTapImplementation {
       print(e);
       print(s);
     }).whenComplete(() => _cleanupFuture = null);
+  }
+
+  Future<T> _performAsyncCardOperation<T>(int handle, CardType type,
+      Future<T> Function(NativeBindings) action) async {
+    return performNativeOperation((bindings) {
+      prepareNativeThread();
+      prepareForCardOperation(handle, type);
+      return action(bindings);
+    });
   }
 }

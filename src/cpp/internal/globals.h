@@ -2,6 +2,7 @@
 #define __CKTAP_PROTOCOL__INTERNAL_GLOBALS_H__
 
 // Project
+#include <internal/macros.h>
 #include <internal/utils.h>
 #include <structs.h>
 
@@ -39,13 +40,15 @@ extern std::vector<TapsignerWrapper> g_tapsigners;
 constexpr size_t invalidIndex = std::numeric_limits<size_t>::max();
 
 template <typename CardType, typename Func>
-CKTapInterfaceStatus accessTapCard(const int32_t index, const Func& readFunction) {
+CKTapInterfaceStatus accessTapCard(const int32_t index, const Func& readFunction) noexcept {
     constexpr bool isSatscard = std::is_same_v<CardType, tap_protocol::Satscard>;
     constexpr bool isTapsigner = std::is_same_v<CardType, tap_protocol::Tapsigner>;
 
-    const auto processCard = [index, &readFunction](auto& vector) {
+    const auto processCard = [index, &readFunction](auto& vector) noexcept {
         CKTapInterfaceStatus status;
         std::memset(&status, 0, sizeof(CKTapInterfaceStatus));
+        status.errorCode = CKTapInterfaceErrorCode::unknownErrorDuringTapProtocolFunction;
+
         if (index < 0 || index >= vector.size()) {
             status.errorCode = isSatscard ?
             CKTapInterfaceErrorCode::unknownSatscardHandle :
@@ -54,37 +57,10 @@ CKTapInterfaceStatus accessTapCard(const int32_t index, const Func& readFunction
             auto& wrapper = vector[static_cast<size_t>(index)];
             try {
                 status.errorCode = readFunction(wrapper);
-            } catch (const std::exception& e) {
-                // TODO: Make this much safer. There seems to be a bug either with FFI or with the
-                // compiler where trying to catch a tap_protocol::TapProtoException doesn't work. This
-                // causes a full app crash. This is replicable with the following code:
-                /* void triggerException() {
-                        tap_protocol::CKTapCard(tap_protocol::MakeDefaultTransport([](const auto& bytes) {
-                            return tap_protocol::Bytes{ }; // <- This triggers a TapProtoException as expected
-                        }));
-                    }
-                    extern "C" void myCrashingFunction() {
-                        try {
-                            triggerException();
-                        } catch (const tap_protocol::TapProtoException& e) {
-                            // This never catches the exception. It's completely ignored and the app will
-                            // hard crash with no warning.
-                        }
-                    }
-                    extern "C" void myWorkingFunction() {
-                        try {
-                            triggerException();
-                        } catch (const std::exception& e) {
-                            // This will always catch the exception! Success!
-                        }
-                    }
-                 */
-                const auto& tapProtoException = static_cast<const tap_protocol::TapProtoException&>(e);
+            } CATCH_TAP_PROTO_EXCEPTION(e, {
                 status.errorCode = CKTapInterfaceErrorCode::caughtTapProtocolException;
-                status.exception = allocateCKTapProtoException(tapProtoException);
-            } catch (...) {
-                status.errorCode = CKTapInterfaceErrorCode::unknownErrorDuringTapProtocolFunction;
-            }
+                status.exception = allocateCKTapProtoException(e);
+            }) catch (...) {}
         }
         return status;
     };

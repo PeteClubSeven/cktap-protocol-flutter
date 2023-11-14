@@ -86,4 +86,10 @@ FFI_TYPE_EXPORT typedef struct {
     char* derivationPath;
 } TapsignerConstructorParams;
 
+FFI_TYPE_EXPORT typedef struct {
+    CKTapInterfaceStatus status;
+    int8_t success;
+    int32_t authDelay;
+} WaitResponseParams;
+
 #endif // __CKTAP_PROTOCOL__STRUCTS_H__

@@ -8,6 +8,12 @@
 // Third party
 #include <tap_protocol/cktapcard.h>
 
+// STL
+#include <type_traits>
+
+template <typename T>
+using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
+
 CBinaryArray allocateCBinaryArrayFromJSON(const nlohmann::json::binary_t& binary);
 CKTapProtoException allocateCKTapProtoException(const tap_protocol::TapProtoException& e) noexcept;
 char* allocateCStringFromCpp(const std::string& cppString);

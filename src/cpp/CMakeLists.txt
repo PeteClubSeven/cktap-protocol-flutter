@@ -8,6 +8,7 @@ project(cktap_protocol VERSION 0.0.1 LANGUAGES CXX)
 add_library(cktap_protocol SHARED
     "${PROJECT_SOURCE_DIR}/enums.cpp"
     "${PROJECT_SOURCE_DIR}/exports.cpp"
+    "${PROJECT_SOURCE_DIR}/internal/card_operation.cpp"
     "${PROJECT_SOURCE_DIR}/internal/exceptions.cpp"
     "${PROJECT_SOURCE_DIR}/internal/globals.cpp"
     "${PROJECT_SOURCE_DIR}/internal/tap_protocol_thread.cpp"

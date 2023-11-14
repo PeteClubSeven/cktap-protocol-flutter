@@ -216,6 +216,38 @@ FFI_FUNC_EXPORT CKTapProtoException Core_getTapProtoException() {
 }
 
 // ----------------------------------------------
+// CKTapCard:
+
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode CKTapCard_beginWait() {
+    if (g_protocolThread == nullptr) {
+        return CKTapInterfaceErrorCode::libraryNotInitialized;
+    } else if (g_protocolThread->getState() != CKTapThreadState::awaitingCardOperation) {
+        return CKTapInterfaceErrorCode::threadNotAwaitingCardOperation;
+    }
+    return g_protocolThread->beginCKTapCard_Wait() ?
+        CKTapInterfaceErrorCode::success :
+        CKTapInterfaceErrorCode::invalidCardOperation;
+}
+
+FFI_FUNC_EXPORT WaitResponseParams CKTapCard_getWaitResponse() {
+    WaitResponseParams params;
+    std::memset(&params, 0, sizeof(params));
+
+    if (g_protocolThread == nullptr) {
+        params.status.errorCode = CKTapInterfaceErrorCode::libraryNotInitialized;
+    } else {
+        if (auto optional = g_protocolThread->getResponse<CardOperation::CKTapCard_Wait>()) {
+            params.status.errorCode = CKTapInterfaceErrorCode::success;
+            params.success = optional.value().success ? 1 : 0;
+            params.authDelay = optional.value().auth_delay;
+        } else {
+            params.status.errorCode = CKTapInterfaceErrorCode::invalidResponseFromCardOperation;
+        }
+    }
+    return params;
+}
+
+// ----------------------------------------------
 // Satscard:
 
 FFI_FUNC_EXPORT SatscardConstructorParams Satscard_createConstructorParams(const int32_t handle) {

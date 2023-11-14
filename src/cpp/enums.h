@@ -28,12 +28,15 @@ FFI_TYPE_EXPORT typedef enum CKTapInterfaceErrorCode {
     invalidCardDuringHandshake,
     invalidCardOperation,
     invalidHandlingOfCardDuringFinalization,
+    invalidResponseFromCardOperation,
+    invalidThreadStateDuringTransportSignaling,
     libraryNotInitialized,
     operationCanceled,
     operationFailed,
     operationStillInProgress,
     threadAlreadyInUse,
     threadAllocationFailed,
+    threadNotAwaitingCardOperation,
     threadNotReadyForResponse,
     threadNotResetForHandshake,
     threadNotYetFinalized,
@@ -41,6 +44,7 @@ FFI_TYPE_EXPORT typedef enum CKTapInterfaceErrorCode {
     threadResponseFinalizationFailed,
     timeoutDuringTransport,
     unableToFinalizeAsyncAction,
+    unexpectedStdException,
     unknownErrorDuringAsyncOperation,
     unknownErrorDuringHandshake,
     unknownErrorDuringTapProtocolFunction,
@@ -123,6 +127,7 @@ FFI_TYPE_EXPORT typedef enum CKTapThreadState {
     invalidCardProduced,
     tapProtocolError,
     timeout,
+    transportException,
 
 } CKTapThreadState;
 

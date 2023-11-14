@@ -2,10 +2,12 @@
 
 // Project
 #include <internal/exceptions.h>
+#include <internal/macros.h>
 #include <internal/utils.h>
 
 // Third party
 #include <tap_protocol/cktapcard.h>
+#include <tap_protocol/utils.h>
 
 // STL
 #include <chrono>
@@ -13,6 +15,8 @@
 
 using namespace std::chrono_literals;
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-static-cast-downcast"
 template <typename Func>
 bool TapProtocolThread::_startAsyncCardOperation(Func&& func) noexcept {
     try {
@@ -31,17 +35,16 @@ bool TapProtocolThread::_startAsyncCardOperation(Func&& func) noexcept {
             } catch (const TimeoutException& e) {
                 _state = CKTapThreadState::timeout;
                 return CKTapInterfaceErrorCode::timeoutDuringTransport;
-            } catch (const std::exception& e) {
-                // TODO: Fix weird TapProtoException issue. See "globals.h"
-                auto exception = static_cast<const tap_protocol::TapProtoException&>(e);
-                _tapProtoException = exception;
+            } catch (const TransportException& e) {
+                _state = CKTapThreadState::transportException;
+                return CKTapInterfaceErrorCode::invalidThreadStateDuringTransportSignaling;
+            } CATCH_TAP_PROTO_EXCEPTION(e, {
+                _tapProtoException = e;
                 _state = CKTapThreadState::tapProtocolError;
                 return CKTapInterfaceErrorCode::caughtTapProtocolException;
-            } catch (...) {
-                // TODO: Add more exception handling and message extraction
-                _state = CKTapThreadState::failed;
-                return CKTapInterfaceErrorCode::unknownErrorDuringAsyncOperation;
-            }
+            }) catch (...) { }
+            _state = CKTapThreadState::failed;
+            return CKTapInterfaceErrorCode::unknownErrorDuringAsyncOperation;
         });
 
         return _future.valid();
@@ -49,6 +52,7 @@ bool TapProtocolThread::_startAsyncCardOperation(Func&& func) noexcept {
 
     return false;
 }
+#pragma clang diagnostic pop
 
 TapProtocolThread* TapProtocolThread::createNew() noexcept {
     try {
@@ -77,16 +81,17 @@ CKTapInterfaceErrorCode TapProtocolThread::reset() noexcept {
     _constructedCard.reset();
     _satscard.reset();
     _tapsigner.reset();
+    _cardOperationResponse = CardResponseVariant{ };
 
     return CKTapInterfaceErrorCode::success;
-};
+}
 
 void TapProtocolThread::requestCancel() noexcept {
     _shouldCancel = true;
 }
 
 bool TapProtocolThread::prepareCardOperation(std::weak_ptr<tap_protocol::Satscard> satscard) noexcept {
-    if (isThreadActive() || _satscard.expired()) {
+    if (isThreadActive() || satscard.expired()) {
         return false;
     }
     _satscard = std::move(satscard);
@@ -118,6 +123,19 @@ bool TapProtocolThread::beginCardHandshake(const int32_t cardType) noexcept {
         }
         _state = CKTapThreadState::invalidCardProduced;
         return CKTapInterfaceErrorCode::failedToPerformHandshake;
+    });
+}
+
+bool TapProtocolThread::beginCKTapCard_Wait() noexcept {
+    auto card = _lockCardForOperation();
+    if (!card) {
+        return false;
+    }
+    return _startAsyncCardOperation([this, card=std::move(card)]() {
+        _state = CKTapThreadState::awaitingTransportRequest;
+        _setResponse<CardOperation::CKTapCard_Wait>(card->Wait());
+
+        return CKTapInterfaceErrorCode::success;
     });
 }
 
@@ -225,6 +243,14 @@ void TapProtocolThread::_cancelIfNecessary() {
     }
 }
 
+std::shared_ptr<tap_protocol::CKTapCard> TapProtocolThread::_lockCardForOperation() const noexcept {
+    if (auto satscard = _satscard.lock()) {
+        return satscard;
+    } else {
+        return _tapsigner.lock();
+    }
+}
+
 std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::_performHandshake(const int32_t cardType) {
     _state = CKTapThreadState::awaitingTransportRequest;
     auto transport = tap_protocol::MakeDefaultTransport([this](const tap_protocol::Bytes& bytes) {
@@ -284,11 +310,10 @@ std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::_performHandshake(co
 
 void TapProtocolThread::_signalTransportRequestReady(const tap_protocol::Bytes& bytes) {
     if (_state != CKTapThreadState::awaitingTransportRequest) {
-        throw std::runtime_error("TapProtocolThread::SetTransportRequest(): Attempt to set transport request when state was \"" +
+        throw TransportException("Attempt to set transport request when state was \"" +
             std::to_string(_state) + '\"'
         );
     }
-
     _pendingTransportRequest = bytes;
     _state = CKTapThreadState::transportRequestReady;
 }

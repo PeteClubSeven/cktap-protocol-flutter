@@ -3,6 +3,7 @@
 
 // Project
 #include <enums.h>
+#include <internal/card_operation.h>
 #include <structs.h>
 
 // Third party
@@ -12,13 +13,6 @@
 #include <atomic>
 #include <future>
 #include <optional>
-
-// Forward declarations
-namespace tap_protocol {
-    class CKTapCard;
-    class Satscard;
-    class Tapsigner;
-}
 
 class TapProtocolThread {
 public:
@@ -30,11 +24,15 @@ public:
     bool prepareCardOperation(std::weak_ptr<tap_protocol::Satscard> satscard) noexcept;
     bool prepareCardOperation(std::weak_ptr<tap_protocol::Tapsigner> tapsigner) noexcept;
     bool beginCardHandshake(int32_t cardType) noexcept;
-    bool beginSatscard_unseal(const char* cvc) noexcept;
-    bool beginSatscard_new(const uint8_t* chainCode, int32_t chainCodeLength, const char* cvc) noexcept;
-    bool beginSatscard_getSlot(int32_t slot, const char* cvc) noexcept;
-    bool beginSatscard_listSlots(const char* cvc, int32_t limit) noexcept;
+    bool beginCKTapCard_Wait() noexcept;
+    bool beginSatscard_Unseal(const char* cvc) noexcept;
+    bool beginSatscard_New(const uint8_t* chainCode, int32_t chainCodeLength, const char* cvc) noexcept;
+    bool beginSatscard_GetSlot(int32_t slot, const char* cvc) noexcept;
+    bool beginSatscard_ListSlots(const char* cvc, int32_t limit) noexcept;
     bool finalizeOperation() noexcept;
+
+    template <CardOperation op, typename R = CardResponseType<op>>
+    std::optional<R> getResponse() const noexcept;
 
     bool hasStarted() const;
     bool hasFailed() const;
@@ -54,10 +52,14 @@ public:
 
 private:
 
+    template <CardOperation op, typename... Args>
+    auto _setResponse(Args&&... args);
+
     template <typename Func>
     bool _startAsyncCardOperation(Func&& func) noexcept;
-
     void _cancelIfNecessary();
+
+    std::shared_ptr<tap_protocol::CKTapCard> _lockCardForOperation() const noexcept;
     std::unique_ptr<tap_protocol::CKTapCard> _performHandshake(int32_t cardType);
     void _signalTransportRequestReady(const tap_protocol::Bytes& bytes);
 
@@ -74,6 +76,28 @@ private:
     std::unique_ptr<tap_protocol::CKTapCard> _constructedCard{ };
     std::weak_ptr<tap_protocol::Satscard> _satscard{ };
     std::weak_ptr<tap_protocol::Tapsigner> _tapsigner{ };
+
+    /// Allows for us to store the response types to any CKTapCard/Satscard/Tapsigner function in a
+    /// type-safe manner
+    CardResponseVariant _cardOperationResponse{ };
 };
+
+template <CardOperation op, typename R>
+std::optional<R> TapProtocolThread::getResponse() const noexcept {
+    try {
+        if (!isThreadActive()) {
+            constexpr size_t index = static_cast<size_t>(op);
+            return { std::get<index>(_cardOperationResponse) };
+        }
+    } catch (...) {
+    }
+    return { };
+}
+
+template <CardOperation op, typename... Args>
+auto TapProtocolThread::_setResponse(Args&&... args) {
+    constexpr auto index = static_cast<size_t>(op);
+    return _cardOperationResponse.emplace<index>(std::forward<Args>(args)...);
+}
 
 #endif // __CKTAP_PROTOCOL__INTERNAL_TAPPROTOCOLTHREAD_H__

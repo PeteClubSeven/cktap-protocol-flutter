@@ -49,6 +49,12 @@ FFI_FUNC_EXPORT CKTapThreadState Core_getThreadState();
 FFI_FUNC_EXPORT CKTapProtoException Core_getTapProtoException();
 
 // ----------------------------------------------
+// CKTapCard:
+
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode CKTapCard_beginWait();
+FFI_FUNC_EXPORT WaitResponseParams CKTapCard_getWaitResponse();
+
+// ----------------------------------------------
 // Satscard:
 
 /// Gets a C representation of parameters required to construct a [Satscard] in dart. Note: must use
