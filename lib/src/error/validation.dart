@@ -25,8 +25,16 @@ void ensureNativeThreadStates(Iterable<int> allowedStates) {
   throw InvalidThreadStateError(lastState, threadState);
 }
 
-void ensureStatus(final CKTapInterfaceStatus status) =>
+void ensureStatus(final CKTapInterfaceStatus status, {bool free = false}) {
+  try {
     ensureSuccessful(status.errorCode, status.exception);
+  }
+  finally {
+   if (free) {
+     nativeLibrary.Utility_freeCKTapInterfaceStatus(status);
+   }
+  }
+}
 
 void ensureSuccessful(int interfaceErrorCode, [CKTapProtoException? e]) {
   switch (interfaceErrorCode) {

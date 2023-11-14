@@ -87,12 +87,8 @@ class CKTapImplementation {
   Future<Slot> satscardGetActiveSlot(int satscard) async {
     return performNativeOperation((bindings) async {
       var response = bindings.Satscard_getActiveSlot(satscard);
-      try {
-        ensureStatus(response.status);
-        return Slot(response.params);
-      } finally {
-        bindings.Utility_freeSatscardGetSlotResponse(response);
-      }
+      ensureStatus(response.status, free:true);
+      return Slot(response.params);
     });
   }
 
