@@ -26,7 +26,7 @@ CBinaryArray allocateCBinaryArrayFromJSON(const nlohmann::json::binary_t& binary
     return array;
 }
 
-CKTapProtoException allocateCKTapProtoException(const tap_protocol::TapProtoException& e) {
+CKTapProtoException allocateCKTapProtoException(const tap_protocol::TapProtoException& e) noexcept {
     CKTapProtoException result = {
         .code = e.code(),
         .message = strdup(e.what()),
@@ -140,6 +140,22 @@ CKTapCardType makeTapCardType(const int32_t type) {
         default:
             return CKTapCardType::unknownCard;
     }
+}
+
+CKTapInterfaceStatus makeTapInterfaceStatus(CKTapInterfaceErrorCode errorCode) noexcept {
+    CKTapInterfaceStatus status = {
+        .errorCode = errorCode,
+    };
+    std::memset(&status.exception, 0, sizeof(status.exception));
+    return status;
+}
+
+CKTapInterfaceStatus makeTapInterfaceStatus(CKTapInterfaceErrorCode errorCode, const tap_protocol::TapProtoException& e) noexcept {
+    CKTapInterfaceStatus status = {
+        .errorCode = errorCode,
+        .exception = allocateCKTapProtoException(e),
+    };
+    return status;
 }
 
 CKTapOperationResponse makeTapOperationResponse(CKTapInterfaceErrorCode errorCode, int32_t index, CKTapCardType type) {

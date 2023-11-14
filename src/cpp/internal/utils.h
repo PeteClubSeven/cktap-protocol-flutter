@@ -9,7 +9,7 @@
 #include <tap_protocol/cktapcard.h>
 
 CBinaryArray allocateCBinaryArrayFromJSON(const nlohmann::json::binary_t& binary);
-CKTapProtoException allocateCKTapProtoException(const tap_protocol::TapProtoException& e);
+CKTapProtoException allocateCKTapProtoException(const tap_protocol::TapProtoException& e) noexcept;
 char* allocateCStringFromCpp(const std::string& cppString);
 
 void fillConstructorParams(CKTapCardConstructorParams& params, size_t index, const tap_protocol::CKTapCard& card);
@@ -28,6 +28,10 @@ void freeTapsignerConstructorParams(TapsignerConstructorParams& params);
 
 CKTapCardHandle makeTapCardHandle(int32_t index, int32_t type);
 CKTapCardType makeTapCardType(const int32_t type);
+CKTapInterfaceStatus makeTapInterfaceStatus(CKTapInterfaceErrorCode errorCode) noexcept;
+CKTapInterfaceStatus makeTapInterfaceStatus(
+    CKTapInterfaceErrorCode errorCode,
+    const tap_protocol::TapProtoException& e) noexcept;
 CKTapOperationResponse makeTapOperationResponse(
     CKTapInterfaceErrorCode errorCode,
     int32_t index = -1,
