@@ -8,6 +8,13 @@ import 'package:nfc_manager/nfc_manager.dart';
 /// Implements the basic functionality required to interact with Coinkite NFC
 /// cards
 class CKTapProtocol {
+  /// Calling this is optional as the library is lazily loaded when needed.
+  /// However, if you wish to control exactly when the library initializes you
+  /// can simple call this function. Subsequent calls won't do anything
+  static void initialize() {
+    CKTapImplementation.instance;
+  }
+
   /// Performs a preliminary check to see if the given tag is potentially a
   /// compatible NFC card. This can only be confirmed by communicating via NFC
   /// with the cards

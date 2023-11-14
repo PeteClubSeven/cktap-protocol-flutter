@@ -24,6 +24,10 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
+    // Force CKTapProtocol to load immediately on start up so loading debug
+    // symbols doesn't happen when scanning an NFC card
+    CKTapProtocol.initialize();
+
     // Start NFC service
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
