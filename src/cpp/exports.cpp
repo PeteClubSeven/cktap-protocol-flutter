@@ -94,6 +94,31 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation() {
     return CKTapInterfaceErrorCode::success;
 }
 
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_prepareCardOperation(const int32_t handle, const int32_t cardType) {
+    if (g_protocolThread == nullptr) {
+        return CKTapInterfaceErrorCode::libraryNotInitialized;
+    } else if (g_protocolThread->isThreadActive()) {
+        return CKTapInterfaceErrorCode::threadAlreadyInUse;
+    }
+    switch (cardType) {
+        case CKTapCardType::satscard:
+            if (handle < 0 || handle >= g_satscards.size() ||
+                !g_protocolThread->prepareCardOperation(g_satscards[handle].card)) {
+                return CKTapInterfaceErrorCode::unknownSatscardHandle;
+            }
+            break;
+        case CKTapCardType::tapsigner:
+            if (handle < 0 || handle >= g_tapsigners.size() ||
+                !g_protocolThread->prepareCardOperation(g_tapsigners[handle].card)) {
+                return CKTapInterfaceErrorCode::unknownTapsignerHandle;
+            }
+            break;
+        default:
+            return CKTapInterfaceErrorCode::invalidCardOperation;
+    }
+    return CKTapInterfaceErrorCode::success;
+}
+
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake(const int32_t cardType) {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;

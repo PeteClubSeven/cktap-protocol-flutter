@@ -69,6 +69,15 @@ CKTapCard finalizeCardCreation() {
 void prepareForCardHandshake(CardType type) {
   ensureNativeThreadState(CKTapThreadState.notStarted);
   ensureSuccessful(nativeLibrary.Core_beginAsyncHandshake(type.index));
+  ensureNativeThreadState(CKTapThreadState.asyncActionStarting);
+}
+
+/// Prepares the native thread for performing a specific operation on an already
+/// constructed card
+void prepareForCardOperation(int handle, CardType type) {
+  ensureNativeThreadState(CKTapThreadState.notStarted);
+  ensureSuccessful(
+      nativeLibrary.Core_prepareCardOperation(handle, type.index));
 }
 
 /// Attempts to return the native thread to a workable clean state

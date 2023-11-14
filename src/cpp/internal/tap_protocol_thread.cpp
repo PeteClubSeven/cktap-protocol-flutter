@@ -13,6 +13,43 @@
 
 using namespace std::chrono_literals;
 
+template <typename Func>
+bool TapProtocolThread::_startAsyncCardOperation(Func&& func) noexcept {
+    try {
+        _state = CKTapThreadState::asyncActionStarting;
+        _future = std::async(std::launch::async, [this, func=std::forward<Func>(func)]() {
+            try {
+                const CKTapInterfaceErrorCode errorCode = func();
+                _state = errorCode == CKTapInterfaceErrorCode::success ?
+                    _state = CKTapThreadState::finished :
+                    _state = CKTapThreadState::failed;
+
+                return errorCode;
+            } catch (const CancelationException& e) {
+                _state = CKTapThreadState::canceled;
+                return CKTapInterfaceErrorCode::operationCanceled;
+            } catch (const TimeoutException& e) {
+                _state = CKTapThreadState::timeout;
+                return CKTapInterfaceErrorCode::timeoutDuringTransport;
+            } catch (const std::exception& e) {
+                // TODO: Fix weird TapProtoException issue. See "globals.h"
+                auto exception = static_cast<const tap_protocol::TapProtoException&>(e);
+                _tapProtoException = exception;
+                _state = CKTapThreadState::tapProtocolError;
+                return CKTapInterfaceErrorCode::caughtTapProtocolException;
+            } catch (...) {
+                // TODO: Add more exception handling and message extraction
+                _state = CKTapThreadState::failed;
+                return CKTapInterfaceErrorCode::unknownErrorDuringAsyncOperation;
+            }
+        });
+
+        return _future.valid();
+    } catch (...) {}
+
+    return false;
+}
+
 TapProtocolThread* TapProtocolThread::createNew() noexcept {
     try {
         auto thread = new TapProtocolThread{ };
@@ -38,19 +75,36 @@ CKTapInterfaceErrorCode TapProtocolThread::reset() noexcept {
     _pendingTransportRequest.clear();
     _transportResponse.clear();
     _constructedCard.reset();
+    _satscard.reset();
+    _tapsigner.reset();
 
     return CKTapInterfaceErrorCode::success;
 };
 
-void TapProtocolThread::requestCancel() {
+void TapProtocolThread::requestCancel() noexcept {
     _shouldCancel = true;
 }
 
-bool TapProtocolThread::beginCardHandshake(const int32_t cardType) {
-    _state = CKTapThreadState::asyncActionStarting;
-    _future = std::async(std::launch::async, [this, cardType]() {
-    try {
-        _state = CKTapThreadState::awaitingTransportRequest;
+bool TapProtocolThread::prepareCardOperation(std::weak_ptr<tap_protocol::Satscard> satscard) noexcept {
+    if (isThreadActive() || _satscard.expired()) {
+        return false;
+    }
+    _satscard = std::move(satscard);
+    _state = CKTapThreadState::awaitingCardOperation;
+    return true;
+}
+
+bool TapProtocolThread::prepareCardOperation(std::weak_ptr<tap_protocol::Tapsigner> tapsigner) noexcept {
+    if (isThreadActive() || tapsigner.expired()) {
+        return false;
+    }
+    _tapsigner = std::move(tapsigner);
+    _state = CKTapThreadState::awaitingCardOperation;
+    return true;
+}
+
+bool TapProtocolThread::beginCardHandshake(const int32_t cardType) noexcept {
+    return _startAsyncCardOperation([this, cardType]() {
         if (auto card = _performHandshake(cardType)) {
             // Perform additional validation because tap_protocol doesn't detect an error when constructing a Tapsigner
             // and communicating with a Satscard
@@ -64,32 +118,19 @@ bool TapProtocolThread::beginCardHandshake(const int32_t cardType) {
         }
         _state = CKTapThreadState::invalidCardProduced;
         return CKTapInterfaceErrorCode::failedToPerformHandshake;
-    } catch (const CancelationException& e) {
-        _state = CKTapThreadState::canceled;
-        return CKTapInterfaceErrorCode::operationCanceled;
-    } catch (const TimeoutException& e) {
-        _state = CKTapThreadState::timeout;
-        return CKTapInterfaceErrorCode::timeoutDuringTransport;
-    } catch (const std::exception& e) {
-        // TODO: Fix weird TapProtoException issue. See "globals.h"
-        auto exception = static_cast<const tap_protocol::TapProtoException&>(e);
-        _tapProtoException = exception;
-        _state = CKTapThreadState::tapProtocolError;
-        return CKTapInterfaceErrorCode::caughtTapProtocolException;
-    } catch (...) {
-        // TODO: Add more exception handling and message extraction
-        _state = CKTapThreadState::failed;
-        return CKTapInterfaceErrorCode::unknownErrorDuringHandshake;
-    }});
-
-    return _future.valid();
+    });
 }
 
-
-bool TapProtocolThread::finalizeOperation() {
+bool TapProtocolThread::finalizeOperation() noexcept {
     if ((hasFinished() || hasFailed()) && _future.valid()) {
-        _recentError = _future.get();
-        return true;
+        try {
+            _recentError = _future.get();
+            return true;
+        }
+        catch (...) {
+            _recentError = CKTapInterfaceErrorCode::failedToRetrieveValueFromFuture;
+            return false;
+        }
     }
 
     return false;
@@ -185,6 +226,7 @@ void TapProtocolThread::_cancelIfNecessary() {
 }
 
 std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::_performHandshake(const int32_t cardType) {
+    _state = CKTapThreadState::awaitingTransportRequest;
     auto transport = tap_protocol::MakeDefaultTransport([this](const tap_protocol::Bytes& bytes) {
         if (_state == CKTapThreadState::processingTransportResponse) {
             // Sometimes we may need to send multiple messages during a single transmission
@@ -233,7 +275,6 @@ std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::_performHandshake(co
 
     // More transport operations may need to be performed when we turn the card into a Tapsigner or Satscard
     _cancelIfNecessary();
-    _state = CKTapThreadState::awaitingTransportRequest;
     if (card.IsTapsigner()) {
         return tap_protocol::ToTapsigner(std::move(card));
     } else {

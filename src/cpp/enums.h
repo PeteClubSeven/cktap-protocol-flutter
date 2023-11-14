@@ -19,11 +19,14 @@ FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode {
     success,
 
     attemptToFinalizeActiveThread,
+    bindingNotImplemented,
     caughtTapProtocolException,
     expectedSatscardButReceivedNothing,
     expectedTapsignerButReceivedNothing,
     failedToPerformHandshake,
+    failedToRetrieveValueFromFuture,
     invalidCardDuringHandshake,
+    invalidCardOperation,
     invalidHandlingOfCardDuringFinalization,
     libraryNotInitialized,
     operationCanceled,
@@ -38,6 +41,7 @@ FFI_PLUGIN_EXPORT typedef enum CKTapInterfaceErrorCode {
     threadResponseFinalizationFailed,
     timeoutDuringTransport,
     unableToFinalizeAsyncAction,
+    unknownErrorDuringAsyncOperation,
     unknownErrorDuringHandshake,
     unknownErrorDuringTapProtocolFunction,
     unknownSatscardHandle,
@@ -101,6 +105,7 @@ FFI_PLUGIN_EXPORT typedef enum CKTapSatscardSlotStatus {
 FFI_PLUGIN_EXPORT typedef enum CKTapThreadState {
     // Ready state
     notStarted,
+    awaitingCardOperation,
     asyncActionStarting,
 
     // Transport request loop

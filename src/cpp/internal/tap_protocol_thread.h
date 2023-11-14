@@ -25,10 +25,16 @@ public:
 
     static TapProtocolThread* createNew() noexcept;
     CKTapInterfaceErrorCode reset() noexcept;
-    void requestCancel();
+    void requestCancel() noexcept;
 
-    bool beginCardHandshake(int32_t cardType);
-    bool finalizeOperation();
+    bool prepareCardOperation(std::weak_ptr<tap_protocol::Satscard> satscard) noexcept;
+    bool prepareCardOperation(std::weak_ptr<tap_protocol::Tapsigner> tapsigner) noexcept;
+    bool beginCardHandshake(int32_t cardType) noexcept;
+    bool beginSatscard_unseal(const char* cvc) noexcept;
+    bool beginSatscard_new(const uint8_t* chainCode, int32_t chainCodeLength, const char* cvc) noexcept;
+    bool beginSatscard_getSlot(int32_t slot, const char* cvc) noexcept;
+    bool beginSatscard_listSlots(const char* cvc, int32_t limit) noexcept;
+    bool finalizeOperation() noexcept;
 
     bool hasStarted() const;
     bool hasFailed() const;
@@ -47,6 +53,9 @@ public:
     std::unique_ptr<tap_protocol::Tapsigner> releaseConstructedTapsigner();
 
 private:
+
+    template <typename Func>
+    bool _startAsyncCardOperation(Func&& func) noexcept;
 
     void _cancelIfNecessary();
     std::unique_ptr<tap_protocol::CKTapCard> _performHandshake(int32_t cardType);

@@ -162,6 +162,24 @@ class NativeBindings {
   late final _Core_newOperation =
       _Core_newOperationPtr.asFunction<int Function()>();
 
+  /// Searches for the specified card and gives the native thread access so
+  /// further operations can be performed on it
+  int Core_prepareCardOperation(
+    int handle,
+    int cardType,
+  ) {
+    return _Core_prepareCardOperation(
+      handle,
+      cardType,
+    );
+  }
+
+  late final _Core_prepareCardOperationPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32, ffi.Int32)>>(
+          'Core_prepareCardOperation');
+  late final _Core_prepareCardOperation =
+      _Core_prepareCardOperationPtr.asFunction<int Function(int, int)>();
+
   /// Signals cancellation of the current operation, causing the thread to enter a
   /// resettable state
   int Core_requestCancelOperation() {
@@ -429,30 +447,34 @@ abstract class CKTapInterfaceErrorCode {
   static const int pending = 0;
   static const int success = 1;
   static const int attemptToFinalizeActiveThread = 2;
-  static const int caughtTapProtocolException = 3;
-  static const int expectedSatscardButReceivedNothing = 4;
-  static const int expectedTapsignerButReceivedNothing = 5;
-  static const int failedToPerformHandshake = 6;
-  static const int invalidCardDuringHandshake = 7;
-  static const int invalidHandlingOfCardDuringFinalization = 8;
-  static const int libraryNotInitialized = 9;
-  static const int operationCanceled = 10;
-  static const int operationFailed = 11;
-  static const int operationStillInProgress = 12;
-  static const int threadAlreadyInUse = 13;
-  static const int threadAllocationFailed = 14;
-  static const int threadNotReadyForResponse = 15;
-  static const int threadNotResetForHandshake = 16;
-  static const int threadNotYetFinalized = 17;
-  static const int threadNotYetStarted = 18;
-  static const int threadResponseFinalizationFailed = 19;
-  static const int timeoutDuringTransport = 20;
-  static const int unableToFinalizeAsyncAction = 21;
-  static const int unknownErrorDuringHandshake = 22;
-  static const int unknownErrorDuringTapProtocolFunction = 23;
-  static const int unknownSatscardHandle = 24;
-  static const int unknownSlotForGivenSatscardHandle = 25;
-  static const int unknownTapsignerHandle = 26;
+  static const int bindingNotImplemented = 3;
+  static const int caughtTapProtocolException = 4;
+  static const int expectedSatscardButReceivedNothing = 5;
+  static const int expectedTapsignerButReceivedNothing = 6;
+  static const int failedToPerformHandshake = 7;
+  static const int failedToRetrieveValueFromFuture = 8;
+  static const int invalidCardDuringHandshake = 9;
+  static const int invalidCardOperation = 10;
+  static const int invalidHandlingOfCardDuringFinalization = 11;
+  static const int libraryNotInitialized = 12;
+  static const int operationCanceled = 13;
+  static const int operationFailed = 14;
+  static const int operationStillInProgress = 15;
+  static const int threadAlreadyInUse = 16;
+  static const int threadAllocationFailed = 17;
+  static const int threadNotReadyForResponse = 18;
+  static const int threadNotResetForHandshake = 19;
+  static const int threadNotYetFinalized = 20;
+  static const int threadNotYetStarted = 21;
+  static const int threadResponseFinalizationFailed = 22;
+  static const int timeoutDuringTransport = 23;
+  static const int unableToFinalizeAsyncAction = 24;
+  static const int unknownErrorDuringAsyncOperation = 25;
+  static const int unknownErrorDuringHandshake = 26;
+  static const int unknownErrorDuringTapProtocolFunction = 27;
+  static const int unknownSatscardHandle = 28;
+  static const int unknownSlotForGivenSatscardHandle = 29;
+  static const int unknownTapsignerHandle = 30;
 }
 
 /// Used when accessing tap_protocol methods that can throw
@@ -533,23 +555,24 @@ abstract class CKTapSatscardSlotStatus {
 abstract class CKTapThreadState {
   /// Ready state
   static const int notStarted = 0;
-  static const int asyncActionStarting = 1;
+  static const int awaitingCardOperation = 1;
+  static const int asyncActionStarting = 2;
 
   /// Transport request loop
-  static const int awaitingTransportRequest = 2;
-  static const int transportRequestReady = 3;
-  static const int transportResponseReady = 4;
-  static const int processingTransportResponse = 5;
+  static const int awaitingTransportRequest = 3;
+  static const int transportRequestReady = 4;
+  static const int transportResponseReady = 5;
+  static const int processingTransportResponse = 6;
 
   /// Success state
-  static const int finished = 6;
+  static const int finished = 7;
 
   /// Fail states
-  static const int canceled = 7;
-  static const int failed = 8;
-  static const int invalidCardProduced = 9;
-  static const int tapProtocolError = 10;
-  static const int timeout = 11;
+  static const int canceled = 8;
+  static const int failed = 9;
+  static const int invalidCardProduced = 10;
+  static const int tapProtocolError = 11;
+  static const int timeout = 12;
 }
 
 class SatscardConstructorParams extends ffi.Struct {

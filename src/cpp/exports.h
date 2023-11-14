@@ -21,6 +21,9 @@ FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation();
 /// resettable state
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation();
 
+/// Searches for the specified card and gives the native thread access so
+/// further operations can be performed on it
+FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_prepareCardOperation(int32_t handle, int32_t cardType);
 /// Attempts to perform an initial handshake with a CKTapCard
 FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake(int32_t cardType);
 /// Must be called at the end of every async action
