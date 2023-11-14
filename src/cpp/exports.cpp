@@ -15,7 +15,7 @@
 // ----------------------------------------------
 // Core Bindings:
 
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_initializeLibrary() {
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_initializeLibrary() {
     if (g_protocolThread == nullptr) {
         g_protocolThread.reset(TapProtocolThread::createNew());
 
@@ -26,7 +26,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_initializeLibrary() {
     return CKTapInterfaceErrorCode::success;
 }
 
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_newOperation() {
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_newOperation() {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;
     }
@@ -37,7 +37,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_newOperation() {
     return g_protocolThread->reset();
 }
 
-FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation() {
+FFI_FUNC_EXPORT CKTapOperationResponse Core_endOperation() {
     if (g_protocolThread == nullptr) {
         return makeTapOperationResponse(CKTapInterfaceErrorCode::libraryNotInitialized);
     }
@@ -85,7 +85,7 @@ FFI_PLUGIN_EXPORT CKTapOperationResponse Core_endOperation() {
     return response;
 }
 
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation() {
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation() {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;
     }
@@ -94,7 +94,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_requestCancelOperation() {
     return CKTapInterfaceErrorCode::success;
 }
 
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_prepareCardOperation(const int32_t handle, const int32_t cardType) {
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_prepareCardOperation(const int32_t handle, const int32_t cardType) {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;
     } else if (g_protocolThread->isThreadActive()) {
@@ -119,7 +119,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_prepareCardOperation(const int32_
     return CKTapInterfaceErrorCode::success;
 }
 
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake(const int32_t cardType) {
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake(const int32_t cardType) {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;
     }
@@ -137,7 +137,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake(const int32_t
     return CKTapInterfaceErrorCode::success;
 }
 
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_finalizeAsyncAction() {
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_finalizeAsyncAction() {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;
     }
@@ -153,7 +153,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_finalizeAsyncAction() {
         CKTapInterfaceErrorCode::unableToFinalizeAsyncAction;
 }
 
-FFI_PLUGIN_EXPORT const uint8_t* Core_getTransportRequestPointer() {
+FFI_FUNC_EXPORT const uint8_t* Core_getTransportRequestPointer() {
     if (g_protocolThread == nullptr) {
         return nullptr;
     }
@@ -162,7 +162,7 @@ FFI_PLUGIN_EXPORT const uint8_t* Core_getTransportRequestPointer() {
     return optionalBytes.has_value() ? optionalBytes.value()->data() : nullptr;
 }
 
-FFI_PLUGIN_EXPORT int32_t Core_getTransportRequestLength() {
+FFI_FUNC_EXPORT int32_t Core_getTransportRequestLength() {
     if (g_protocolThread == nullptr) {
         return 0;
     }
@@ -171,7 +171,7 @@ FFI_PLUGIN_EXPORT int32_t Core_getTransportRequestLength() {
     return optionalBytes.has_value() ? static_cast<int32_t>(optionalBytes.value()->size()) : 0;
 }
 
-FFI_PLUGIN_EXPORT uint8_t* Core_allocateTransportResponseBuffer(const int32_t sizeInBytes) {
+FFI_FUNC_EXPORT uint8_t* Core_allocateTransportResponseBuffer(const int32_t sizeInBytes) {
     if (g_protocolThread == nullptr) {
         return nullptr;
     }
@@ -183,7 +183,7 @@ FFI_PLUGIN_EXPORT uint8_t* Core_allocateTransportResponseBuffer(const int32_t si
     return optionalBuffer.value_or(nullptr);
 }
 
-FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_finalizeTransportResponse() {
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_finalizeTransportResponse() {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::threadNotYetStarted;
     }
@@ -196,7 +196,7 @@ FFI_PLUGIN_EXPORT CKTapInterfaceErrorCode Core_finalizeTransportResponse() {
         CKTapInterfaceErrorCode::threadResponseFinalizationFailed;
 }
 
-FFI_PLUGIN_EXPORT CKTapThreadState Core_getThreadState() {
+FFI_FUNC_EXPORT CKTapThreadState Core_getThreadState() {
     if (g_protocolThread == nullptr) {
         return CKTapThreadState::notStarted;
     }
@@ -204,7 +204,7 @@ FFI_PLUGIN_EXPORT CKTapThreadState Core_getThreadState() {
     return g_protocolThread->getState();
 }
 
-FFI_PLUGIN_EXPORT CKTapProtoException Core_getTapProtoException() {
+FFI_FUNC_EXPORT CKTapProtoException Core_getTapProtoException() {
     if (g_protocolThread != nullptr) {
         auto e = CKTapProtoException{ };
         if (g_protocolThread->getTapProtocolException(e)) {
@@ -218,7 +218,7 @@ FFI_PLUGIN_EXPORT CKTapProtoException Core_getTapProtoException() {
 // ----------------------------------------------
 // Satscard:
 
-FFI_PLUGIN_EXPORT SatscardConstructorParams Satscard_createConstructorParams(const int32_t handle) {
+FFI_FUNC_EXPORT SatscardConstructorParams Satscard_createConstructorParams(const int32_t handle) {
     SatscardConstructorParams params;
     std::memset(&params, 0, sizeof(params));
 
@@ -234,7 +234,7 @@ FFI_PLUGIN_EXPORT SatscardConstructorParams Satscard_createConstructorParams(con
     return params;
 }
 
-FFI_PLUGIN_EXPORT SatscardGetSlotResponse Satscard_getActiveSlot(const int32_t handle) {
+FFI_FUNC_EXPORT SatscardGetSlotResponse Satscard_getActiveSlot(const int32_t handle) {
     SatscardGetSlotResponse response;
     std::memset(&response, 0, sizeof(response));
 
@@ -251,7 +251,7 @@ FFI_PLUGIN_EXPORT SatscardGetSlotResponse Satscard_getActiveSlot(const int32_t h
     return response;
 }
 
-FFI_PLUGIN_EXPORT SlotToWifResponse Satscard_slotToWif(const int32_t handle, const int32_t index) {
+FFI_FUNC_EXPORT SlotToWifResponse Satscard_slotToWif(const int32_t handle, const int32_t index) {
     SlotToWifResponse response;
     std::memset(&response, 0, sizeof(response));
 
@@ -268,7 +268,7 @@ FFI_PLUGIN_EXPORT SlotToWifResponse Satscard_slotToWif(const int32_t handle, con
 // ----------------------------------------------
 // Tapsigner:
 
-FFI_PLUGIN_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(const int32_t handle) {
+FFI_FUNC_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(const int32_t handle) {
     TapsignerConstructorParams params;
     std::memset(&params, 0, sizeof(params));
 
@@ -289,38 +289,38 @@ FFI_PLUGIN_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(c
 // ----------------------------------------------
 // Utility:
 
-FFI_PLUGIN_EXPORT void Utility_freeCBinaryArray(CBinaryArray array) {
+FFI_FUNC_EXPORT void Utility_freeCBinaryArray(CBinaryArray array) {
     freeCBinaryArray(array);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeCKTapInterfaceStatus(CKTapInterfaceStatus status) {
+FFI_FUNC_EXPORT void Utility_freeCKTapInterfaceStatus(CKTapInterfaceStatus status) {
     freeCKTapInterfaceStatus(status);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeCKTapProtoException(CKTapProtoException exception) {
+FFI_FUNC_EXPORT void Utility_freeCKTapProtoException(CKTapProtoException exception) {
     freeCKTapProtoException(exception);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeCString(char* cString) {
+FFI_FUNC_EXPORT void Utility_freeCString(char* cString) {
     freeCString(cString);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorParams params) {
+FFI_FUNC_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorParams params) {
     freeSatscardConstructorParams(params);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeSatscardGetSlotResponse(SatscardGetSlotResponse response) {
+FFI_FUNC_EXPORT void Utility_freeSatscardGetSlotResponse(SatscardGetSlotResponse response) {
     freeSatscardGetSlotResponse(response);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params) {
+FFI_FUNC_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params) {
     freeSlotConstructorParams(params);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeSlotToWifResponse(SlotToWifResponse response) {
+FFI_FUNC_EXPORT void Utility_freeSlotToWifResponse(SlotToWifResponse response) {
     freeSlotToWifResponse(response);
 }
 
-FFI_PLUGIN_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params) {
+FFI_FUNC_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params) {
     freeTapsignerConstructorParams(params);
 }
