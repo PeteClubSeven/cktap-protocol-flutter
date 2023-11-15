@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/error/types.dart';
@@ -24,9 +25,13 @@ class CKTapImplementation {
   /// A singleton for use across the plugin
   static CKTapImplementation? _staticInstance;
 
+  /// Initializes the shared instance and thus the library itself
+  static CKTapImplementation get instance =>
+      _staticInstance ??= CKTapImplementation._initialize();
+
   /// Will initialize the library with the given bindings
   CKTapImplementation(this.bindings) {
-    ensureSuccessful(bindings.Core_initializeLibrary());
+    ensure(bindings.Core_initializeLibrary());
   }
 
   /// Loads the required native DLLs initializes the library
@@ -42,16 +47,184 @@ class CKTapImplementation {
     return CKTapImplementation(bindings);
   }
 
-  /// Initializes the shared instance and thus the library itself
-  static CKTapImplementation get instance =>
-      _staticInstance ??= CKTapImplementation._initialize();
+  Future<WaitResponse> cktapcardWait(Transport nfc, int handle, CardType type) {
+    return _performAsyncCardOperation(handle, type, (lib) {
+      ensure(lib.CKTapCard_beginWait());
+      return processTransportRequests(nfc).then((_) {
+        var response = lib.CKTapCard_getWaitResponse();
+        ensureStatus(response.status, free: true);
+        return WaitResponse(response.success > 0, response.authDelay);
+      });
+    });
+  }
+
+  Future<CKTapCard> readCard(Transport nfc, CardType type) {
+    return _performNativeOperation((_) {
+      prepareNativeThread();
+      prepareForCardHandshake(type);
+      return processTransportRequests(nfc);
+    }).then((_) => finalizeCardCreation());
+  }
+
+  Future<bool> satscardCertificateCheck(Transport nfc, int handle) {
+    return _performAsyncCardOperation(handle, CardType.satscard, (lib) {
+      ensure(lib.Satscard_beginCertificateCheck());
+      return processTransportRequests(nfc).then((_) {
+        var response = lib.Satscard_getCertificateCheckResponse();
+        ensureStatus(response.status, free: true);
+        return response.isCertsChecked > 0;
+      });
+    });
+  }
+
+  Future<Slot> satscardGetActiveSlot(int satscard) {
+    return _performNativeOperation((lib) async {
+      var response = lib.Satscard_getActiveSlot(satscard);
+      ensureStatus(response.status, free: true);
+      return Slot(response.params);
+    });
+  }
+
+  Future<Slot> satscardGetSlot(
+      Transport nfc, int slot, String spend, int handle) {
+    return Future.sync(() async {
+      final nativeSpendCode = allocNativeSpendCode(spend, optional: true);
+      try {
+        return await _performAsyncCardOperation(handle, CardType.satscard,
+            (lib) {
+          ensure(lib.Satscard_beginGetSlot(slot, nativeSpendCode));
+          return processTransportRequests(nfc).then((_) {
+            var response = lib.Satscard_getGetSlotResponse();
+            try {
+              ensureStatus(response.status);
+              return Slot(response.params);
+            } finally {
+              lib.Utility_freeSatscardSlotResponse(response);
+            }
+          });
+        });
+      } finally {
+        freeCString(nativeSpendCode);
+      }
+    });
+  }
+
+  Future<List<Slot>> satscardListSlots(
+      Transport nfc, String spend, int limit, int handle) {
+    return Future.sync(() async {
+      final nativeSpendCode = allocNativeSpendCode(spend, optional: true);
+      try {
+        return await _performAsyncCardOperation(handle, CardType.satscard,
+            (lib) {
+          ensure(lib.Satscard_beginListSlots(nativeSpendCode, limit));
+          return processTransportRequests(nfc).then((_) {
+            var response = lib.Satscard_getListSlotsResponse();
+            try {
+              ensureStatus(response.status);
+              return List<Slot>.generate(
+                  response.length, (i) => Slot(response.ptr[i]));
+            } finally {
+              lib.Utility_freeSatscardListSlotsParams(response);
+            }
+          });
+        });
+      } finally {
+        freeCString(nativeSpendCode);
+      }
+    });
+  }
+
+  Future<Slot> satscardNew(
+      Transport nfc, String spend, String chain, int handle) {
+    return Future.sync(() async {
+      final nativeSpendCode = allocNativeSpendCode(spend);
+      final nativeChainCode = allocNativeChainCode(chain);
+      try {
+        return await _performAsyncCardOperation(handle, CardType.satscard,
+            (lib) {
+          ensure(lib.Satscard_beginNew(nativeChainCode, nativeSpendCode));
+          return processTransportRequests(nfc).then((_) {
+            var response = lib.Satscard_getNewResponse();
+            try {
+              ensureStatus(response.status);
+              return Slot(response.params);
+            } finally {
+              lib.Utility_freeSatscardSlotResponse(response);
+            }
+          });
+        });
+      } finally {
+        freeCString(nativeSpendCode);
+        freeCString(nativeChainCode);
+      }
+    });
+  }
+
+  Future<Slot> satscardUnseal(Transport nfc, String spend, int handle) {
+    return Future.sync(() async {
+      final nativeSpendCode = allocNativeSpendCode(spend);
+      try {
+        return await _performAsyncCardOperation(handle, CardType.satscard,
+            (lib) {
+          ensure(lib.Satscard_beginUnseal(nativeSpendCode));
+          return processTransportRequests(nfc).then((_) {
+            var response = lib.Satscard_getUnsealResponse();
+            try {
+              ensureStatus(response.status);
+              return Slot(response.params);
+            } finally {
+              lib.Utility_freeSatscardSlotResponse(response);
+            }
+          });
+        });
+      } finally {
+        freeCString(nativeSpendCode);
+      }
+    });
+  }
+
+  Future<String> slotToWif(int satscard, int slot) {
+    return _performNativeOperation((lib) async {
+      var response = lib.Satscard_slotToWif(satscard, slot);
+      try {
+        ensureStatus(response.status);
+        return dartStringFromCString(response.wif);
+      } finally {
+        lib.Utility_freeSlotToWifResponse(response);
+      }
+    });
+  }
+
+  Future<void> _awaitCleanup() async {
+    if (_cleanupFuture == null) {
+      return;
+    }
+    await _cleanupFuture;
+    _cleanupFuture = null;
+  }
+
+  Future<void> _cancelOperation() {
+    return _cleanupFuture = cancelNativeOperation().catchError((e, s) {
+      print(e);
+      print(s);
+    }).whenComplete(() => _cleanupFuture = null);
+  }
+
+  Future<T> _performAsyncCardOperation<T>(
+      int handle, CardType type, Future<T> Function(NativeBindings) action) {
+    return _performNativeOperation((lib) {
+      prepareNativeThread();
+      prepareForCardOperation(handle, type);
+      return action(lib);
+    });
+  }
 
   /// A naive approach to ensuring concurrent operations are not being
   /// performed. This normally wouldn't be necessary but because we have a
   /// native background thread we can only guarantee the library is free of race
   /// conditions by flagging when an async operation is in progress
-  Future<T> performNativeOperation<T>(
-      Future<T> Function(NativeBindings) action) async {
+  Future<T> _performNativeOperation<T>(
+      Future<T> Function(NativeBindings) action) {
     return Future.sync(() async {
       if (_isPerformingNativeAction) {
         throw ProtocolConcurrencyError(
@@ -72,71 +245,6 @@ class CKTapImplementation {
       } finally {
         _isPerformingNativeAction = false;
       }
-    });
-  }
-
-  Future<WaitResponse> cktapcardWait(
-      Transport transport, int handle, CardType type) {
-    return _performAsyncCardOperation(handle, type, (bindings) {
-      ensureSuccessful(bindings.CKTapCard_beginWait());
-      return processTransportRequests(transport, type).then((_) {
-        var response = bindings.CKTapCard_getWaitResponse();
-        ensureStatus(response.status, free: true);
-        return WaitResponse(response.success > 0, response.authDelay);
-      });
-    });
-  }
-
-  Future<CKTapCard> readCard(
-      Transport transport, String spendCode, CardType type) async {
-    return performNativeOperation((_) {
-      prepareNativeThread();
-      prepareForCardHandshake(type);
-      return processTransportRequests(transport, type);
-    }).then((_) => finalizeCardCreation());
-  }
-
-  Future<Slot> satscardGetActiveSlot(int satscard) async {
-    return performNativeOperation((bindings) async {
-      var response = bindings.Satscard_getActiveSlot(satscard);
-      ensureStatus(response.status, free:true);
-      return Slot(response.params);
-    });
-  }
-
-  Future<String> slotToWif(int satscard, int slot) async {
-    return performNativeOperation((bindings) async {
-      var response = bindings.Satscard_slotToWif(satscard, slot);
-      try {
-        ensureStatus(response.status);
-        return dartStringFromCString(response.wif);
-      } finally {
-        bindings.Utility_freeSlotToWifResponse(response);
-      }
-    });
-  }
-
-  Future<void> _awaitCleanup() async {
-    if (_cleanupFuture == null) {
-      return;
-    }
-    await _cleanupFuture;
-    _cleanupFuture = null;
-  }
-
-  Future<void> _cancelOperation() {
-    return _cleanupFuture = cancelNativeOperation().catchError((e, s) {
-      print(e);
-      print(s);
-    }).whenComplete(() => _cleanupFuture = null);
-  }
-
-  Future<T> _performAsyncCardOperation<T>(int handle, CardType type,
-      Future<T> Function(NativeBindings) action) async {
-    return performNativeOperation((bindings) {
-      prepareNativeThread();
-      prepareForCardOperation(handle, type);
-      return action(bindings);
     });
   }
 }

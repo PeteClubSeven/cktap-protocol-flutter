@@ -60,8 +60,20 @@ FFI_FUNC_EXPORT WaitResponseParams CKTapCard_getWaitResponse();
 /// Gets a C representation of parameters required to construct a [Satscard] in dart. Note: must use
 /// [Utility_freeSatscardConstructorParams] when you are finished using the data to deallocate memory
 FFI_FUNC_EXPORT SatscardConstructorParams Satscard_createConstructorParams(int32_t handle);
-FFI_FUNC_EXPORT SatscardGetSlotResponse Satscard_getActiveSlot(int32_t handle);
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getActiveSlot(int32_t handle);
 FFI_FUNC_EXPORT SlotToWifResponse Satscard_slotToWif(int32_t handle, int32_t index);
+
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginUnseal(const int8_t* spendCode);
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginNew(const int8_t* chainCode, const int8_t* spendCode);
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginCertificateCheck();
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginGetSlot(int32_t slot, const int8_t* spendCode);
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginListSlots(const int8_t* spendCode, int32_t limit);
+
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getUnsealResponse();
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getNewResponse();
+FFI_FUNC_EXPORT CertificateCheckParams Satscard_getCertificateCheckResponse();
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getGetSlotResponse();
+FFI_FUNC_EXPORT SatscardListSlotsParams Satscard_getListSlotsResponse();
 
 // ----------------------------------------------
 // Tapsigner:
@@ -76,8 +88,9 @@ FFI_FUNC_EXPORT void Utility_freeCBinaryArray(CBinaryArray array);
 FFI_FUNC_EXPORT void Utility_freeCKTapInterfaceStatus(CKTapInterfaceStatus status);
 FFI_FUNC_EXPORT void Utility_freeCKTapProtoException(CKTapProtoException exception);
 FFI_FUNC_EXPORT void Utility_freeCString(char* cString);
-FFI_FUNC_EXPORT void Utility_freeSatscardGetSlotResponse(SatscardGetSlotResponse response);
+FFI_FUNC_EXPORT void Utility_freeSatscardSlotResponse(SatscardSlotResponse response);
 FFI_FUNC_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorParams params);
+FFI_FUNC_EXPORT void Utility_freeSatscardListSlotsParams(SatscardListSlotsParams params);
 FFI_FUNC_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params);
 FFI_FUNC_EXPORT void Utility_freeSlotToWifResponse(SlotToWifResponse response);
 FFI_FUNC_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params);

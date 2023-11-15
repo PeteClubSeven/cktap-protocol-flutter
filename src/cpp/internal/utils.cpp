@@ -99,7 +99,7 @@ void freeSatscardConstructorParams(SatscardConstructorParams& params) {
     freeCKTapCardConstructorParams(params.base);
 }
 
-void freeSatscardGetSlotResponse(SatscardGetSlotResponse& response) {
+void freeSatscardGetSlotResponse(SatscardSlotResponse& response) {
     freeCKTapInterfaceStatus(response.status);
     freeSlotConstructorParams(response.params);
 }

@@ -213,6 +213,81 @@ class NativeBindings {
   late final _Core_requestCancelOperation =
       _Core_requestCancelOperationPtr.asFunction<int Function()>();
 
+  int Satscard_beginCertificateCheck() {
+    return _Satscard_beginCertificateCheck();
+  }
+
+  late final _Satscard_beginCertificateCheckPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>(
+          'Satscard_beginCertificateCheck');
+  late final _Satscard_beginCertificateCheck =
+      _Satscard_beginCertificateCheckPtr.asFunction<int Function()>();
+
+  int Satscard_beginGetSlot(
+    int slot,
+    ffi.Pointer<ffi.Int8> spendCode,
+  ) {
+    return _Satscard_beginGetSlot(
+      slot,
+      spendCode,
+    );
+  }
+
+  late final _Satscard_beginGetSlotPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              ffi.Int32, ffi.Pointer<ffi.Int8>)>>('Satscard_beginGetSlot');
+  late final _Satscard_beginGetSlot = _Satscard_beginGetSlotPtr.asFunction<
+      int Function(int, ffi.Pointer<ffi.Int8>)>();
+
+  int Satscard_beginListSlots(
+    ffi.Pointer<ffi.Int8> spendCode,
+    int limit,
+  ) {
+    return _Satscard_beginListSlots(
+      spendCode,
+      limit,
+    );
+  }
+
+  late final _Satscard_beginListSlotsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              ffi.Pointer<ffi.Int8>, ffi.Int32)>>('Satscard_beginListSlots');
+  late final _Satscard_beginListSlots = _Satscard_beginListSlotsPtr.asFunction<
+      int Function(ffi.Pointer<ffi.Int8>, int)>();
+
+  int Satscard_beginNew(
+    ffi.Pointer<ffi.Int8> chainCode,
+    ffi.Pointer<ffi.Int8> spendCode,
+  ) {
+    return _Satscard_beginNew(
+      chainCode,
+      spendCode,
+    );
+  }
+
+  late final _Satscard_beginNewPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Int8>)>>('Satscard_beginNew');
+  late final _Satscard_beginNew = _Satscard_beginNewPtr.asFunction<
+      int Function(ffi.Pointer<ffi.Int8>, ffi.Pointer<ffi.Int8>)>();
+
+  int Satscard_beginUnseal(
+    ffi.Pointer<ffi.Int8> spendCode,
+  ) {
+    return _Satscard_beginUnseal(
+      spendCode,
+    );
+  }
+
+  late final _Satscard_beginUnsealPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ffi.Int8>)>>(
+          'Satscard_beginUnseal');
+  late final _Satscard_beginUnseal = _Satscard_beginUnsealPtr.asFunction<
+      int Function(ffi.Pointer<ffi.Int8>)>();
+
   /// Gets a C representation of parameters required to construct a [Satscard] in dart. Note: must use
   /// [Utility_freeSatscardConstructorParams] when you are finished using the data to deallocate memory
   SatscardConstructorParams Satscard_createConstructorParams(
@@ -230,7 +305,7 @@ class NativeBindings {
       _Satscard_createConstructorParamsPtr.asFunction<
           SatscardConstructorParams Function(int)>();
 
-  SatscardGetSlotResponse Satscard_getActiveSlot(
+  SatscardSlotResponse Satscard_getActiveSlot(
     int handle,
   ) {
     return _Satscard_getActiveSlot(
@@ -239,10 +314,61 @@ class NativeBindings {
   }
 
   late final _Satscard_getActiveSlotPtr =
-      _lookup<ffi.NativeFunction<SatscardGetSlotResponse Function(ffi.Int32)>>(
+      _lookup<ffi.NativeFunction<SatscardSlotResponse Function(ffi.Int32)>>(
           'Satscard_getActiveSlot');
   late final _Satscard_getActiveSlot = _Satscard_getActiveSlotPtr.asFunction<
-      SatscardGetSlotResponse Function(int)>();
+      SatscardSlotResponse Function(int)>();
+
+  CertificateCheckParams Satscard_getCertificateCheckResponse() {
+    return _Satscard_getCertificateCheckResponse();
+  }
+
+  late final _Satscard_getCertificateCheckResponsePtr =
+      _lookup<ffi.NativeFunction<CertificateCheckParams Function()>>(
+          'Satscard_getCertificateCheckResponse');
+  late final _Satscard_getCertificateCheckResponse =
+      _Satscard_getCertificateCheckResponsePtr.asFunction<
+          CertificateCheckParams Function()>();
+
+  SatscardSlotResponse Satscard_getGetSlotResponse() {
+    return _Satscard_getGetSlotResponse();
+  }
+
+  late final _Satscard_getGetSlotResponsePtr =
+      _lookup<ffi.NativeFunction<SatscardSlotResponse Function()>>(
+          'Satscard_getGetSlotResponse');
+  late final _Satscard_getGetSlotResponse = _Satscard_getGetSlotResponsePtr
+      .asFunction<SatscardSlotResponse Function()>();
+
+  SatscardListSlotsParams Satscard_getListSlotsResponse() {
+    return _Satscard_getListSlotsResponse();
+  }
+
+  late final _Satscard_getListSlotsResponsePtr =
+      _lookup<ffi.NativeFunction<SatscardListSlotsParams Function()>>(
+          'Satscard_getListSlotsResponse');
+  late final _Satscard_getListSlotsResponse = _Satscard_getListSlotsResponsePtr
+      .asFunction<SatscardListSlotsParams Function()>();
+
+  SatscardSlotResponse Satscard_getNewResponse() {
+    return _Satscard_getNewResponse();
+  }
+
+  late final _Satscard_getNewResponsePtr =
+      _lookup<ffi.NativeFunction<SatscardSlotResponse Function()>>(
+          'Satscard_getNewResponse');
+  late final _Satscard_getNewResponse =
+      _Satscard_getNewResponsePtr.asFunction<SatscardSlotResponse Function()>();
+
+  SatscardSlotResponse Satscard_getUnsealResponse() {
+    return _Satscard_getUnsealResponse();
+  }
+
+  late final _Satscard_getUnsealResponsePtr =
+      _lookup<ffi.NativeFunction<SatscardSlotResponse Function()>>(
+          'Satscard_getUnsealResponse');
+  late final _Satscard_getUnsealResponse = _Satscard_getUnsealResponsePtr
+      .asFunction<SatscardSlotResponse Function()>();
 
   SlotToWifResponse Satscard_slotToWif(
     int handle,
@@ -352,20 +478,35 @@ class NativeBindings {
       _Utility_freeSatscardConstructorParamsPtr.asFunction<
           void Function(SatscardConstructorParams)>();
 
-  void Utility_freeSatscardGetSlotResponse(
-    SatscardGetSlotResponse response,
+  void Utility_freeSatscardListSlotsParams(
+    SatscardListSlotsParams params,
   ) {
-    return _Utility_freeSatscardGetSlotResponse(
+    return _Utility_freeSatscardListSlotsParams(
+      params,
+    );
+  }
+
+  late final _Utility_freeSatscardListSlotsParamsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(SatscardListSlotsParams)>>(
+          'Utility_freeSatscardListSlotsParams');
+  late final _Utility_freeSatscardListSlotsParams =
+      _Utility_freeSatscardListSlotsParamsPtr.asFunction<
+          void Function(SatscardListSlotsParams)>();
+
+  void Utility_freeSatscardSlotResponse(
+    SatscardSlotResponse response,
+  ) {
+    return _Utility_freeSatscardSlotResponse(
       response,
     );
   }
 
-  late final _Utility_freeSatscardGetSlotResponsePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(SatscardGetSlotResponse)>>(
-          'Utility_freeSatscardGetSlotResponse');
-  late final _Utility_freeSatscardGetSlotResponse =
-      _Utility_freeSatscardGetSlotResponsePtr.asFunction<
-          void Function(SatscardGetSlotResponse)>();
+  late final _Utility_freeSatscardSlotResponsePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(SatscardSlotResponse)>>(
+          'Utility_freeSatscardSlotResponse');
+  late final _Utility_freeSatscardSlotResponse =
+      _Utility_freeSatscardSlotResponsePtr.asFunction<
+          void Function(SatscardSlotResponse)>();
 
   void Utility_freeSlotConstructorParams(
     SlotConstructorParams params,
@@ -601,6 +742,13 @@ abstract class CKTapThreadState {
   static const int transportException = 13;
 }
 
+class CertificateCheckParams extends ffi.Struct {
+  external CKTapInterfaceStatus status;
+
+  @ffi.Int8()
+  external int isCertsChecked;
+}
+
 class SatscardConstructorParams extends ffi.Struct {
   external CKTapInterfaceStatus status;
 
@@ -619,7 +767,16 @@ class SatscardConstructorParams extends ffi.Struct {
   external int isUsedUp;
 }
 
-class SatscardGetSlotResponse extends ffi.Struct {
+class SatscardListSlotsParams extends ffi.Struct {
+  external CKTapInterfaceStatus status;
+
+  external ffi.Pointer<SlotConstructorParams> ptr;
+
+  @ffi.Int32()
+  external int length;
+}
+
+class SatscardSlotResponse extends ffi.Struct {
   external CKTapInterfaceStatus status;
 
   external SlotConstructorParams params;

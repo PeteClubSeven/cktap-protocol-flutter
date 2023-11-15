@@ -1,6 +1,5 @@
 import 'dart:core';
 
-import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
@@ -11,16 +10,26 @@ import 'package:nfc_manager/nfc_manager.dart';
 /// The base class for user-facing exceptions thrown by this plugin
 abstract class CKTapException implements Exception {}
 
+/// Thrown when the given chain code is either not empty OR not a 64-character
+/// hex code
+class ChainCodeException implements CKTapException {
+  final String chainCode;
+
+  ChainCodeException(this.chainCode);
+
+  @override
+  String toString() =>
+      "The given chain code either wasn't long enough or contained invalid characters: $chainCode";
+}
+
 /// Thrown when attempting to perform a handshake of an expected type but the
 /// user has presented an invalid card
 class InvalidCardException implements CKTapException {
-  final CardType type;
-
-  InvalidCardException(this.type);
+  InvalidCardException();
 
   @override
   toString() =>
-      "Expected $type but the user didn't present a card of that type";
+      "User didn't present a card of the expected type";
 }
 
 /// Thrown when a given NfcTag doesn't support the required protocols for the
@@ -55,6 +64,18 @@ class OperationCanceledException implements CKTapException {
 
   @override
   String toString() => "A CKTapProtocol operation was canceled: $message";
+}
+
+/// Thrown when the given spend code does not meet the requirements of being a
+/// 6-digit numeric code
+class SpendCodeException implements CKTapException {
+  final String spendCode;
+
+  const SpendCodeException(this.spendCode);
+
+  @override
+  String toString() =>
+      "spendCode ($spendCode) given is not a 6-digit numeric code";
 }
 
 /// Thrown when the internal Nunchuk tap_protocol library throws an exception

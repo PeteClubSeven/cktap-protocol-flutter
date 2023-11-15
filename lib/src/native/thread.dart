@@ -19,7 +19,7 @@ Future<void> cancelNativeOperation() async {
       return;
     }
 
-    ensureSuccessful(nativeLibrary.Core_requestCancelOperation());
+    ensure(nativeLibrary.Core_requestCancelOperation());
     final stopwatch = Stopwatch()..start();
     while (_isNativeThreadActive()) {
       if (stopwatch.elapsed.inSeconds >= 2) {
@@ -32,7 +32,7 @@ Future<void> cancelNativeOperation() async {
     ensureNativeThreadState(CKTapThreadState.canceled);
     var errorCode = nativeLibrary.Core_finalizeAsyncAction();
     if (errorCode != CKTapInterfaceErrorCode.operationCanceled) {
-      ensureSuccessful(errorCode);
+      ensure(errorCode);
     }
   });
 }
@@ -43,7 +43,7 @@ CKTapCard finalizeCardCreation() {
   int threadState = nativeLibrary.Core_getThreadState();
   if (threadState == CKTapThreadState.finished) {
     CKTapOperationResponse response = nativeLibrary.Core_endOperation();
-    ensureSuccessful(response.errorCode);
+    ensure(response.errorCode);
 
     switch (response.handle.type) {
       case CKTapCardType.satscard:
@@ -68,7 +68,7 @@ CKTapCard finalizeCardCreation() {
 /// Tells the native thread to start the handshaking process
 void prepareForCardHandshake(CardType type) {
   ensureNativeThreadState(CKTapThreadState.notStarted);
-  ensureSuccessful(nativeLibrary.Core_beginAsyncHandshake(type.index));
+  ensure(nativeLibrary.Core_beginAsyncHandshake(type.index));
   ensureNativeThreadState(CKTapThreadState.asyncActionStarting);
 }
 
@@ -76,8 +76,7 @@ void prepareForCardHandshake(CardType type) {
 /// constructed card
 void prepareForCardOperation(int handle, CardType type) {
   ensureNativeThreadState(CKTapThreadState.notStarted);
-  ensureSuccessful(
-      nativeLibrary.Core_prepareCardOperation(handle, type.index));
+  ensure(nativeLibrary.Core_prepareCardOperation(handle, type.index));
 }
 
 /// Attempts to return the native thread to a workable clean state
@@ -86,13 +85,12 @@ void prepareNativeThread() {
     throw ProtocolConcurrencyError("Can't prepare the native thread");
   }
 
-  ensureSuccessful(nativeLibrary.Core_newOperation());
+  ensure(nativeLibrary.Core_newOperation());
 }
 
 /// Handles the sending and receiving of data between the native library and an
 /// NFC device until completion or failure
-Future<void> processTransportRequests(
-    Transport transport, CardType type) async {
+Future<void> processTransportRequests(Transport transport) async {
   return Future.sync(() async {
     ensureNativeThreadStates([
       CKTapThreadState.asyncActionStarting,
@@ -113,14 +111,14 @@ Future<void> processTransportRequests(
       var transportResponse =
           await transport.sendBytes(_getNativeTransportRequest());
       var errorCode = _setNativeTransportResponse(transportResponse);
-      ensureSuccessful(errorCode);
+      ensure(errorCode);
     }
 
     if (nativeLibrary.Core_getThreadState() ==
         CKTapThreadState.invalidCardProduced) {
-      throw InvalidCardException(type);
+      throw InvalidCardException();
     }
-    ensureSuccessful(nativeLibrary.Core_finalizeAsyncAction());
+    ensure(nativeLibrary.Core_finalizeAsyncAction());
   });
 }
 
@@ -161,7 +159,7 @@ int _setNativeTransportResponse(Uint8List response) {
   nativeResponse.setAll(0, response);
 
   var errorCode = nativeLibrary.Core_finalizeTransportResponse();
-  ensureSuccessful(CKTapInterfaceErrorCode.success);
+  ensure(CKTapInterfaceErrorCode.success);
 
   return errorCode;
 }

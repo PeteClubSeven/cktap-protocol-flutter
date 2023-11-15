@@ -49,13 +49,6 @@ class CKTapProtocol {
   /// if the given tag is a match however it will fail entirely if the wrong
   /// card type is given, e.g. Tapsigner instead of a Satscard
   static Future<CKTapCard> readCard(Transport transport,
-      {String spendCode = "", CardType type = CardType.unknown}) async {
-    return await CKTapImplementation.instance
-        .readCard(transport, spendCode, type);
-  }
-
-  /// Attempts to initialize the active slot of a Satscard. The spendCode must
-  /// be given AND accurate. The chain code is optional but if provided it must
-  /// be a 64 character hex string (upper case and lower case is supported).
-  //static Future<Satscard> satscardNew()
+          {CardType type = CardType.unknown}) =>
+      CKTapImplementation.instance.readCard(transport, type);
 }

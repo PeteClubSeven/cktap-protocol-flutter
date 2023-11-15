@@ -27,7 +27,7 @@ void freeCKTapInterfaceStatus(CKTapInterfaceStatus& status);
 void freeCKTapProtoException(CKTapProtoException& exception);
 void freeCString(char*& cString);
 void freeSatscardConstructorParams(SatscardConstructorParams& params);
-void freeSatscardGetSlotResponse(SatscardGetSlotResponse& response);
+void freeSatscardGetSlotResponse(SatscardSlotResponse& response);
 void freeSlotConstructorParams(SlotConstructorParams& params);
 void freeSlotToWifResponse(SlotToWifResponse response);
 void freeTapsignerConstructorParams(TapsignerConstructorParams& params);

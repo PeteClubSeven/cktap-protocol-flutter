@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:cktap_protocol/exceptions.dart';
 import 'package:ffi/ffi.dart';
 
 import 'package:cktap_protocol/cktapcard.dart';
@@ -36,6 +37,33 @@ String dartStringFromCString(Pointer<Char> cString,
   }
 
   return "";
+}
+
+void freeCString(Pointer<Int8> ptr) {
+  if (ptr != nullptr) {
+    malloc.free(ptr);
+  }
+}
+
+Pointer<Int8> allocNativeChainCode(final String code) {
+  if (code.isEmpty) {
+    return nullptr;
+  }
+  if (code.length == 64 && code.contains(RegExp(r"[a-fA-F0-9]{64}"))) {
+    return code.toNativeUtf8().cast<Int8>();
+  }
+
+  throw ChainCodeException(code);
+}
+
+Pointer<Int8> allocNativeSpendCode(final String code, {bool optional = false}) {
+  if (optional && code.isEmpty) {
+    return nullptr;
+  }
+  if (code.length == 6 && code.contains(RegExp(r"\d{6}"))) {
+    return code.toNativeUtf8().cast<Int8>();
+  }
+  throw SpendCodeException(code);
 }
 
 String getLiteralFromTapInterfaceErrorCode(int code) {

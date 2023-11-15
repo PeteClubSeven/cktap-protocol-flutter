@@ -266,8 +266,8 @@ FFI_FUNC_EXPORT SatscardConstructorParams Satscard_createConstructorParams(const
     return params;
 }
 
-FFI_FUNC_EXPORT SatscardGetSlotResponse Satscard_getActiveSlot(const int32_t handle) {
-    SatscardGetSlotResponse response;
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getActiveSlot(const int32_t handle) {
+    SatscardSlotResponse response;
     std::memset(&response, 0, sizeof(response));
 
     response.status = accessTapCard<tap_protocol::Satscard>(handle, [=, &response](auto& wrapper) {
@@ -341,7 +341,7 @@ FFI_FUNC_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorPa
     freeSatscardConstructorParams(params);
 }
 
-FFI_FUNC_EXPORT void Utility_freeSatscardGetSlotResponse(SatscardGetSlotResponse response) {
+FFI_FUNC_EXPORT void Utility_freeSatscardSlotResponse(SatscardSlotResponse response) {
     freeSatscardGetSlotResponse(response);
 }
 
