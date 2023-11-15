@@ -39,29 +39,29 @@ String dartStringFromCString(Pointer<Char> cString,
   return "";
 }
 
-void freeCString(Pointer<Int8> ptr) {
+void freeCString(Pointer<Char> ptr) {
   if (ptr != nullptr) {
     malloc.free(ptr);
   }
 }
 
-Pointer<Int8> allocNativeChainCode(final String code) {
+Pointer<Char> allocNativeChainCode(final String code) {
   if (code.isEmpty) {
     return nullptr;
   }
   if (code.length == 64 && code.contains(RegExp(r"[a-fA-F0-9]{64}"))) {
-    return code.toNativeUtf8().cast<Int8>();
+    return code.toNativeUtf8().cast<Char>();
   }
 
   throw ChainCodeException(code);
 }
 
-Pointer<Int8> allocNativeSpendCode(final String code, {bool optional = false}) {
+Pointer<Char> allocNativeSpendCode(final String code, {bool optional = false}) {
   if (optional && code.isEmpty) {
     return nullptr;
   }
   if (code.length == 6 && code.contains(RegExp(r"\d{6}"))) {
-    return code.toNativeUtf8().cast<Int8>();
+    return code.toNativeUtf8().cast<Char>();
   }
   throw SpendCodeException(code);
 }

@@ -29,7 +29,7 @@ extern "C" void myWorkingFunction() {
     }
 }
 */
-// Should catch every STL exception before static casting a std::exception (dynamic returns
+// Should catch every STL exception before static casting an std::exception (dynamic returns
 // null). The list can be found at: https://en.cppreference.com/w/cpp/error/exception
 #define CATCH_TAP_PROTO_EXCEPTION(name, code) \
     catch (const std::logic_error&) {} \

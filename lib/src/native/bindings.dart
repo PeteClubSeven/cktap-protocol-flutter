@@ -225,7 +225,7 @@ class NativeBindings {
 
   int Satscard_beginGetSlot(
     int slot,
-    ffi.Pointer<ffi.Int8> spendCode,
+    ffi.Pointer<ffi.Char> spendCode,
   ) {
     return _Satscard_beginGetSlot(
       slot,
@@ -236,12 +236,12 @@ class NativeBindings {
   late final _Satscard_beginGetSlotPtr = _lookup<
       ffi.NativeFunction<
           ffi.Int32 Function(
-              ffi.Int32, ffi.Pointer<ffi.Int8>)>>('Satscard_beginGetSlot');
+              ffi.Int32, ffi.Pointer<ffi.Char>)>>('Satscard_beginGetSlot');
   late final _Satscard_beginGetSlot = _Satscard_beginGetSlotPtr.asFunction<
-      int Function(int, ffi.Pointer<ffi.Int8>)>();
+      int Function(int, ffi.Pointer<ffi.Char>)>();
 
   int Satscard_beginListSlots(
-    ffi.Pointer<ffi.Int8> spendCode,
+    ffi.Pointer<ffi.Char> spendCode,
     int limit,
   ) {
     return _Satscard_beginListSlots(
@@ -253,13 +253,13 @@ class NativeBindings {
   late final _Satscard_beginListSlotsPtr = _lookup<
       ffi.NativeFunction<
           ffi.Int32 Function(
-              ffi.Pointer<ffi.Int8>, ffi.Int32)>>('Satscard_beginListSlots');
+              ffi.Pointer<ffi.Char>, ffi.Int32)>>('Satscard_beginListSlots');
   late final _Satscard_beginListSlots = _Satscard_beginListSlotsPtr.asFunction<
-      int Function(ffi.Pointer<ffi.Int8>, int)>();
+      int Function(ffi.Pointer<ffi.Char>, int)>();
 
   int Satscard_beginNew(
-    ffi.Pointer<ffi.Int8> chainCode,
-    ffi.Pointer<ffi.Int8> spendCode,
+    ffi.Pointer<ffi.Char> chainCode,
+    ffi.Pointer<ffi.Char> spendCode,
   ) {
     return _Satscard_beginNew(
       chainCode,
@@ -269,13 +269,13 @@ class NativeBindings {
 
   late final _Satscard_beginNewPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>)>>('Satscard_beginNew');
+          ffi.Int32 Function(ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('Satscard_beginNew');
   late final _Satscard_beginNew = _Satscard_beginNewPtr.asFunction<
-      int Function(ffi.Pointer<ffi.Int8>, ffi.Pointer<ffi.Int8>)>();
+      int Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
 
   int Satscard_beginUnseal(
-    ffi.Pointer<ffi.Int8> spendCode,
+    ffi.Pointer<ffi.Char> spendCode,
   ) {
     return _Satscard_beginUnseal(
       spendCode,
@@ -283,10 +283,10 @@ class NativeBindings {
   }
 
   late final _Satscard_beginUnsealPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ffi.Int8>)>>(
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ffi.Char>)>>(
           'Satscard_beginUnseal');
   late final _Satscard_beginUnseal = _Satscard_beginUnsealPtr.asFunction<
-      int Function(ffi.Pointer<ffi.Int8>)>();
+      int Function(ffi.Pointer<ffi.Char>)>();
 
   /// Gets a C representation of parameters required to construct a [Satscard] in dart. Note: must use
   /// [Utility_freeSatscardConstructorParams] when you are finished using the data to deallocate memory
@@ -330,45 +330,61 @@ class NativeBindings {
       _Satscard_getCertificateCheckResponsePtr.asFunction<
           CertificateCheckParams Function()>();
 
-  SatscardSlotResponse Satscard_getGetSlotResponse() {
-    return _Satscard_getGetSlotResponse();
+  SatscardSlotResponse Satscard_getGetSlotResponse(
+    int handle,
+  ) {
+    return _Satscard_getGetSlotResponse(
+      handle,
+    );
   }
 
   late final _Satscard_getGetSlotResponsePtr =
-      _lookup<ffi.NativeFunction<SatscardSlotResponse Function()>>(
+      _lookup<ffi.NativeFunction<SatscardSlotResponse Function(ffi.Int32)>>(
           'Satscard_getGetSlotResponse');
   late final _Satscard_getGetSlotResponse = _Satscard_getGetSlotResponsePtr
-      .asFunction<SatscardSlotResponse Function()>();
+      .asFunction<SatscardSlotResponse Function(int)>();
 
-  SatscardListSlotsParams Satscard_getListSlotsResponse() {
-    return _Satscard_getListSlotsResponse();
+  SatscardListSlotsParams Satscard_getListSlotsResponse(
+    int handle,
+  ) {
+    return _Satscard_getListSlotsResponse(
+      handle,
+    );
   }
 
   late final _Satscard_getListSlotsResponsePtr =
-      _lookup<ffi.NativeFunction<SatscardListSlotsParams Function()>>(
+      _lookup<ffi.NativeFunction<SatscardListSlotsParams Function(ffi.Int32)>>(
           'Satscard_getListSlotsResponse');
   late final _Satscard_getListSlotsResponse = _Satscard_getListSlotsResponsePtr
-      .asFunction<SatscardListSlotsParams Function()>();
+      .asFunction<SatscardListSlotsParams Function(int)>();
 
-  SatscardSlotResponse Satscard_getNewResponse() {
-    return _Satscard_getNewResponse();
+  SatscardSlotResponse Satscard_getNewResponse(
+    int handle,
+  ) {
+    return _Satscard_getNewResponse(
+      handle,
+    );
   }
 
   late final _Satscard_getNewResponsePtr =
-      _lookup<ffi.NativeFunction<SatscardSlotResponse Function()>>(
+      _lookup<ffi.NativeFunction<SatscardSlotResponse Function(ffi.Int32)>>(
           'Satscard_getNewResponse');
-  late final _Satscard_getNewResponse =
-      _Satscard_getNewResponsePtr.asFunction<SatscardSlotResponse Function()>();
+  late final _Satscard_getNewResponse = _Satscard_getNewResponsePtr.asFunction<
+      SatscardSlotResponse Function(int)>();
 
-  SatscardSlotResponse Satscard_getUnsealResponse() {
-    return _Satscard_getUnsealResponse();
+  SatscardSlotResponse Satscard_getUnsealResponse(
+    int handle,
+  ) {
+    return _Satscard_getUnsealResponse(
+      handle,
+    );
   }
 
   late final _Satscard_getUnsealResponsePtr =
-      _lookup<ffi.NativeFunction<SatscardSlotResponse Function()>>(
+      _lookup<ffi.NativeFunction<SatscardSlotResponse Function(ffi.Int32)>>(
           'Satscard_getUnsealResponse');
   late final _Satscard_getUnsealResponse = _Satscard_getUnsealResponsePtr
-      .asFunction<SatscardSlotResponse Function()>();
+      .asFunction<SatscardSlotResponse Function(int)>();
 
   SlotToWifResponse Satscard_slotToWif(
     int handle,
@@ -634,13 +650,15 @@ abstract class CKTapInterfaceErrorCode {
   static const int threadResponseFinalizationFailed = 25;
   static const int timeoutDuringTransport = 26;
   static const int unableToFinalizeAsyncAction = 27;
-  static const int unexpectedStdException = 28;
-  static const int unknownErrorDuringAsyncOperation = 29;
-  static const int unknownErrorDuringHandshake = 30;
-  static const int unknownErrorDuringTapProtocolFunction = 31;
-  static const int unknownSatscardHandle = 32;
-  static const int unknownSlotForGivenSatscardHandle = 33;
-  static const int unknownTapsignerHandle = 34;
+  static const int unexpectedExceptionWhenStartingCardOperation = 28;
+  static const int unexpectedExceptionWhenGettingCardOperationResult = 29;
+  static const int unexpectedStdException = 30;
+  static const int unknownErrorDuringAsyncOperation = 31;
+  static const int unknownErrorDuringHandshake = 32;
+  static const int unknownErrorDuringTapProtocolFunction = 33;
+  static const int unknownSatscardHandle = 34;
+  static const int unknownSlotForGivenSatscardHandle = 35;
+  static const int unknownTapsignerHandle = 36;
 }
 
 /// Used when accessing tap_protocol methods that can throw
@@ -770,7 +788,7 @@ class SatscardConstructorParams extends ffi.Struct {
 class SatscardListSlotsParams extends ffi.Struct {
   external CKTapInterfaceStatus status;
 
-  external ffi.Pointer<SlotConstructorParams> ptr;
+  external ffi.Pointer<SlotConstructorParams> array;
 
   @ffi.Int32()
   external int length;

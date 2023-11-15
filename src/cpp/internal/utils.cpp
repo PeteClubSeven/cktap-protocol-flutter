@@ -5,6 +5,7 @@
 
 // Third party
 #include <tap_protocol/cktapcard.h>
+#include <tap_protocol/utils.h>
 
 // STL
 #include <cstring>
@@ -76,8 +77,8 @@ void freeCBinaryArray(CBinaryArray& array) {
 }
 
 void freeCKTapCardConstructorParams(CKTapCardConstructorParams& params) {
-    freeCString(params.ident);
-    freeCString(params.appletVersion);
+    freePointer(params.ident);
+    freePointer(params.appletVersion);
 }
 
 void freeCKTapInterfaceStatus(CKTapInterfaceStatus& status) {
@@ -85,14 +86,7 @@ void freeCKTapInterfaceStatus(CKTapInterfaceStatus& status) {
 }
 
 void freeCKTapProtoException(CKTapProtoException& exception) {
-    freeCString(exception.message);
-}
-
-void freeCString(char*& cString) {
-    if (cString != nullptr) {
-        std::free(cString);
-        cString = nullptr;
-    }
+    freePointer(exception.message);
 }
 
 void freeSatscardConstructorParams(SatscardConstructorParams& params) {
@@ -104,8 +98,13 @@ void freeSatscardGetSlotResponse(SatscardSlotResponse& response) {
     freeSlotConstructorParams(response.params);
 }
 
+void freeSatscardListSlotsParams(SatscardListSlotsParams& params) {
+    freeCKTapInterfaceStatus(params.status);
+    freePointer(params.array);
+}
+
 void freeSlotConstructorParams(SlotConstructorParams& params) {
-    freeCString(params.address);
+    freePointer(params.address);
     freeCBinaryArray(params.privkey);
     freeCBinaryArray(params.pubkey);
     freeCBinaryArray(params.masterPK);
@@ -114,12 +113,26 @@ void freeSlotConstructorParams(SlotConstructorParams& params) {
 
 void freeSlotToWifResponse(SlotToWifResponse response) {
     freeCKTapInterfaceStatus(response.status);
-    freeCString(response.wif);
+    freePointer(response.wif);
 }
 
 void freeTapsignerConstructorParams(TapsignerConstructorParams& params) {
     freeCKTapCardConstructorParams(params.base);
-    freeCString(params.derivationPath);
+    freePointer(params.derivationPath);
+}
+
+tap_protocol::Bytes makeChainCode(const char* cString) {
+    if (cString == nullptr) {
+        return tap_protocol::RandomChainCode();
+    }
+    return tap_protocol::Hex2Bytes(cString);
+}
+
+std::string makeCvc(const char* cString) {
+    if (cString == nullptr) {
+        return { };
+    }
+    return { cString };
 }
 
 CKTapCardHandle makeTapCardHandle(const int32_t index, const int32_t type) {

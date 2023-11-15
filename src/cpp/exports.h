@@ -63,17 +63,17 @@ FFI_FUNC_EXPORT SatscardConstructorParams Satscard_createConstructorParams(int32
 FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getActiveSlot(int32_t handle);
 FFI_FUNC_EXPORT SlotToWifResponse Satscard_slotToWif(int32_t handle, int32_t index);
 
-FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginUnseal(const int8_t* spendCode);
-FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginNew(const int8_t* chainCode, const int8_t* spendCode);
 FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginCertificateCheck();
-FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginGetSlot(int32_t slot, const int8_t* spendCode);
-FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginListSlots(const int8_t* spendCode, int32_t limit);
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginGetSlot(int32_t slot, const char* spendCode);
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginListSlots(const char* spendCode, int32_t limit);
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginNew(const char* chainCode, const char* spendCode);
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginUnseal(const char* spendCode);
 
-FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getUnsealResponse();
-FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getNewResponse();
 FFI_FUNC_EXPORT CertificateCheckParams Satscard_getCertificateCheckResponse();
-FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getGetSlotResponse();
-FFI_FUNC_EXPORT SatscardListSlotsParams Satscard_getListSlotsResponse();
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getGetSlotResponse(int32_t handle);
+FFI_FUNC_EXPORT SatscardListSlotsParams Satscard_getListSlotsResponse(int32_t handle);
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getNewResponse(int32_t handle);
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getUnsealResponse(int32_t handle);
 
 // ----------------------------------------------
 // Tapsigner:
@@ -84,6 +84,7 @@ FFI_FUNC_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(int
 
 // ----------------------------------------------
 // Utility:
+
 FFI_FUNC_EXPORT void Utility_freeCBinaryArray(CBinaryArray array);
 FFI_FUNC_EXPORT void Utility_freeCKTapInterfaceStatus(CKTapInterfaceStatus status);
 FFI_FUNC_EXPORT void Utility_freeCKTapProtoException(CKTapProtoException exception);

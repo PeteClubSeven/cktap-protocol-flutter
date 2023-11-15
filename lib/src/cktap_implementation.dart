@@ -94,7 +94,7 @@ class CKTapImplementation {
             (lib) {
           ensure(lib.Satscard_beginGetSlot(slot, nativeSpendCode));
           return processTransportRequests(nfc).then((_) {
-            var response = lib.Satscard_getGetSlotResponse();
+            var response = lib.Satscard_getGetSlotResponse(handle);
             try {
               ensureStatus(response.status);
               return Slot(response.params);
@@ -118,11 +118,11 @@ class CKTapImplementation {
             (lib) {
           ensure(lib.Satscard_beginListSlots(nativeSpendCode, limit));
           return processTransportRequests(nfc).then((_) {
-            var response = lib.Satscard_getListSlotsResponse();
+            var response = lib.Satscard_getListSlotsResponse(handle);
             try {
               ensureStatus(response.status);
               return List<Slot>.generate(
-                  response.length, (i) => Slot(response.ptr[i]));
+                  response.length, (i) => Slot(response.array[i]));
             } finally {
               lib.Utility_freeSatscardListSlotsParams(response);
             }
@@ -144,7 +144,7 @@ class CKTapImplementation {
             (lib) {
           ensure(lib.Satscard_beginNew(nativeChainCode, nativeSpendCode));
           return processTransportRequests(nfc).then((_) {
-            var response = lib.Satscard_getNewResponse();
+            var response = lib.Satscard_getNewResponse(handle);
             try {
               ensureStatus(response.status);
               return Slot(response.params);
@@ -168,7 +168,7 @@ class CKTapImplementation {
             (lib) {
           ensure(lib.Satscard_beginUnseal(nativeSpendCode));
           return processTransportRequests(nfc).then((_) {
-            var response = lib.Satscard_getUnsealResponse();
+            var response = lib.Satscard_getUnsealResponse(handle);
             try {
               ensureStatus(response.status);
               return Slot(response.params);

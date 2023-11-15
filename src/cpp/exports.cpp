@@ -13,6 +13,57 @@
 #include <cstring>
 
 // ----------------------------------------------
+// Helpers:
+
+static CKTapInterfaceErrorCode beginCardOp(const std::function<bool ()>& func) noexcept {
+    if (g_protocolThread == nullptr) {
+        return CKTapInterfaceErrorCode::libraryNotInitialized;
+    } else if (g_protocolThread->getState() != CKTapThreadState::awaitingCardOperation) {
+        return CKTapInterfaceErrorCode::threadNotAwaitingCardOperation;
+    }
+    try {
+        return func() ?
+            CKTapInterfaceErrorCode::success :
+            CKTapInterfaceErrorCode::invalidCardOperation;
+    }
+    catch (...) {
+        return CKTapInterfaceErrorCode::unexpectedExceptionWhenStartingCardOperation;
+    }
+}
+
+template <typename Return, CardOperation op>
+static Return getCardOpResponse(const std::function<void (Return&, CardResponseType<op>)>& func) noexcept {
+    Return r { };
+    std::memset(&r, 0, sizeof(r));
+
+    if (g_protocolThread == nullptr) {
+        r.status.errorCode = CKTapInterfaceErrorCode::libraryNotInitialized;
+    } else if (g_protocolThread->isThreadActive()) {
+        r.status.errorCode = CKTapInterfaceErrorCode::threadAlreadyInUse;
+    } else if (g_protocolThread->getState() == CKTapThreadState::tapProtocolError) {
+        r.status.errorCode = CKTapInterfaceErrorCode::caughtTapProtocolException;
+        g_protocolThread->getTapProtocolException(r.status.exception);
+    } else if (g_protocolThread->finalizeOperation()) {
+            r.status.errorCode = g_protocolThread->getRecentErrorCode();
+    } else {
+        r.status.errorCode = CKTapInterfaceErrorCode::failedToRetrieveValueFromFuture;
+    }
+    
+    if (r.status.errorCode == CKTapInterfaceErrorCode::success) {
+        try {
+            if (const auto optional = g_protocolThread->getResponse<op>()) {
+                func(r, std::move(optional.value()));
+            } else {
+                r.status.errorCode = CKTapInterfaceErrorCode::invalidResponseFromCardOperation;
+            }
+        } catch (...) {
+            r.status.errorCode = CKTapInterfaceErrorCode::unexpectedExceptionWhenGettingCardOperationResult;
+        }
+    }
+    return r;
+}
+
+// ----------------------------------------------
 // Core Bindings:
 
 FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_initializeLibrary() {
@@ -122,8 +173,7 @@ FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_prepareCardOperation(const int32_t 
 FFI_FUNC_EXPORT CKTapInterfaceErrorCode Core_beginAsyncHandshake(const int32_t cardType) {
     if (g_protocolThread == nullptr) {
         return CKTapInterfaceErrorCode::libraryNotInitialized;
-    }
-    if (g_protocolThread->hasStarted()) {
+    } else if (g_protocolThread->hasStarted()) {
         return CKTapInterfaceErrorCode::threadNotResetForHandshake;
     }
 
@@ -219,32 +269,16 @@ FFI_FUNC_EXPORT CKTapProtoException Core_getTapProtoException() {
 // CKTapCard:
 
 FFI_FUNC_EXPORT CKTapInterfaceErrorCode CKTapCard_beginWait() {
-    if (g_protocolThread == nullptr) {
-        return CKTapInterfaceErrorCode::libraryNotInitialized;
-    } else if (g_protocolThread->getState() != CKTapThreadState::awaitingCardOperation) {
-        return CKTapInterfaceErrorCode::threadNotAwaitingCardOperation;
-    }
-    return g_protocolThread->beginCKTapCard_Wait() ?
-        CKTapInterfaceErrorCode::success :
-        CKTapInterfaceErrorCode::invalidCardOperation;
+    return beginCardOp([=]() {
+        return g_protocolThread->beginCKTapCard_Wait();
+    });
 }
 
 FFI_FUNC_EXPORT WaitResponseParams CKTapCard_getWaitResponse() {
-    WaitResponseParams params;
-    std::memset(&params, 0, sizeof(params));
-
-    if (g_protocolThread == nullptr) {
-        params.status.errorCode = CKTapInterfaceErrorCode::libraryNotInitialized;
-    } else {
-        if (auto optional = g_protocolThread->getResponse<CardOperation::CKTapCard_Wait>()) {
-            params.status.errorCode = CKTapInterfaceErrorCode::success;
-            params.success = optional.value().success ? 1 : 0;
-            params.authDelay = optional.value().auth_delay;
-        } else {
-            params.status.errorCode = CKTapInterfaceErrorCode::invalidResponseFromCardOperation;
-        }
-    }
-    return params;
+    return getCardOpResponse<WaitResponseParams, CardOperation::CKTapCard_Wait>([](auto& result, auto response) {
+        result.success = response.success ? 1 : 0;
+        result.authDelay = response.auth_delay;
+    });
 }
 
 // ----------------------------------------------
@@ -254,7 +288,7 @@ FFI_FUNC_EXPORT SatscardConstructorParams Satscard_createConstructorParams(const
     SatscardConstructorParams params;
     std::memset(&params, 0, sizeof(params));
 
-    params.status = accessTapCard<tap_protocol::Satscard>(handle, [handle, &params](const auto& wrapper) {
+    params.status = accessCard<tap_protocol::Satscard>(handle, [handle, &params](const auto& wrapper) {
         const auto& card = *wrapper.card;
         fillConstructorParams(params.base, handle, card);
         params.activeSlotIndex = card.GetActiveSlotIndex();
@@ -270,7 +304,7 @@ FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getActiveSlot(const int32_t handle
     SatscardSlotResponse response;
     std::memset(&response, 0, sizeof(response));
 
-    response.status = accessTapCard<tap_protocol::Satscard>(handle, [=, &response](auto& wrapper) {
+    response.status = accessCard<tap_protocol::Satscard>(handle, [=, &response](auto& wrapper) {
         auto slot = wrapper.card->GetActiveSlot();
         const auto index = slot.index;
         if (index >= wrapper.slots.size()) {
@@ -287,7 +321,7 @@ FFI_FUNC_EXPORT SlotToWifResponse Satscard_slotToWif(const int32_t handle, const
     SlotToWifResponse response;
     std::memset(&response, 0, sizeof(response));
 
-    response.status = accessTapCard<tap_protocol::Satscard>(handle, [=, &response](const auto& wrapper) {
+    response.status = accessCard<tap_protocol::Satscard>(handle, [=, &response](const auto& wrapper) {
         if (index < 0 || index >= wrapper.slots.size() || !wrapper.slots[index]) {
             return CKTapInterfaceErrorCode::unknownSlotForGivenSatscardHandle;
         }
@@ -297,6 +331,73 @@ FFI_FUNC_EXPORT SlotToWifResponse Satscard_slotToWif(const int32_t handle, const
     return response;
 }
 
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginCertificateCheck() {
+    return beginCardOp([=]() {
+        return g_protocolThread->beginSatscard_CertificateCheck();
+    });
+}
+
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginGetSlot(const int32_t slot, const char* spendCode) {
+    return beginCardOp([=]() {
+        return g_protocolThread->beginSatscard_GetSlot(slot, spendCode);
+    });
+}
+
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginListSlots(const char* spendCode, const int32_t limit) {
+    return beginCardOp([=]() {
+        return g_protocolThread->beginSatscard_ListSlots(spendCode, limit);
+    });
+}
+
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginNew(const char* chainCode, const char* spendCode) {
+    return beginCardOp([=]() {
+        return g_protocolThread->beginSatscard_New(chainCode, spendCode);
+    });
+}
+
+FFI_FUNC_EXPORT CKTapInterfaceErrorCode Satscard_beginUnseal(const char* spendCode) {
+    return beginCardOp([=]() {
+        return g_protocolThread->beginSatscard_Unseal(spendCode);
+    });
+}
+
+FFI_FUNC_EXPORT CertificateCheckParams Satscard_getCertificateCheckResponse() {
+    return getCardOpResponse<CertificateCheckParams, CardOperation::Satscard_CertificateCheck>([](auto& result, auto response) {
+        result.isCertsChecked = response ? 1 : 0;
+    });
+}
+
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getGetSlotResponse(const int32_t handle) {
+    return getCardOpResponse<SatscardSlotResponse, CardOperation::Satscard_GetSlot>([=](auto& result, auto slot) {
+        fillConstructorParams(result.params, handle, slot);
+        storeSatscardSlot(static_cast<size_t>(handle), std::move(slot));
+    });
+}
+
+FFI_FUNC_EXPORT SatscardListSlotsParams Satscard_getListSlotsResponse(const int32_t handle) {
+    return getCardOpResponse<SatscardListSlotsParams, CardOperation::Satscard_ListSlots>([=](auto& result, auto slots) {
+        result.array = allocateCArray<SlotConstructorParams>(slots.size());
+        result.length = static_cast<int32_t>(slots.size());
+        for (size_t i { 0 }; i < slots.size(); ++i) {
+            fillConstructorParams(result.array[i], handle, slots[i]);
+            storeSatscardSlot(static_cast<size_t>(handle), std::move(slots[i]));
+        }
+    });
+}
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getNewResponse(const int32_t handle) {
+    return getCardOpResponse<SatscardSlotResponse, CardOperation::Satscard_New>([=](auto& result, auto slot) {
+        fillConstructorParams(result.params, handle, slot);
+        storeSatscardSlot(static_cast<size_t>(handle), std::move(slot));
+    });
+}
+
+FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getUnsealResponse(const int32_t handle) {
+    return getCardOpResponse<SatscardSlotResponse, CardOperation::Satscard_Unseal>([=](auto& result, auto slot) {
+        fillConstructorParams(result.params, handle, slot);
+        storeSatscardSlot(static_cast<size_t>(handle), std::move(slot));
+    });
+}
+
 // ----------------------------------------------
 // Tapsigner:
 
@@ -304,7 +405,7 @@ FFI_FUNC_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(con
     TapsignerConstructorParams params;
     std::memset(&params, 0, sizeof(params));
 
-    params.status = accessTapCard<tap_protocol::Tapsigner>(handle, [handle, &params](const auto& wrapper) {
+    params.status = accessCard<tap_protocol::Tapsigner>(handle, [handle, &params](const auto& wrapper) {
         const auto& card = *wrapper.card;
         fillConstructorParams(params.base, handle, card);
         params.numberOfBackups = card.GetNumberOfBackups();
@@ -334,11 +435,15 @@ FFI_FUNC_EXPORT void Utility_freeCKTapProtoException(CKTapProtoException excepti
 }
 
 FFI_FUNC_EXPORT void Utility_freeCString(char* cString) {
-    freeCString(cString);
+    freePointer(cString);
 }
 
 FFI_FUNC_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorParams params) {
     freeSatscardConstructorParams(params);
+}
+
+FFI_FUNC_EXPORT void Utility_freeSatscardListSlotsParams(SatscardListSlotsParams params) {
+    freeSatscardListSlotsParams(params);
 }
 
 FFI_FUNC_EXPORT void Utility_freeSatscardSlotResponse(SatscardSlotResponse response) {

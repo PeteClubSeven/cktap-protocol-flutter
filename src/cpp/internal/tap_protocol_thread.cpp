@@ -25,8 +25,8 @@ bool TapProtocolThread::_startAsyncCardOperation(Func&& func) noexcept {
             try {
                 const CKTapInterfaceErrorCode errorCode = func();
                 _state = errorCode == CKTapInterfaceErrorCode::success ?
-                    _state = CKTapThreadState::finished :
-                    _state = CKTapThreadState::failed;
+                    CKTapThreadState::finished :
+                    CKTapThreadState::failed;
 
                 return errorCode;
             } catch (const CancelationException& e) {
@@ -126,17 +126,66 @@ bool TapProtocolThread::beginCardHandshake(const int32_t cardType) noexcept {
     });
 }
 
-bool TapProtocolThread::beginCKTapCard_Wait() noexcept {
-    auto card = _lockCardForOperation();
-    if (!card) {
-        return false;
+bool TapProtocolThread::beginCKTapCard_Wait() {
+    if (auto card = _lockCardForOperation()) {
+        return _startAsyncCardOperation([=]() {
+            _setResponse<CardOperation::CKTapCard_Wait>(card->Wait());
+            return CKTapInterfaceErrorCode::success;
+        });
     }
-    return _startAsyncCardOperation([this, card=std::move(card)]() {
-        _state = CKTapThreadState::awaitingTransportRequest;
-        _setResponse<CardOperation::CKTapCard_Wait>(card->Wait());
+    return false;
+}
 
-        return CKTapInterfaceErrorCode::success;
-    });
+bool TapProtocolThread::beginSatscard_CertificateCheck() {
+    if (auto card = _satscard.lock()) {
+        return _startAsyncCardOperation([=]() {
+            card->CertificateCheck();
+            _setResponse<CardOperation::Satscard_CertificateCheck>(card->IsCertsChecked());
+            return CKTapInterfaceErrorCode::success;
+        });
+    }
+    return false;
+}
+
+bool TapProtocolThread::beginSatscard_GetSlot(int32_t slot, const char* cvc) {
+    if (auto card = _satscard.lock()) {
+        return _startAsyncCardOperation([=, cvc = makeCvc(cvc)]() {
+            _setResponse<CardOperation::Satscard_GetSlot>(std::move(card->GetSlot(slot, cvc)));
+            return CKTapInterfaceErrorCode::success;
+        });
+    }
+    return false;
+}
+
+bool TapProtocolThread::beginSatscard_ListSlots(const char* cvc, int32_t limit) {
+    if (auto card = _satscard.lock()) {
+        return _startAsyncCardOperation([=, cvc = makeCvc(cvc)]() {
+            auto result = card->ListSlots(cvc, static_cast<size_t>(limit));
+            _setResponse<CardOperation::Satscard_ListSlots>(std::move(result));
+            return CKTapInterfaceErrorCode::success;
+        });
+    }
+    return false;
+}
+
+bool TapProtocolThread::beginSatscard_New(const char* chainCode, const char* cvc) {
+    if (auto card = _satscard.lock()) {
+        return _startAsyncCardOperation([=, chain = makeChainCode(chainCode), cvc = makeCvc(cvc)]() {
+            _setResponse<CardOperation::Satscard_New>(std::move(card->New(chain, cvc)));
+            return CKTapInterfaceErrorCode::success;
+        });
+    }
+    return false;
+}
+
+bool TapProtocolThread::beginSatscard_Unseal(const char* cvc) {
+    if (auto card = _satscard.lock()) {
+        return _startAsyncCardOperation([=, cvc = makeCvc(cvc)]() {
+            _setResponse<CardOperation::Satscard_Unseal>(std::move(card->Unseal(cvc)));
+            return CKTapInterfaceErrorCode::success;
+        });
+    }
+    return false;
 }
 
 bool TapProtocolThread::finalizeOperation() noexcept {
@@ -154,31 +203,31 @@ bool TapProtocolThread::finalizeOperation() noexcept {
     return false;
 }
 
-bool TapProtocolThread::hasStarted() const {
+bool TapProtocolThread::hasStarted() const noexcept {
     return _state != CKTapThreadState::notStarted;
 }
 
-bool TapProtocolThread::hasFailed() const {
+bool TapProtocolThread::hasFailed() const noexcept {
     return _state > CKTapThreadState::finished;
 }
 
-bool TapProtocolThread::hasFinished() const {
+bool TapProtocolThread::hasFinished() const noexcept {
     return _state == CKTapThreadState::finished;
 }
 
-bool TapProtocolThread::isThreadActive() const {
+bool TapProtocolThread::isThreadActive() const noexcept {
     return hasStarted() && !hasFinished() && !hasFailed();
 }
 
-CKTapThreadState TapProtocolThread::getState() const {
+CKTapThreadState TapProtocolThread::getState() const noexcept {
     return _state;
 }
 
-CKTapInterfaceErrorCode TapProtocolThread::getRecentErrorCode() const {
+CKTapInterfaceErrorCode TapProtocolThread::getRecentErrorCode() const noexcept {
     return _recentError;
 }
 
-bool TapProtocolThread::getTapProtocolException(CKTapProtoException& outException) const {
+bool TapProtocolThread::getTapProtocolException(CKTapProtoException& outException) const noexcept {
     if (_state == CKTapThreadState::tapProtocolError) {
         outException = allocateCKTapProtoException(_tapProtoException);
         return true;
@@ -254,7 +303,9 @@ std::shared_ptr<tap_protocol::CKTapCard> TapProtocolThread::_lockCardForOperatio
 std::unique_ptr<tap_protocol::CKTapCard> TapProtocolThread::_performHandshake(const int32_t cardType) {
     _state = CKTapThreadState::awaitingTransportRequest;
     auto transport = tap_protocol::MakeDefaultTransport([this](const tap_protocol::Bytes& bytes) {
-        if (_state == CKTapThreadState::processingTransportResponse) {
+        if (_state == CKTapThreadState::asyncActionStarting ||
+            _state == CKTapThreadState::processingTransportResponse) {
+
             // Sometimes we may need to send multiple messages during a single transmission
             _state = CKTapThreadState::awaitingTransportRequest;
         }

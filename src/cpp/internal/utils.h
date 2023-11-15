@@ -14,6 +14,11 @@
 template <typename T>
 using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
+template <typename T>
+T* allocateCArray(const size_t length) {
+    return static_cast<T*>(std::malloc(sizeof(T) * length));
+}
+
 CBinaryArray allocateCBinaryArrayFromJSON(const nlohmann::json::binary_t& binary);
 CKTapProtoException allocateCKTapProtoException(const tap_protocol::TapProtoException& e) noexcept;
 char* allocateCStringFromCpp(const std::string& cppString);
@@ -21,17 +26,27 @@ char* allocateCStringFromCpp(const std::string& cppString);
 void fillConstructorParams(CKTapCardConstructorParams& params, size_t index, const tap_protocol::CKTapCard& card);
 void fillConstructorParams(SlotConstructorParams& params, int32_t handle, const tap_protocol::Satscard::Slot& slot);
 
+template <typename T>
+void freePointer(T*& pointer) {
+    if (pointer != nullptr) {
+        std::free(pointer);
+        pointer = nullptr;
+    }
+}
+
 void freeCBinaryArray(CBinaryArray& array);
 void freeCKTapCardConstructorParams(CKTapCardConstructorParams& params);
 void freeCKTapInterfaceStatus(CKTapInterfaceStatus& status);
 void freeCKTapProtoException(CKTapProtoException& exception);
-void freeCString(char*& cString);
 void freeSatscardConstructorParams(SatscardConstructorParams& params);
 void freeSatscardGetSlotResponse(SatscardSlotResponse& response);
+void freeSatscardListSlotsParams(SatscardListSlotsParams& params);
 void freeSlotConstructorParams(SlotConstructorParams& params);
 void freeSlotToWifResponse(SlotToWifResponse response);
 void freeTapsignerConstructorParams(TapsignerConstructorParams& params);
 
+tap_protocol::Bytes makeChainCode(const char* cString);
+std::string makeCvc(const char* cString);
 CKTapCardHandle makeTapCardHandle(int32_t index, int32_t type);
 CKTapCardType makeTapCardType(const int32_t type);
 CKTapInterfaceStatus makeTapInterfaceStatus(CKTapInterfaceErrorCode errorCode) noexcept;

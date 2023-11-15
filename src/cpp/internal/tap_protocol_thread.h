@@ -24,23 +24,24 @@ public:
     bool prepareCardOperation(std::weak_ptr<tap_protocol::Satscard> satscard) noexcept;
     bool prepareCardOperation(std::weak_ptr<tap_protocol::Tapsigner> tapsigner) noexcept;
     bool beginCardHandshake(int32_t cardType) noexcept;
-    bool beginCKTapCard_Wait() noexcept;
-    bool beginSatscard_Unseal(const char* cvc) noexcept;
-    bool beginSatscard_New(const uint8_t* chainCode, int32_t chainCodeLength, const char* cvc) noexcept;
-    bool beginSatscard_GetSlot(int32_t slot, const char* cvc) noexcept;
-    bool beginSatscard_ListSlots(const char* cvc, int32_t limit) noexcept;
+    bool beginCKTapCard_Wait();
+    bool beginSatscard_CertificateCheck();
+    bool beginSatscard_GetSlot(int32_t slot, const char* cvc);
+    bool beginSatscard_ListSlots(const char* cvc, int32_t limit);
+    bool beginSatscard_New(const char* chainCode, const char* cvc);
+    bool beginSatscard_Unseal(const char* cvc);
     bool finalizeOperation() noexcept;
 
     template <CardOperation op, typename R = CardResponseType<op>>
     std::optional<R> getResponse() const noexcept;
 
-    bool hasStarted() const;
-    bool hasFailed() const;
-    bool hasFinished() const;
-    bool isThreadActive() const;
-    CKTapThreadState getState() const;
-    CKTapInterfaceErrorCode getRecentErrorCode() const;
-    bool getTapProtocolException(CKTapProtoException& outException) const;
+    bool hasStarted() const noexcept;
+    bool hasFailed() const noexcept;
+    bool hasFinished() const noexcept;
+    bool isThreadActive() const noexcept;
+    CKTapThreadState getState() const noexcept;
+    CKTapInterfaceErrorCode getRecentErrorCode() const noexcept;
+    bool getTapProtocolException(CKTapProtoException& outException) const noexcept;
 
     std::optional<const tap_protocol::Bytes*> getTransportRequest() const;
     std::optional<uint8_t*> allocateTransportResponseBuffer(size_t sizeInBytes);

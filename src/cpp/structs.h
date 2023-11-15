@@ -93,7 +93,7 @@ FFI_TYPE_EXPORT typedef struct {
 
 FFI_TYPE_EXPORT typedef struct {
     CKTapInterfaceStatus status;
-    SlotConstructorParams* ptr;
+    SlotConstructorParams* array;
     int32_t length;
 } SatscardListSlotsParams;
 
