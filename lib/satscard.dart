@@ -4,6 +4,7 @@ import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/cktap_implementation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
+import 'package:cktap_protocol/tap_protocol.dart';
 import 'package:cktap_protocol/transport.dart';
 
 class Satscard extends CKTapCard {
@@ -11,6 +12,10 @@ class Satscard extends CKTapCard {
   final int numSlots;
   final bool hasUnusedSlots;
   final bool isUsedUp;
+
+  static Future<Satscard> fromTransport(Transport transport) =>
+      CKTapProtocol.readCard(transport, type: CardType.satscard)
+          .then((card) => card.toSatscard()!);
 
   /// Checks the certificate of the Satscard to ensure it's an authentic card.
   /// [isCertsChecked] will be updated based on the result

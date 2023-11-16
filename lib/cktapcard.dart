@@ -2,6 +2,7 @@ import 'package:cktap_protocol/satscard.dart';
 import 'package:cktap_protocol/src/cktap_implementation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
+import 'package:cktap_protocol/tap_protocol.dart';
 import 'package:cktap_protocol/tapsigner.dart';
 import 'package:cktap_protocol/transport.dart';
 
@@ -22,6 +23,9 @@ abstract class CKTapCard {
   bool needSetup;
 
   bool get isTapsigner => type == CardType.tapsigner;
+
+  static Future<CKTapCard> fromTransport(Transport transport) =>
+      CKTapProtocol.readCard(transport, type: CardType.unknown);
 
   Satscard? toSatscard() => !isTapsigner ? this as Satscard : null;
   Tapsigner? toTapsigner() => isTapsigner ? this as Tapsigner : null;
