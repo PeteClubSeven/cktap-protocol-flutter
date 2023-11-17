@@ -48,7 +48,7 @@ static Return getCardOpResponse(const std::function<void (Return&, CardResponseT
     } else {
         r.status.errorCode = CKTapInterfaceErrorCode::failedToRetrieveValueFromFuture;
     }
-    
+
     if (r.status.errorCode == CKTapInterfaceErrorCode::success) {
         try {
             if (const auto optional = g_protocolThread->getResponse<op>()) {

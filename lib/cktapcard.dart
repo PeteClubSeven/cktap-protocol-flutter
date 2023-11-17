@@ -1,8 +1,8 @@
+import 'package:cktap_protocol/cktap_protocol.dart';
 import 'package:cktap_protocol/satscard.dart';
 import 'package:cktap_protocol/src/cktap_implementation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
-import 'package:cktap_protocol/tap_protocol.dart';
 import 'package:cktap_protocol/tapsigner.dart';
 import 'package:cktap_protocol/transport.dart';
 

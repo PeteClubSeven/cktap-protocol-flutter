@@ -1,5 +1,5 @@
+import 'package:cktap_protocol/cktap_protocol.dart';
 import 'package:cktap_protocol/cktapcard.dart';
-import 'package:cktap_protocol/tap_protocol.dart';
 import 'package:cktap_protocol/transport.dart';
 import 'package:cktap_protocol_example/bloc/card_events.dart';
 import 'package:flutter/material.dart';
