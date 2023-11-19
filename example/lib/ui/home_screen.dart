@@ -41,7 +41,7 @@ class HomeScreenState extends State<HomeScreen> {
               if (ndef != null && ndef.cachedMessage != null) {
                 for (final record in ndef.cachedMessage!.records) {
                   final payload = String.fromCharCodes(record.payload);
-                  var transport = TransportNfcManager.fromTag(tag);
+                  var transport = NfcManagerTransport(tag);
                   if (CKTapProtocol.isLikelySatscard(payload)) {
                     var satscard = await CKTapProtocol.readCard(transport,
                         type: CardType.satscard);

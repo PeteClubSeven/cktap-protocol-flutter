@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-export 'package:cktap_protocol/src/transport_nfc_manager.dart';
+export 'package:cktap_protocol/src/nfc_manager_transport.dart';
 
 /// Used for iOS instead of raw bytes
 class Iso7816Response {

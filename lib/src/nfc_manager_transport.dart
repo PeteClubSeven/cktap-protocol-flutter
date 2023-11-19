@@ -16,7 +16,7 @@ enum NfcProtocol {
 
 /// An implementation of [Transport] using the nfc_manager package. Android/iOS
 /// only. This may require a big rework for nfc_manager v4.0.0
-class TransportNfcManager implements Transport {
+class NfcManagerTransport implements Transport {
   /// Original tag used to construct the bridge
   final NfcTag _tag;
 
@@ -27,11 +27,11 @@ class TransportNfcManager implements Transport {
   final Iso7816? _iso7816;
 
   /// Internal constructor
-  TransportNfcManager._internal(this._tag, this._isoDep, this._iso7816);
+  NfcManagerTransport._internal(this._tag, this._isoDep, this._iso7816);
 
   /// Constructs a valid bridge provided the given tag supports the correct
   /// formats, e.g. IsoDep on Android or ISO7816 on iOS
-  factory TransportNfcManager.fromTag(NfcTag tag) {
+  factory NfcManagerTransport(NfcTag tag) {
     if (Platform.isAndroid) {
       var isoDep = IsoDep.from(tag);
       if (isoDep != null && isoDep.maxTransceiveLength > 0) {
@@ -39,12 +39,12 @@ class TransportNfcManager implements Transport {
         if (isoDep.initialTimeout < 2000) {
           isoDep.setTimeout(time: 2000);
         }
-        return TransportNfcManager._internal(tag, isoDep, null);
+        return NfcManagerTransport._internal(tag, isoDep, null);
       }
     } else if (Platform.isIOS) {
       var iso7816 = Iso7816.from(tag);
       if (iso7816 != null) {
-        return TransportNfcManager._internal(tag, null, iso7816);
+        return NfcManagerTransport._internal(tag, null, iso7816);
       }
     }
 
