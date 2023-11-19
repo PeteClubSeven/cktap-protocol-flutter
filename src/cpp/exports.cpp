@@ -43,10 +43,8 @@ static Return getCardOpResponse(const std::function<void (Return&, CardResponseT
     } else if (g_protocolThread->getState() == CKTapThreadState::tapProtocolError) {
         r.status.errorCode = CKTapInterfaceErrorCode::caughtTapProtocolException;
         g_protocolThread->getTapProtocolException(r.status.exception);
-    } else if (g_protocolThread->finalizeOperation()) {
-            r.status.errorCode = g_protocolThread->getRecentErrorCode();
     } else {
-        r.status.errorCode = CKTapInterfaceErrorCode::failedToRetrieveValueFromFuture;
+        r.status.errorCode = g_protocolThread->getRecentErrorCode();
     }
 
     if (r.status.errorCode == CKTapInterfaceErrorCode::success) {
