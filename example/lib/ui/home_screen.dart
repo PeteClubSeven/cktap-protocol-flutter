@@ -45,15 +45,21 @@ class HomeScreenState extends State<HomeScreen> {
                   if (CKTapProtocol.isLikelySatscard(payload)) {
                     var satscard = await CKTapProtocol.readCard(transport,
                         type: CardType.satscard);
-                    if (satscard.authDelay > 0) {
-                      //await satscard.wait(transport);
+                    while (satscard.authDelay > 0) {
+                      var result = await satscard.wait(transport);
+                      if (!result.success) {
+                        break;
+                      }
                     }
                     bloc.add(CardDetected(satscard));
                   } else if (CKTapProtocol.isLikelyTapsigner(payload)) {
                     var tapsigner = await CKTapProtocol.readCard(transport,
                         type: CardType.tapsigner);
-                    if (tapsigner.authDelay > 0) {
-                      //await tapsigner.wait(transport);
+                    while (tapsigner.authDelay > 0) {
+                      var result = await tapsigner.wait(transport);
+                      if (!result.success) {
+                        break;
+                      }
                     }
                     bloc.add(CardDetected(tapsigner));
                   }

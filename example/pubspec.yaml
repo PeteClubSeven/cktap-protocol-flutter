@@ -37,7 +37,10 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.3
-  nfc_manager: ^3.3.0
+  nfc_manager:
+    git:
+      url: https://github.com/PeteClubSeven/flutter-nfc-manager
+      commit: 4a993ed513f3cc50b0d7efcadde9a864556f8003
 
 dev_dependencies:
   flutter_test:

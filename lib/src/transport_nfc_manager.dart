@@ -35,6 +35,10 @@ class TransportNfcManager implements Transport {
     if (Platform.isAndroid) {
       var isoDep = IsoDep.from(tag);
       if (isoDep != null && isoDep.maxTransceiveLength > 0) {
+        // Ensure we have a valid timeout value for CKTapCard::Wait()
+        if (isoDep.initialTimeout < 2000) {
+          isoDep.setTimeout(time: 2000);
+        }
         return TransportNfcManager._internal(tag, isoDep, null);
       }
     } else if (Platform.isIOS) {

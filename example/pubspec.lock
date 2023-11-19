@@ -157,10 +157,11 @@ packages:
   nfc_manager:
     dependency: "direct main"
     description:
-      name: nfc_manager
-      sha256: d6a4cc6a8a37119b1e8cc242392c0c87623d319cf1423f6a90cb998a52970baf
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "4a993ed513f3cc50b0d7efcadde9a864556f8003"
+      url: "https://github.com/PeteClubSeven/flutter-nfc-manager"
+    source: git
     version: "3.3.0"
   path:
     dependency: transitive
@@ -182,10 +183,10 @@ packages:
     dependency: transitive
     description:
       name: provider
-      sha256: cdbe7530b12ecd9eb455bdaa2fcb8d4dad22e80b8afb4798b41479d5ce26847f
+      sha256: "9a96a0a19b594dbc5bf0f1f27d2bc67d5f95957359b461cd9feb44ed6ae75096"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.5"
+    version: "6.1.1"
   sky_engine:
     dependency: transitive
     description: flutter
