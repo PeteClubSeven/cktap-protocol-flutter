@@ -69,7 +69,6 @@ CKTapCard finalizeCardCreation() {
 void prepareForCardHandshake(CardType type) {
   ensureNativeThreadState(CKTapThreadState.notStarted);
   ensure(nativeLibrary.Core_beginAsyncHandshake(type.index));
-  ensureNativeThreadState(CKTapThreadState.asyncActionStarting);
 }
 
 /// Prepares the native thread for performing a specific operation on an already
@@ -95,7 +94,7 @@ Future<void> processTransportRequests(Transport transport) async {
     ensureNativeThreadStates([
       CKTapThreadState.asyncActionStarting,
       CKTapThreadState.awaitingTransportRequest,
-      CKTapThreadState.transportRequestReady
+      CKTapThreadState.transportRequestReady,
     ]);
 
     while (_isNativeThreadActive()) {
