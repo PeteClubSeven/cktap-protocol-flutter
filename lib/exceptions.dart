@@ -78,6 +78,9 @@ class SpendCodeException implements CKTapException {
       "spendCode ($spendCode) given is not a 6-digit numeric code";
 }
 
+/// Generated named constants for each error code
+typedef TapProtoExceptionCode = CKTapProtoExceptionErrorCode;
+
 /// Thrown when the internal Nunchuk tap_protocol library throws an exception
 class TapProtoException implements CKTapException {
   final int code;
