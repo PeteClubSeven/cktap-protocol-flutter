@@ -60,6 +60,7 @@ void fillConstructorParams(CKTapCardConstructorParams& params, const size_t inde
 
 void fillConstructorParams(SlotConstructorParams& params, const int32_t handle, const tap_protocol::Satscard::Slot& slot) {
     params.satscardHandle = handle;
+    params.index = slot.index;
     params.status = static_cast<int32_t>(slot.status);
     params.address = allocateCStringFromCpp(slot.address);
     params.privkey = allocateCBinaryArrayFromJSON(slot.privkey);
