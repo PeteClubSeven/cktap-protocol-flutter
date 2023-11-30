@@ -7,16 +7,19 @@ std::unique_ptr<TapProtocolThread> g_protocolThread{ };
 std::vector<SatscardWrapper> g_satscards{ };
 std::vector<TapsignerWrapper> g_tapsigners{ };
 
-void storeSatscardSlot(size_t satscardIndex, tap_protocol::Satscard::Slot slot) noexcept {
+void storeSatscardSlot(int32_t satscardHandle, tap_protocol::Satscard::Slot slot) noexcept {
     try {
-        if (satscardIndex >= g_satscards.size()) {
+        if (satscardHandle < 0) {
+            return;
+        }
+        if (satscardHandle >= g_satscards.size()) {
             return;
         }
         const auto slotIndex = slot.index;
         if (slotIndex < 0) {
             return;
         }
-        auto& slots = g_satscards[satscardIndex].slots;
+        auto& slots = g_satscards[satscardHandle].slots;
         if (slotIndex >= slots.size()) {
             slots.resize(slotIndex + 1);
         }

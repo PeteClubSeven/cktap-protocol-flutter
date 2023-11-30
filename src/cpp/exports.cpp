@@ -368,7 +368,7 @@ FFI_FUNC_EXPORT CertificateCheckParams Satscard_getCertificateCheckResponse() {
 FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getGetSlotResponse(const int32_t handle) {
     return getCardOpResponse<SatscardSlotResponse, CardOperation::Satscard_GetSlot>([=](auto& result, auto slot) {
         fillConstructorParams(result.params, handle, slot);
-        storeSatscardSlot(static_cast<size_t>(handle), std::move(slot));
+        storeSatscardSlot(handle, std::move(slot));
     });
 }
 
@@ -378,21 +378,21 @@ FFI_FUNC_EXPORT SatscardListSlotsParams Satscard_getListSlotsResponse(const int3
         result.length = static_cast<int32_t>(slots.size());
         for (size_t i { 0 }; i < slots.size(); ++i) {
             fillConstructorParams(result.array[i], handle, slots[i]);
-            storeSatscardSlot(static_cast<size_t>(handle), std::move(slots[i]));
+            storeSatscardSlot(handle, std::move(slots[i]));
         }
     });
 }
 FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getNewResponse(const int32_t handle) {
     return getCardOpResponse<SatscardSlotResponse, CardOperation::Satscard_New>([=](auto& result, auto slot) {
         fillConstructorParams(result.params, handle, slot);
-        storeSatscardSlot(static_cast<size_t>(handle), std::move(slot));
+        storeSatscardSlot(handle, std::move(slot));
     });
 }
 
 FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getUnsealResponse(const int32_t handle) {
     return getCardOpResponse<SatscardSlotResponse, CardOperation::Satscard_Unseal>([=](auto& result, auto slot) {
         fillConstructorParams(result.params, handle, slot);
-        storeSatscardSlot(static_cast<size_t>(handle), std::move(slot));
+        storeSatscardSlot(handle, std::move(slot));
     });
 }
 

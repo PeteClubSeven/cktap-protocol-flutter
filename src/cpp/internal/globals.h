@@ -79,7 +79,7 @@ CKTapInterfaceStatus accessCard(const int32_t index, const Func& function) noexc
 }
 
 /// A quick helper to store the given slot of a Satscard
-void storeSatscardSlot(size_t satscardIndex, tap_protocol::Satscard::Slot slot) noexcept;
+void storeSatscardSlot(int32_t satscardHandle, tap_protocol::Satscard::Slot slot) noexcept;
 
 /// An exception-safe way to update the given vector with the given card. If a card with the same
 /// identity already exists then the old data will be overwritten, otherwise the card will be added
