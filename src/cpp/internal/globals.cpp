@@ -17,7 +17,7 @@ void storeSatscardSlot(size_t satscardIndex, tap_protocol::Satscard::Slot slot) 
             return;
         }
         auto& slots = g_satscards[satscardIndex].slots;
-        if (slots.size() < slotIndex) {
+        if (slotIndex >= slots.size()) {
             slots.resize(slotIndex + 1);
         }
         slots[slotIndex] = std::make_unique<tap_protocol::Satscard::Slot>(std::move(slot));
