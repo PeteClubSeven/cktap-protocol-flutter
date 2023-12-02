@@ -55,7 +55,7 @@ void fillConstructorParams(CKTapCardConstructorParams& params, const size_t inde
     params.isCertsChecked = card.IsCertsChecked() ? 1 : 0;
     params.isTampered = card.IsTampered() ? 1 : 0;
     params.isTestnet = card.IsTestnet() ? 1 : 0;
-    params.needsSetup = card.NeedSetup() ? 1 : 0;
+    params.needSetup = card.NeedSetup() ? 1 : 0;
 }
 
 void fillConstructorParams(SlotConstructorParams& params, const int32_t handle, const tap_protocol::Satscard::Slot& slot) {

@@ -3,15 +3,17 @@ import 'dart:typed_data';
 import 'package:cktap_protocol/cktap_protocol.dart';
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/cktap_implementation.dart';
+import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
 import 'package:cktap_protocol/transport.dart';
 
 class Satscard extends CKTapCard {
-  final int activeSlotIndex;
   final int numSlots;
-  final bool hasUnusedSlots;
-  final bool isUsedUp;
+
+  int activeSlotIndex;
+  bool hasUnusedSlots;
+  bool isUsedUp;
 
   static Future<Satscard> fromTransport(Transport transport) =>
       CKTapProtocol.readCard(transport, type: CardType.satscard)
@@ -35,14 +37,16 @@ class Satscard extends CKTapCard {
   Future<Slot> getSlot(Transport transport, int slot,
           {String spendCode = ""}) =>
       CKTapImplementation.instance
-          .satscardGetSlot(transport, slot, spendCode, handle);
+          .satscardGetSlot(transport, slot, spendCode, handle)
+          .then((value) => _sync(value));
 
   /// Requests every slot from the Satscard. If the [spendCode] is provided then
   /// the private keys will also be available for [SlotStatus.unsealed] slots
   Future<List<Slot>> listSlots(Transport transport,
           {String spendCode = "", int limit = 10}) =>
       CKTapImplementation.instance
-          .satscardListSlots(transport, spendCode, limit, handle);
+          .satscardListSlots(transport, spendCode, limit, handle)
+          .then((value) => _sync(value));
 
   /// Attempts to initialize the next slot of the Satscard, revealing a new
   /// public key and making the next slot active. If [isUsedUp] this will fail.
@@ -52,20 +56,42 @@ class Satscard extends CKTapCard {
   Future<Slot> newSlot(Transport transport, String spendCode,
           {String chainCode = ""}) =>
       CKTapImplementation.instance
-          .satscardNew(transport, spendCode, chainCode, handle);
+          .satscardNew(transport, spendCode, chainCode, handle)
+          .then((value) => _sync(value));
 
   /// Attempts to unseal the current slot revealing the private key for the
   /// active slot. If [isUsedUp] is true this will fail. [spendCode] must be a
   /// 6-digit numeric code
   Future<Slot> unseal(Transport transport, String spendCode) =>
-      CKTapImplementation.instance.satscardUnseal(transport, spendCode, handle);
+      CKTapImplementation.instance
+          .satscardUnseal(transport, spendCode, handle)
+          .then((value) => _sync(value));
 
+  /// Used to construct a Satscard from native data
   Satscard(SatscardConstructorParams params)
       : activeSlotIndex = params.activeSlotIndex,
         numSlots = params.numSlots,
         hasUnusedSlots = params.hasUnusedSlots > 0,
         isUsedUp = params.isUsedUp > 0,
         super(params.base);
+
+  /// Performs a quick sync of mutable fields with the native implementation
+  Future<T> _sync<T>(T value) async =>
+      CKTapImplementation.instance.performNativeOperation((b) async {
+        final params = b.Satscard_createSyncParams(handle);
+        try {
+          ensureStatus(params.status);
+          isCertsChecked = params.baseParams.isCertsChecked > 0;
+          needSetup = params.baseParams.needSetup > 0;
+          authDelay = params.baseParams.authDelay;
+          activeSlotIndex = params.activeSlotIndex;
+          hasUnusedSlots = params.hasUnusedSlots > 0;
+          isUsedUp = params.isUsedUp > 0;
+          return value;
+        } finally {
+          b.Utility_freeSatscardSyncParams(params);
+        }
+      });
 }
 
 class Slot {

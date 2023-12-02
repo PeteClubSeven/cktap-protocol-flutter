@@ -59,7 +59,7 @@ class CKTapImplementation {
   }
 
   Future<CKTapCard> readCard(Transport nfc, CardType type) {
-    return _performNativeOperation((_) {
+    return performNativeOperation((_) {
       prepareNativeThread();
       prepareForCardHandshake(type);
       return processTransportRequests(nfc);
@@ -78,7 +78,7 @@ class CKTapImplementation {
   }
 
   Future<Slot> satscardGetActiveSlot(int satscard) {
-    return _performNativeOperation((lib) async {
+    return performNativeOperation((lib) async {
       var response = lib.Satscard_getActiveSlot(satscard);
       ensureStatus(response.status, free: true);
       return Slot(response.params);
@@ -184,7 +184,7 @@ class CKTapImplementation {
   }
 
   Future<String> slotToWif(int satscard, int slot) {
-    return _performNativeOperation((lib) async {
+    return performNativeOperation((lib) async {
       var response = lib.Satscard_slotToWif(satscard, slot);
       try {
         ensureStatus(response.status);
@@ -212,7 +212,7 @@ class CKTapImplementation {
 
   Future<T> _performAsyncCardOperation<T>(
       int handle, CardType type, Future<T> Function(NativeBindings) action) {
-    return _performNativeOperation((lib) {
+    return performNativeOperation((lib) {
       prepareNativeThread();
       prepareForCardOperation(handle, type);
       return action(lib);
@@ -223,7 +223,7 @@ class CKTapImplementation {
   /// performed. This normally wouldn't be necessary but because we have a
   /// native background thread we can only guarantee the library is free of race
   /// conditions by flagging when an async operation is in progress
-  Future<T> _performNativeOperation<T>(
+  Future<T> performNativeOperation<T>(
       Future<T> Function(NativeBindings) action) {
     return Future.sync(() async {
       if (_isPerformingNativeAction) {

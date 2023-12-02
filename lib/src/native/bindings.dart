@@ -305,6 +305,20 @@ class NativeBindings {
       _Satscard_createConstructorParamsPtr.asFunction<
           SatscardConstructorParams Function(int)>();
 
+  SatscardSyncParams Satscard_createSyncParams(
+    int handle,
+  ) {
+    return _Satscard_createSyncParams(
+      handle,
+    );
+  }
+
+  late final _Satscard_createSyncParamsPtr =
+      _lookup<ffi.NativeFunction<SatscardSyncParams Function(ffi.Int32)>>(
+          'Satscard_createSyncParams');
+  late final _Satscard_createSyncParams = _Satscard_createSyncParamsPtr
+      .asFunction<SatscardSyncParams Function(int)>();
+
   SatscardSlotResponse Satscard_getActiveSlot(
     int handle,
   ) {
@@ -419,6 +433,20 @@ class NativeBindings {
       _Tapsigner_createConstructorParamsPtr.asFunction<
           TapsignerConstructorParams Function(int)>();
 
+  TapsignerSyncParams Tapsigner_createSyncParams(
+    int handle,
+  ) {
+    return _Tapsigner_createSyncParams(
+      handle,
+    );
+  }
+
+  late final _Tapsigner_createSyncParamsPtr =
+      _lookup<ffi.NativeFunction<TapsignerSyncParams Function(ffi.Int32)>>(
+          'Tapsigner_createSyncParams');
+  late final _Tapsigner_createSyncParams = _Tapsigner_createSyncParamsPtr
+      .asFunction<TapsignerSyncParams Function(int)>();
+
   /// ----------------------------------------------
   /// Utility:
   void Utility_freeCBinaryArray(
@@ -524,6 +552,21 @@ class NativeBindings {
       _Utility_freeSatscardSlotResponsePtr.asFunction<
           void Function(SatscardSlotResponse)>();
 
+  void Utility_freeSatscardSyncParams(
+    SatscardSyncParams params,
+  ) {
+    return _Utility_freeSatscardSyncParams(
+      params,
+    );
+  }
+
+  late final _Utility_freeSatscardSyncParamsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(SatscardSyncParams)>>(
+          'Utility_freeSatscardSyncParams');
+  late final _Utility_freeSatscardSyncParams =
+      _Utility_freeSatscardSyncParamsPtr.asFunction<
+          void Function(SatscardSyncParams)>();
+
   void Utility_freeSlotConstructorParams(
     SlotConstructorParams params,
   ) {
@@ -567,6 +610,21 @@ class NativeBindings {
   late final _Utility_freeTapsignerConstructorParams =
       _Utility_freeTapsignerConstructorParamsPtr.asFunction<
           void Function(TapsignerConstructorParams)>();
+
+  void Utility_freeTapsignerSyncParams(
+    TapsignerSyncParams params,
+  ) {
+    return _Utility_freeTapsignerSyncParams(
+      params,
+    );
+  }
+
+  late final _Utility_freeTapsignerSyncParamsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(TapsignerSyncParams)>>(
+          'Utility_freeTapsignerSyncParams');
+  late final _Utility_freeTapsignerSyncParams =
+      _Utility_freeTapsignerSyncParamsPtr.asFunction<
+          void Function(TapsignerSyncParams)>();
 }
 
 class CBinaryArray extends ffi.Struct {
@@ -603,7 +661,7 @@ class CKTapCardConstructorParams extends ffi.Struct {
   external int isTestnet;
 
   @ffi.Int8()
-  external int needsSetup;
+  external int needSetup;
 }
 
 class CKTapCardHandle extends ffi.Struct {
@@ -612,6 +670,17 @@ class CKTapCardHandle extends ffi.Struct {
 
   @ffi.Int32()
   external int type;
+}
+
+class CKTapCardSyncParams extends ffi.Struct {
+  @ffi.Int8()
+  external int isCertsChecked;
+
+  @ffi.Int8()
+  external int needSetup;
+
+  @ffi.Int32()
+  external int authDelay;
 }
 
 abstract class CKTapCardType {
@@ -800,6 +869,21 @@ class SatscardSlotResponse extends ffi.Struct {
   external SlotConstructorParams params;
 }
 
+class SatscardSyncParams extends ffi.Struct {
+  external CKTapInterfaceStatus status;
+
+  external CKTapCardSyncParams baseParams;
+
+  @ffi.Int32()
+  external int activeSlotIndex;
+
+  @ffi.Int8()
+  external int hasUnusedSlots;
+
+  @ffi.Int8()
+  external int isUsedUp;
+}
+
 class SlotConstructorParams extends ffi.Struct {
   @ffi.Int32()
   external int satscardHandle;
@@ -832,6 +916,17 @@ class TapsignerConstructorParams extends ffi.Struct {
   external CKTapInterfaceStatus status;
 
   external CKTapCardConstructorParams base;
+
+  @ffi.Int32()
+  external int numberOfBackups;
+
+  external ffi.Pointer<ffi.Char> derivationPath;
+}
+
+class TapsignerSyncParams extends ffi.Struct {
+  external CKTapInterfaceStatus status;
+
+  external CKTapCardSyncParams baseParams;
 
   @ffi.Int32()
   external int numberOfBackups;

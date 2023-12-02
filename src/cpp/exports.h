@@ -60,6 +60,8 @@ FFI_FUNC_EXPORT WaitResponseParams CKTapCard_getWaitResponse();
 /// Gets a C representation of parameters required to construct a [Satscard] in dart. Note: must use
 /// [Utility_freeSatscardConstructorParams] when you are finished using the data to deallocate memory
 FFI_FUNC_EXPORT SatscardConstructorParams Satscard_createConstructorParams(int32_t handle);
+FFI_FUNC_EXPORT SatscardSyncParams Satscard_createSyncParams(int32_t handle);
+
 FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getActiveSlot(int32_t handle);
 FFI_FUNC_EXPORT SlotToWifResponse Satscard_slotToWif(int32_t handle, int32_t index);
 
@@ -81,6 +83,7 @@ FFI_FUNC_EXPORT SatscardSlotResponse Satscard_getUnsealResponse(int32_t handle);
 /// Gets a C representation of parameters required to construct a [Tapsigner] in dart. Note: must use
 /// [Utility_freeTapsignerConstructorParams] when you are finished using the data to deallocate memory
 FFI_FUNC_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(int32_t handle);
+FFI_FUNC_EXPORT TapsignerSyncParams Tapsigner_createSyncParams(int32_t handle);
 
 // ----------------------------------------------
 // Utility:
@@ -89,11 +92,13 @@ FFI_FUNC_EXPORT void Utility_freeCBinaryArray(CBinaryArray array);
 FFI_FUNC_EXPORT void Utility_freeCKTapInterfaceStatus(CKTapInterfaceStatus status);
 FFI_FUNC_EXPORT void Utility_freeCKTapProtoException(CKTapProtoException exception);
 FFI_FUNC_EXPORT void Utility_freeCString(char* cString);
-FFI_FUNC_EXPORT void Utility_freeSatscardSlotResponse(SatscardSlotResponse response);
 FFI_FUNC_EXPORT void Utility_freeSatscardConstructorParams(SatscardConstructorParams params);
 FFI_FUNC_EXPORT void Utility_freeSatscardListSlotsParams(SatscardListSlotsParams params);
+FFI_FUNC_EXPORT void Utility_freeSatscardSlotResponse(SatscardSlotResponse response);
+FFI_FUNC_EXPORT void Utility_freeSatscardSyncParams(SatscardSyncParams params);
 FFI_FUNC_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params);
 FFI_FUNC_EXPORT void Utility_freeSlotToWifResponse(SlotToWifResponse response);
 FFI_FUNC_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params);
+FFI_FUNC_EXPORT void Utility_freeTapsignerSyncParams(TapsignerSyncParams params);
 
 #endif // __CKTAP_PROTOCOL__EXPORTS_H__

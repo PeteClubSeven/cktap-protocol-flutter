@@ -12,15 +12,15 @@ export 'package:cktap_protocol/tapsigner.dart';
 abstract class CKTapCard {
   final int handle;
   final CardType type;
-
   final String ident;
   final String appletVersion;
-  int authDelay;
   final int birthHeight;
-  bool isCertsChecked;
   final bool isTampered;
   final bool isTestnet;
+
+  bool isCertsChecked;
   bool needSetup;
+  int authDelay;
 
   bool get isTapsigner => type == CardType.tapsigner;
 
@@ -37,7 +37,7 @@ abstract class CKTapCard {
   Future<WaitResponse> wait(Transport transport) => CKTapImplementation.instance
           .cktapcardWait(transport, handle, type)
           .then((value) {
-        authDelay = value.authDelay;
+        authDelay = value.success ? value.authDelay : authDelay;
         return value;
       });
 
@@ -51,7 +51,7 @@ abstract class CKTapCard {
         isCertsChecked = params.isCertsChecked > 0,
         isTampered = params.isTampered > 0,
         isTestnet = params.isTestnet > 0,
-        needSetup = params.needsSetup > 0;
+        needSetup = params.needSetup > 0;
 }
 
 enum CardType {

@@ -44,8 +44,14 @@ FFI_TYPE_EXPORT typedef struct {
     int8_t isCertsChecked;
     int8_t isTampered;
     int8_t isTestnet;
-    int8_t needsSetup;
+    int8_t needSetup;
 } CKTapCardConstructorParams;
+
+FFI_TYPE_EXPORT typedef struct {
+    int8_t isCertsChecked;
+    int8_t needSetup;
+    int32_t authDelay;
+} CKTapCardSyncParams;
 
 FFI_TYPE_EXPORT typedef struct {
     int32_t satscardHandle;
@@ -76,6 +82,14 @@ FFI_TYPE_EXPORT typedef struct {
 
 FFI_TYPE_EXPORT typedef struct {
     CKTapInterfaceStatus status;
+    CKTapCardSyncParams baseParams;
+    int32_t activeSlotIndex;
+    int8_t hasUnusedSlots;
+    int8_t isUsedUp;
+} SatscardSyncParams;
+
+FFI_TYPE_EXPORT typedef struct {
+    CKTapInterfaceStatus status;
     SlotConstructorParams params;
 } SatscardSlotResponse;
 
@@ -85,6 +99,13 @@ FFI_TYPE_EXPORT typedef struct {
     int32_t numberOfBackups;
     char* derivationPath;
 } TapsignerConstructorParams;
+
+FFI_TYPE_EXPORT typedef struct {
+    CKTapInterfaceStatus status;
+    CKTapCardSyncParams baseParams;
+    int32_t numberOfBackups;
+    char* derivationPath;
+} TapsignerSyncParams;
 
 FFI_TYPE_EXPORT typedef struct {
     CKTapInterfaceStatus status;

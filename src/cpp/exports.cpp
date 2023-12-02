@@ -286,13 +286,29 @@ FFI_FUNC_EXPORT SatscardConstructorParams Satscard_createConstructorParams(const
     SatscardConstructorParams params;
     std::memset(&params, 0, sizeof(params));
 
-    params.status = accessCard<tap_protocol::Satscard>(handle, [handle, &params](const auto& wrapper) {
+    params.status = accessCard<tap_protocol::Satscard>(handle, [handle, &params](const SatscardWrapper& wrapper) {
         const auto& card = *wrapper.card;
         fillConstructorParams(params.base, handle, card);
         params.activeSlotIndex = card.GetActiveSlotIndex();
         params.numSlots = card.GetNumSlots();
         params.hasUnusedSlots = card.HasUnusedSlots() ? 1 : 0;
         params.isUsedUp = card.IsUsedUp() ? 1 : 0;
+        return CKTapInterfaceErrorCode::success;
+    });
+    return params;
+}
+
+FFI_FUNC_EXPORT SatscardSyncParams Satscard_createSyncParams(const int32_t handle) {
+    SatscardSyncParams params;
+    std::memset(&params, 0, sizeof(params));
+
+    params.status = accessCard<tap_protocol::Satscard>(handle, [handle, &params](const SatscardWrapper& wrapper) {
+        params.baseParams.isCertsChecked = wrapper.card->IsCertsChecked() ? 1 : 0;
+        params.baseParams.needSetup = wrapper.card->NeedSetup() ? 1 : 0;
+        params.baseParams.authDelay = wrapper.card->GetAuthDelay();
+        params.activeSlotIndex = wrapper.card->GetActiveSlotIndex();
+        params.hasUnusedSlots = wrapper.card->HasUnusedSlots() ? 1 : 0;
+        params.isUsedUp = wrapper.card->IsUsedUp() ? 1 : 0;
         return CKTapInterfaceErrorCode::success;
     });
     return params;
@@ -403,11 +419,30 @@ FFI_FUNC_EXPORT TapsignerConstructorParams Tapsigner_createConstructorParams(con
     TapsignerConstructorParams params;
     std::memset(&params, 0, sizeof(params));
 
-    params.status = accessCard<tap_protocol::Tapsigner>(handle, [handle, &params](const auto& wrapper) {
+    params.status = accessCard<tap_protocol::Tapsigner>(handle, [handle, &params](const TapsignerWrapper& wrapper) {
         const auto& card = *wrapper.card;
         fillConstructorParams(params.base, handle, card);
         params.numberOfBackups = card.GetNumberOfBackups();
         if (const auto path = card.GetDerivationPath()) {
+            if (path.has_value()) {
+                params.derivationPath = allocateCStringFromCpp(path.value());
+            }
+        }
+        return CKTapInterfaceErrorCode::success;
+    });
+    return params;
+}
+
+FFI_FUNC_EXPORT TapsignerSyncParams Tapsigner_createSyncParams(const int32_t handle) {
+    TapsignerSyncParams params;
+    std::memset(&params, 0, sizeof(params));
+
+    params.status = accessCard<tap_protocol::Tapsigner>(handle, [handle, &params](const TapsignerWrapper& wrapper) {
+        params.baseParams.isCertsChecked = wrapper.card->IsCertsChecked() ? 1 : 0;
+        params.baseParams.needSetup = wrapper.card->NeedSetup() ? 1 : 0;
+        params.baseParams.authDelay = wrapper.card->GetAuthDelay();
+        params.numberOfBackups = wrapper.card->GetNumberOfBackups();
+        if (const auto path = wrapper.card->GetDerivationPath()) {
             if (path.has_value()) {
                 params.derivationPath = allocateCStringFromCpp(path.value());
             }
@@ -448,6 +483,10 @@ FFI_FUNC_EXPORT void Utility_freeSatscardSlotResponse(SatscardSlotResponse respo
     freeSatscardGetSlotResponse(response);
 }
 
+FFI_FUNC_EXPORT void Utility_freeSatscardSyncParams(SatscardSyncParams params) {
+    freeCKTapInterfaceStatus(params.status);
+}
+
 FFI_FUNC_EXPORT void Utility_freeSlotConstructorParams(SlotConstructorParams params) {
     freeSlotConstructorParams(params);
 }
@@ -458,4 +497,9 @@ FFI_FUNC_EXPORT void Utility_freeSlotToWifResponse(SlotToWifResponse response) {
 
 FFI_FUNC_EXPORT void Utility_freeTapsignerConstructorParams(TapsignerConstructorParams params) {
     freeTapsignerConstructorParams(params);
+}
+
+FFI_FUNC_EXPORT void Utility_freeTapsignerSyncParams(TapsignerSyncParams params) {
+    freeCKTapInterfaceStatus(params.status);
+    freePointer(params.derivationPath);
 }
