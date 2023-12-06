@@ -33,15 +33,13 @@ class CKTap {
 
   /// Checks if the given payload is that of a Satscard. The authenticity of an
   /// NFC device can only be confirmed by communicating via NFC
-  static bool isLikelySatscard(String ndefRecordPayload) {
-    return ndefRecordPayload.startsWith("satscard.com/start", 1);
-  }
+  static bool isLikelySatscard(String ndefRecordPayload) => ndefRecordPayload
+      .startsWith(RegExp(r"(satscard|getsatscard)\.com/start"), 1);
 
   /// Checks if the given payload is that of a Tapsigner. The authenticity of an
   /// NFC device can only be confirmed by communicating via NFC
-  static bool isLikelyTapsigner(String ndefRecordPayload) {
-    return ndefRecordPayload.startsWith("tapsigner.com/start", 1);
-  }
+  static bool isLikelyTapsigner(String ndefRecordPayload) =>
+      ndefRecordPayload.startsWith("tapsigner.com/start", 1);
 
   /// Attempts to communicate with the given NFC device to determine if it is a
   /// Coinkite NFC card (e.g. a Satscard or Tapsigner) and returns it. If you
