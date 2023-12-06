@@ -1,4 +1,4 @@
-import 'package:cktap_protocol/cktap_protocol.dart';
+import 'package:cktap_protocol/cktap.dart';
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/transport.dart';
 import 'package:cktap_protocol_example/bloc/card_events.dart';
@@ -24,15 +24,15 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    // Force CKTapProtocol to load immediately on start up so loading debug
+    // Force CKTap to load immediately on start up so loading debug
     // symbols doesn't happen when scanning an NFC card
-    CKTapProtocol.initialize();
+    CKTap.initialize();
 
     // Start NFC service
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
-        if (CKTapProtocol.isLikelyCoinkiteCard(tag)) {
-          // We can just do CKTapProtocol.readCard(tag) but for the sake of
+        if (CKTap.isLikelyCoinkiteCard(tag)) {
+          // We can just do [CKTap.readCard] but for the sake of
           // speed/testing we'll try to instantiate the cards directly
           try {
             if (context.mounted) {
@@ -42,9 +42,11 @@ class HomeScreenState extends State<HomeScreen> {
                 for (final record in ndef.cachedMessage!.records) {
                   final payload = String.fromCharCodes(record.payload);
                   var transport = NfcManagerTransport(tag);
-                  if (CKTapProtocol.isLikelySatscard(payload)) {
-                    var satscard = await CKTapProtocol.readCard(transport,
-                        type: CardType.satscard);
+                  if (CKTap.isLikelySatscard(payload)) {
+                    var satscard = await Satscard.fromTransport(transport);
+                    var activeSlot = await satscard.getActiveSlot();
+                    var slot0 = await satscard.getSlot(transport, 0,);
+                    var slots = await satscard.listSlots(transport,);
                     while (satscard.authDelay > 0) {
                       var result = await satscard.wait(transport);
                       if (!result.success) {
@@ -52,9 +54,8 @@ class HomeScreenState extends State<HomeScreen> {
                       }
                     }
                     bloc.add(CardDetected(satscard));
-                  } else if (CKTapProtocol.isLikelyTapsigner(payload)) {
-                    var tapsigner = await CKTapProtocol.readCard(transport,
-                        type: CardType.tapsigner);
+                  } else if (CKTap.isLikelyTapsigner(payload)) {
+                    var tapsigner = await Tapsigner.fromTransport(transport);
                     while (tapsigner.authDelay > 0) {
                       var result = await tapsigner.wait(transport);
                       if (!result.success) {
