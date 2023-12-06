@@ -204,10 +204,8 @@ class Implementation {
   }
 
   Future<void> _cancelOperation() {
-    return _cleanupFuture = cancelNativeOperation().catchError((e, s) {
-      print(e);
-      print(s);
-    }).whenComplete(() => _cleanupFuture = null);
+    return _cleanupFuture =
+        cancelNativeOperation().whenComplete(() => _cleanupFuture = null);
   }
 
   Future<T> _performAsyncCardOperation<T>(
@@ -237,9 +235,7 @@ class Implementation {
       try {
         _isPerformingNativeAction = true;
         return await action(bindings);
-      } catch (e, s) {
-        print(e);
-        print(s);
+      } catch (e) {
         _cancelOperation();
         rethrow;
       } finally {
