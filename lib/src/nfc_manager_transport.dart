@@ -71,8 +71,13 @@ class NfcManagerTransport implements Transport {
           return await _isoDep!.transceive(data: bytes);
         }
       } catch (e) {
-        throw NfcCommunicationException(
-            e.toString(), _tag, getCommunicationType());
+        if (_isoDep != null && bytes.length > _isoDep!.maxTransceiveLength) {
+          throw NfcTransceiveException(
+              _tag, bytes.length, _isoDep!.maxTransceiveLength);
+        } else {
+          throw NfcCommunicationException(
+              e.toString(), _tag, getCommunicationType());
+        }
       }
 
       throw UnsupportedError(

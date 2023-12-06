@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:cktap_protocol/cktap_protocol.dart';
+import 'package:cktap_protocol/cktap.dart';
 import 'package:cktap_protocol/cktapcard.dart';
-import 'package:cktap_protocol/src/cktap_implementation.dart';
+import 'package:cktap_protocol/src/implementation.dart';
 import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
@@ -16,27 +16,26 @@ class Satscard extends CKTapCard {
   bool isUsedUp;
 
   static Future<Satscard> fromTransport(Transport transport) =>
-      CKTapProtocol.readCard(transport, type: CardType.satscard)
+      CKTap.readCard(transport, type: CardType.satscard)
           .then((card) => card.toSatscard()!);
 
   /// Checks the certificate of the Satscard to ensure it's an authentic card.
   /// [isCertsChecked] will be updated based on the result
-  Future<void> certificateCheck(Transport transport) =>
-      CKTapImplementation.instance
-          .satscardCertificateCheck(transport, handle)
-          .then((value) => isCertsChecked = value);
+  Future<void> certificateCheck(Transport transport) => Implementation.instance
+      .satscardCertificateCheck(transport, handle)
+      .then((value) => isCertsChecked = value);
 
   /// Constructs and returns the active slot of the Satscard, if one exists. Any
   /// Satscard which hasn't been fully used up will have an active slot, however
   /// if [isUsedUp] is true then this will fail
   Future<Slot> getActiveSlot() =>
-      CKTapImplementation.instance.satscardGetActiveSlot(handle);
+      Implementation.instance.satscardGetActiveSlot(handle);
 
   /// Requests the given slot from the Satscard. If the [spendCode] is provided
   /// then the private key will also be revealed for [SlotStatus.unsealed] slots
   Future<Slot> getSlot(Transport transport, int slot,
           {String spendCode = ""}) =>
-      CKTapImplementation.instance
+      Implementation.instance
           .satscardGetSlot(transport, slot, spendCode, handle)
           .then((value) => _sync(value));
 
@@ -44,7 +43,7 @@ class Satscard extends CKTapCard {
   /// the private keys will also be available for [SlotStatus.unsealed] slots
   Future<List<Slot>> listSlots(Transport transport,
           {String spendCode = "", int limit = 10}) =>
-      CKTapImplementation.instance
+      Implementation.instance
           .satscardListSlots(transport, spendCode, limit, handle)
           .then((value) => _sync(value));
 
@@ -55,7 +54,7 @@ class Satscard extends CKTapCard {
   /// code
   Future<Slot> newSlot(Transport transport, String spendCode,
           {String chainCode = ""}) =>
-      CKTapImplementation.instance
+      Implementation.instance
           .satscardNew(transport, spendCode, chainCode, handle)
           .then((value) => _sync(value));
 
@@ -63,7 +62,7 @@ class Satscard extends CKTapCard {
   /// active slot. If [isUsedUp] is true this will fail. [spendCode] must be a
   /// 6-digit numeric code
   Future<Slot> unseal(Transport transport, String spendCode) =>
-      CKTapImplementation.instance
+      Implementation.instance
           .satscardUnseal(transport, spendCode, handle)
           .then((value) => _sync(value));
 
@@ -77,7 +76,7 @@ class Satscard extends CKTapCard {
 
   /// Performs a quick sync of mutable fields with the native implementation
   Future<T> _sync<T>(T value) async =>
-      CKTapImplementation.instance.performNativeOperation((b) async {
+      Implementation.instance.performNativeOperation((b) async {
         final params = b.Satscard_createSyncParams(handle);
         try {
           ensureStatus(params.status);
@@ -106,8 +105,7 @@ class Slot {
   final Uint8List masterPK;
   final Uint8List chainCode;
 
-  Future<String> toWif() =>
-      CKTapImplementation.instance.slotToWif(_owner, index);
+  Future<String> toWif() => Implementation.instance.slotToWif(_owner, index);
 
   Slot(SlotConstructorParams params)
       : _owner = params.satscardHandle,

@@ -23,8 +23,7 @@ Future<void> cancelNativeOperation() async {
     final stopwatch = Stopwatch()..start();
     while (_isNativeThreadActive()) {
       if (stopwatch.elapsed.inSeconds >= 2) {
-        throw TimeoutException(
-            "CKTapProtocol couldn't cancel the native operation");
+        throw TimeoutException("CKTap couldn't cancel the native operation");
       }
       await Future.delayed(const Duration(microseconds: 50));
     }

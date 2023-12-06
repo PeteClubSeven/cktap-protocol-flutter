@@ -22,7 +22,8 @@ CKTapCard makeCardOfType(int handle, CardType type) {
 Satscard makeSatscardFromHandle(int handle) {
   final params = nativeLibrary.Satscard_createConstructorParams(handle);
   try {
-    if (params.status.errorCode == CKTapInterfaceErrorCode.unknownSatscardHandle) {
+    if (params.status.errorCode ==
+        CKTapInterfaceErrorCode.unknownSatscardHandle) {
       throw InvalidCardTypeError(handle, CardType.satscard);
     } else {
       ensureStatus(params.status);
@@ -37,7 +38,8 @@ Satscard makeSatscardFromHandle(int handle) {
 Tapsigner makeTapsignerFromHandle(int handle) {
   final params = nativeLibrary.Tapsigner_createConstructorParams(handle);
   try {
-    if (params.status.errorCode == CKTapInterfaceErrorCode.unknownTapsignerHandle) {
+    if (params.status.errorCode ==
+        CKTapInterfaceErrorCode.unknownTapsignerHandle) {
       throw InvalidCardTypeError(handle, CardType.tapsigner);
     } else {
       ensureStatus(params.status);

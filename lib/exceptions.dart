@@ -28,19 +28,7 @@ class InvalidCardException implements CKTapException {
   InvalidCardException();
 
   @override
-  toString() =>
-      "User didn't present a card of the expected type";
-}
-
-/// Thrown when a given NfcTag doesn't support the required protocols for the
-/// platform. Currently only IsoDep on Android and ISO7816 on iOS are supported
-class NfcIncompatibilityException implements CKTapException {
-  final NfcTag tag;
-
-  NfcIncompatibilityException(this.tag);
-
-  @override
-  String toString() => "Given tag is incompatible with the CKTap plugin: $tag";
+  toString() => "User didn't present a card of the expected type";
 }
 
 /// Thrown when attempts to communicate via NFC fail
@@ -56,6 +44,31 @@ class NfcCommunicationException implements CKTapException {
       "Failure to communicate via $protocol with the given tag (${tag.handle}): $message";
 }
 
+/// Thrown when a given NfcTag doesn't support the required protocols for the
+/// platform. Currently only IsoDep on Android and ISO7816 on iOS are supported
+class NfcIncompatibilityException implements CKTapException {
+  final NfcTag tag;
+
+  NfcIncompatibilityException(this.tag);
+
+  @override
+  String toString() => "Given tag is incompatible with the CKTap plugin: $tag";
+}
+
+/// Thrown when trying to send more bytes to an NFC device than is supported by
+/// the users device
+class NfcTransceiveException implements CKTapException {
+  final NfcTag tag;
+  final int bytesLength;
+  final int maxLength;
+
+  NfcTransceiveException(this.tag, this.bytesLength, this.maxLength);
+
+  @override
+  String toString() =>
+      "Given tag can not transceive $bytesLength bytes, max length is $maxLength for tag: $tag";
+}
+
 /// Thrown when an ongoing operation is canceled unexpectedly
 class OperationCanceledException implements CKTapException {
   final String message;
@@ -63,7 +76,7 @@ class OperationCanceledException implements CKTapException {
   OperationCanceledException(this.message);
 
   @override
-  String toString() => "A CKTapProtocol operation was canceled: $message";
+  String toString() => "A CKTap operation was canceled: $message";
 }
 
 /// Thrown when the given spend code does not meet the requirements of being a

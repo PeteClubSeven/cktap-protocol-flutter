@@ -1,6 +1,6 @@
-import 'package:cktap_protocol/cktap_protocol.dart';
+import 'package:cktap_protocol/cktap.dart';
 import 'package:cktap_protocol/satscard.dart';
-import 'package:cktap_protocol/src/cktap_implementation.dart';
+import 'package:cktap_protocol/src/implementation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
 import 'package:cktap_protocol/tapsigner.dart';
@@ -25,7 +25,7 @@ abstract class CKTapCard {
   bool get isTapsigner => type == CardType.tapsigner;
 
   static Future<CKTapCard> fromTransport(Transport transport) =>
-      CKTapProtocol.readCard(transport, type: CardType.unknown);
+      CKTap.readCard(transport, type: CardType.unknown);
 
   Satscard? toSatscard() => !isTapsigner ? this as Satscard : null;
   Tapsigner? toTapsigner() => isTapsigner ? this as Tapsigner : null;
@@ -34,7 +34,7 @@ abstract class CKTapCard {
   /// it will reduce the [authDelay] value by one (if > 0). Once an incorrect
   /// CVC or Spend Code is entered 3 times you must send 15 wait commands before
   /// you can try any secure function again
-  Future<WaitResponse> wait(Transport transport) => CKTapImplementation.instance
+  Future<WaitResponse> wait(Transport transport) => Implementation.instance
           .cktapcardWait(transport, handle, type)
           .then((value) {
         authDelay = value.success ? value.authDelay : authDelay;

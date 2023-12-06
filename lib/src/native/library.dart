@@ -1,11 +1,11 @@
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:cktap_protocol/src/cktap_implementation.dart';
+import 'package:cktap_protocol/src/implementation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 
 /// Gets an instance of the native library bindings
-NativeBindings get nativeLibrary => CKTapImplementation.instance.bindings;
+NativeBindings get nativeLibrary => Implementation.instance.bindings;
 
 /// Loads the library of the given name in the expected format for the current platform
 DynamicLibrary loadLibrary(final String libName) {
@@ -26,40 +26,60 @@ DynamicLibrary loadLibrary(final String libName) {
 final Map<int, String> tapInterfaceErrorLiteralMap = {
   CKTapInterfaceErrorCode.pending: "pending",
   CKTapInterfaceErrorCode.success: "success",
-  CKTapInterfaceErrorCode.attemptToFinalizeActiveThread: "attemptToFinalizeActiveThread",
+  CKTapInterfaceErrorCode.attemptToFinalizeActiveThread:
+      "attemptToFinalizeActiveThread",
   CKTapInterfaceErrorCode.bindingNotImplemented: "bindingNotImplemented",
-  CKTapInterfaceErrorCode.caughtTapProtocolException: "caughtTapProtocolException",
-  CKTapInterfaceErrorCode.expectedSatscardButReceivedNothing: "expectedSatscardButReceivedNothing",
-  CKTapInterfaceErrorCode.expectedTapsignerButReceivedNothing: "expectedTapsignerButReceivedNothing",
+  CKTapInterfaceErrorCode.caughtTapProtocolException:
+      "caughtTapProtocolException",
+  CKTapInterfaceErrorCode.expectedSatscardButReceivedNothing:
+      "expectedSatscardButReceivedNothing",
+  CKTapInterfaceErrorCode.expectedTapsignerButReceivedNothing:
+      "expectedTapsignerButReceivedNothing",
   CKTapInterfaceErrorCode.failedToPerformHandshake: "failedToPerformHandshake",
-  CKTapInterfaceErrorCode.failedToRetrieveValueFromFuture: "failedToRetrieveValueFromFuture",
-  CKTapInterfaceErrorCode.invalidCardDuringHandshake: "invalidCardDuringHandshake",
+  CKTapInterfaceErrorCode.failedToRetrieveValueFromFuture:
+      "failedToRetrieveValueFromFuture",
+  CKTapInterfaceErrorCode.invalidCardDuringHandshake:
+      "invalidCardDuringHandshake",
   CKTapInterfaceErrorCode.invalidCardOperation: "invalidCardOperation",
-  CKTapInterfaceErrorCode.invalidHandlingOfCardDuringFinalization: "invalidHandlingOfCardDuringFinalization",
-  CKTapInterfaceErrorCode.invalidResponseFromCardOperation: "invalidResponseFromCardOperation",
-  CKTapInterfaceErrorCode.invalidThreadStateDuringTransportSignaling: "invalidThreadStateDuringTransportSignaling",
+  CKTapInterfaceErrorCode.invalidHandlingOfCardDuringFinalization:
+      "invalidHandlingOfCardDuringFinalization",
+  CKTapInterfaceErrorCode.invalidResponseFromCardOperation:
+      "invalidResponseFromCardOperation",
+  CKTapInterfaceErrorCode.invalidThreadStateDuringTransportSignaling:
+      "invalidThreadStateDuringTransportSignaling",
   CKTapInterfaceErrorCode.libraryNotInitialized: "libraryNotInitialized",
   CKTapInterfaceErrorCode.operationCanceled: "operationCanceled",
   CKTapInterfaceErrorCode.operationFailed: "operationFailed",
   CKTapInterfaceErrorCode.operationStillInProgress: "operationStillInProgress",
   CKTapInterfaceErrorCode.threadAlreadyInUse: "threadAlreadyInUse",
   CKTapInterfaceErrorCode.threadAllocationFailed: "threadAllocationFailed",
-  CKTapInterfaceErrorCode.threadNotReadyForResponse: "threadNotReadyForResponse",
-  CKTapInterfaceErrorCode.threadNotResetForHandshake: "threadNotResetForHandshake",
-  CKTapInterfaceErrorCode.threadNotAwaitingCardOperation: "threadNotAwaitingCardOperation",
+  CKTapInterfaceErrorCode.threadNotReadyForResponse:
+      "threadNotReadyForResponse",
+  CKTapInterfaceErrorCode.threadNotResetForHandshake:
+      "threadNotResetForHandshake",
+  CKTapInterfaceErrorCode.threadNotAwaitingCardOperation:
+      "threadNotAwaitingCardOperation",
   CKTapInterfaceErrorCode.threadNotYetFinalized: "threadNotYetFinalized",
   CKTapInterfaceErrorCode.threadNotYetStarted: "threadNotYetStarted",
-  CKTapInterfaceErrorCode.threadResponseFinalizationFailed: "threadResponseFinalizationFailed",
+  CKTapInterfaceErrorCode.threadResponseFinalizationFailed:
+      "threadResponseFinalizationFailed",
   CKTapInterfaceErrorCode.timeoutDuringTransport: "timeoutDuringTransport",
-  CKTapInterfaceErrorCode.unableToFinalizeAsyncAction: "unableToFinalizeAsyncAction",
-  CKTapInterfaceErrorCode.unexpectedExceptionWhenGettingCardOperationResult: "unexpectedExceptionWhenGettingCardOperationResult",
-  CKTapInterfaceErrorCode.unexpectedExceptionWhenStartingCardOperation: "unexpectedExceptionWhenStartingCardOperation",
+  CKTapInterfaceErrorCode.unableToFinalizeAsyncAction:
+      "unableToFinalizeAsyncAction",
+  CKTapInterfaceErrorCode.unexpectedExceptionWhenGettingCardOperationResult:
+      "unexpectedExceptionWhenGettingCardOperationResult",
+  CKTapInterfaceErrorCode.unexpectedExceptionWhenStartingCardOperation:
+      "unexpectedExceptionWhenStartingCardOperation",
   CKTapInterfaceErrorCode.unexpectedStdException: "unexpectedStdException",
-  CKTapInterfaceErrorCode.unknownErrorDuringAsyncOperation: "unknownErrorDuringAsyncOperation",
-  CKTapInterfaceErrorCode.unknownErrorDuringHandshake: "unknownErrorDuringHandshake",
-  CKTapInterfaceErrorCode.unknownErrorDuringTapProtocolFunction: "unknownErrorDuringTapProtocolFunction",
+  CKTapInterfaceErrorCode.unknownErrorDuringAsyncOperation:
+      "unknownErrorDuringAsyncOperation",
+  CKTapInterfaceErrorCode.unknownErrorDuringHandshake:
+      "unknownErrorDuringHandshake",
+  CKTapInterfaceErrorCode.unknownErrorDuringTapProtocolFunction:
+      "unknownErrorDuringTapProtocolFunction",
   CKTapInterfaceErrorCode.unknownSatscardHandle: "unknownSatscardHandle",
-  CKTapInterfaceErrorCode.unknownSlotForGivenSatscardHandle: "unknownSlotForGivenSatscardHandle",
+  CKTapInterfaceErrorCode.unknownSlotForGivenSatscardHandle:
+      "unknownSlotForGivenSatscardHandle",
   CKTapInterfaceErrorCode.unknownTapsignerHandle: "unknownTapsignerHandle",
 };
 

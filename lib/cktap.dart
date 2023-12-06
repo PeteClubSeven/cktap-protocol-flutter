@@ -1,18 +1,18 @@
 import 'dart:async';
 
 import 'package:cktap_protocol/cktapcard.dart';
-import 'package:cktap_protocol/src/cktap_implementation.dart';
+import 'package:cktap_protocol/src/implementation.dart';
 import 'package:cktap_protocol/transport.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
 /// Implements the basic functionality required to interact with Coinkite NFC
 /// cards
-class CKTapProtocol {
+class CKTap {
   /// Calling this is optional as the library is lazily loaded when needed.
   /// However, if you wish to control exactly when the library initializes you
   /// can simple call this function. Subsequent calls won't do anything
   static void initialize() {
-    CKTapImplementation.instance;
+    Implementation.instance;
   }
 
   /// Performs a preliminary check to see if the given tag is potentially a
@@ -50,5 +50,5 @@ class CKTapProtocol {
   /// card type is given, e.g. Tapsigner instead of a Satscard
   static Future<CKTapCard> readCard(Transport transport,
           {CardType type = CardType.unknown}) =>
-      CKTapImplementation.instance.readCard(transport, type);
+      Implementation.instance.readCard(transport, type);
 }

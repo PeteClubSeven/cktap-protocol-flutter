@@ -18,6 +18,7 @@ class Iso7816Response {
 abstract class Transport {
   /// Should use IsoDep for Android
   Future<Uint8List> sendBytes(final Uint8List bytes);
+
   /// Specifically for iOS
   Future<Iso7816Response> sendIso7816(final Uint8List bytes);
 }

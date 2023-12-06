@@ -12,30 +12,30 @@ import 'package:cktap_protocol/transport.dart';
 
 /// Interfaces with a native implementation of the tap protocol to perform
 /// various operations on Coinkite NFC devices
-class CKTapImplementation {
+class Implementation {
   /// A copy of bindings to the native C++ library
   final NativeBindings bindings;
 
-  /// See [CKTapImplementation.performAsyncOperation]
+  /// See [Implementation.performAsyncOperation]
   bool _isPerformingNativeAction = false;
 
   /// The most recent cleanup operation
   Future? _cleanupFuture;
 
   /// A singleton for use across the plugin
-  static CKTapImplementation? _staticInstance;
+  static Implementation? _staticInstance;
 
   /// Initializes the shared instance and thus the library itself
-  static CKTapImplementation get instance =>
-      _staticInstance ??= CKTapImplementation._initialize();
+  static Implementation get instance =>
+      _staticInstance ??= Implementation._initialize();
 
   /// Will initialize the library with the given bindings
-  CKTapImplementation(this.bindings) {
+  Implementation(this.bindings) {
     ensure(bindings.Core_initializeLibrary());
   }
 
   /// Loads the required native DLLs initializes the library
-  factory CKTapImplementation._initialize() {
+  factory Implementation._initialize() {
     const List<String> dependencies = ['tap-protocol'];
     const String pluginLibName = 'cktap_protocol';
 
@@ -44,7 +44,7 @@ class CKTapImplementation {
     }
 
     final bindings = NativeBindings(loadLibrary(pluginLibName));
-    return CKTapImplementation(bindings);
+    return Implementation(bindings);
   }
 
   Future<WaitResponse> cktapcardWait(Transport nfc, int handle, CardType type) {
@@ -228,7 +228,7 @@ class CKTapImplementation {
     return Future.sync(() async {
       if (_isPerformingNativeAction) {
         throw ProtocolConcurrencyError(
-            "Attempt to perform a concurrent native action in CKTapProtocol");
+            "Attempt to perform a concurrent native action in CKTap");
       }
 
       // Cleanup is a special case where we can just safely wait for cleanup if
