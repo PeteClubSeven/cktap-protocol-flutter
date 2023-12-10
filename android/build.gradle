@@ -25,10 +25,6 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    // Bumping the plugin compileSdkVersion requires all clients of this plugin
-    // to bump the version in their app.
-    compileSdkVersion 31
-
     // Bumping the plugin ndkVersion requires all clients of this plugin to bump
     // the version in their app and to download a newer version of the NDK.
     ndkVersion "21.4.7075529"
@@ -48,12 +44,19 @@ android {
         }
     }
 
+    buildTypes {
+        profile {
+            initWith debug
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
+        compileSdk 33
         minSdkVersion 21
         externalNativeBuild {
             cmake {
