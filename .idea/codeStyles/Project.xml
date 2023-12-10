@@ -31,6 +31,7 @@
       <option name="HEADER_GUARD_STYLE_PATTERN" value="__${PROJECT_NAME}_${PROJECT_REL_PATH}_${FILE_NAME}_${EXT}__" />
     </Objective-C>
     <Objective-C-extensions>
+      <option name="TAG_PREFIX_OF_LINE_COMMENT" value="AT" />
       <rules>
         <rule entity="NAMESPACE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
         <rule entity="MACRO" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
@@ -39,9 +40,9 @@
         <rule entity="GLOBAL_FUNCTION,CLASS_MEMBER_FUNCTION,STRUCT_MEMBER_FUNCTION,CLASS_MEMBER_FIELD,STRUCT_MEMBER_FIELD" visibility="PROTECTED,PRIVATE" specifier="ANY" prefix="_" style="CAMEL_CASE" suffix="" />
         <rule entity="ENUMERATOR,PARAMETER,LOCAL_VARIABLE" visibility="PROTECTED,PRIVATE" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
       </rules>
-      <option name="TAG_PREFIX_OF_LINE_COMMENT" value="AT" />
     </Objective-C-extensions>
     <Objective-C-extensions>
+      <option name="TAG_PREFIX_OF_LINE_COMMENT" value="AT" />
       <rules>
         <rule entity="NAMESPACE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
         <rule entity="MACRO" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
@@ -50,7 +51,6 @@
         <rule entity="GLOBAL_FUNCTION,CLASS_MEMBER_FUNCTION,STRUCT_MEMBER_FUNCTION,CLASS_MEMBER_FIELD,STRUCT_MEMBER_FIELD" visibility="PROTECTED,PRIVATE" specifier="ANY" prefix="_" style="CAMEL_CASE" suffix="" />
         <rule entity="ENUMERATOR,PARAMETER,LOCAL_VARIABLE" visibility="PROTECTED,PRIVATE" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
       </rules>
-      <option name="TAG_PREFIX_OF_LINE_COMMENT" value="AT" />
     </Objective-C-extensions>
     <files>
       <extensions>
