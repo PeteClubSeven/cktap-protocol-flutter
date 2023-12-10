@@ -27,8 +27,7 @@ mkdir -p "$DEPS"
     export ANDROID_SDK_ROOT="$ANDROID_HOME"
     export ANDROID_NDK_HOME="$ANDROID_HOME/ndk"
 
-    if [ "$(uname -m)" == "arm64" ]
-    then
+    if [ "$(uname -m)" == "arm64" ]; then
       echo "Downloading Flutter for ARM64"
       curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_arm64_3.7.12-stable.zip
     else
@@ -37,5 +36,17 @@ mkdir -p "$DEPS"
     fi
     unzip -n flutter.zip
     export PATH="$(pwd)/flutter/bin:$PATH"
+    flutter config --no-analytics
+    flutter doctor
   popd || exit # $DEPS
 popd || exit # Project directory
+
+# Set environmental variables for Github
+if [ -n "$GITHUB_ENV" ]; then
+  {
+    echo "ANDROID_HOME=$ANDROID_HOME"
+    echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+    echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
+    echo "PATH=$PATH"
+  } >> "$GITHUB_ENV"
+fi

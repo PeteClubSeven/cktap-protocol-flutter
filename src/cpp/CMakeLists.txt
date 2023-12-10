@@ -24,6 +24,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC DART_SHARED_LIB)
 
 # Ensure libsecp256k1 is built for the Nunchuk tap-protocol library to link
 if(ANDROID)
+    execute_process(COMMAND "chmod" "+x" "${PROJECT_SOURCE_DIR}/../../android/build_libsecp256k1.sh")
     execute_process(COMMAND "${PROJECT_SOURCE_DIR}/../../android/build_libsecp256k1.sh" "${CMAKE_ANDROID_NDK}" "${ANDROID_ABI}")
 endif()
 
