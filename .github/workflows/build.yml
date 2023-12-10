@@ -4,7 +4,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, ubuntu-latest]
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4
@@ -21,29 +21,40 @@ jobs:
             "$ANDROID_NDK_HOME/21.4.7075529"
 
       - if: ${{ steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'macos-latest' }}
-        name: Install dependencies (Mac)
+        name: tap-protocol dependencies & Flutter (Mac)
         run: |
-          # Install tap-protocol dependencies
-          brew install autoconf automake jq libtool
-          
-          # Install Flutter
-          mkdir .deps
+          mkdir -p .deps
+          brew install autoconf automake libtool
           curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.7.12-stable.zip
-          unzip -q -n flutter.zip -d .deps/
+          unzip flutter.zip -d .deps/
+
+      - if: ${{ steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-latest' }}
+        name: tap-protocol dependencies & Flutter (Linux)
+        run: |
+          mkdir -p .deps
+          sudo apt install autoconf automake libtool make
+          curl -o flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.7.12-stable.tar.xz
+          tar -C .deps/ -xvf flutter.tar.xz
+          
+      - name: Setup Flutter
+        run: |
           export PATH="$(pwd)/.deps/flutter/bin:$PATH"
           flutter config --no-analytics
+          flutter doctor
           echo "PATH=$PATH" >> "$GITHUB_ENV"
-          
-          # Fix Java
-          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+
+      - name: Fix Java
+        run: echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
 
       - name: Build AAR
         run: |
           flutter pub get
           flutter build aar
+
       - name: Build example APK
         run: | 
           cd example
           flutter pub get
           flutter build apk --debug
+          flutter build apk --profile
           flutter build apk --release
