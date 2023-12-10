@@ -2,12 +2,6 @@
 
 pushd "$(dirname "$0")/.." || exit
 
-# Ensure homebrew is installed
-if [ ! -x /opt/homebrew/bin/brew ]
-then
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
-
 # tap-protocol dependencies
 brew install autoconf automake jq libtool
 
