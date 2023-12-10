@@ -32,7 +32,7 @@ jobs:
         name: tap-protocol dependencies & Flutter (Linux)
         run: |
           mkdir -p .deps
-          sudo apt install autoconf automake libtool make
+          sudo apt install autoconf automake clang libtool make
           curl -o flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.7.12-stable.tar.xz
           tar -C .deps/ -xvf flutter.tar.xz
           
