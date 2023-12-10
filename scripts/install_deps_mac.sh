@@ -27,7 +27,14 @@ mkdir -p "$DEPS"
     export ANDROID_SDK_ROOT="$ANDROID_HOME"
     export ANDROID_NDK_HOME="$ANDROID_HOME/ndk"
 
-    curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_arm64_3.7.12-stable.zip
+    if [ "$(uname -m)" == "arm64" ]
+    then
+      echo "Downloading Flutter for ARM64"
+      curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_arm64_3.7.12-stable.zip
+    else
+      echo "Downloading Flutter for x86_64"
+      curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.7.12-stable.zip
+    fi
     unzip -n flutter.zip
     export PATH="$(pwd)/flutter/bin:$PATH"
   popd || exit # $DEPS
