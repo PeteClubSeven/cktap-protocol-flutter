@@ -49,7 +49,7 @@ jobs:
 
       - if: ${{ matrix.os == 'ubuntu-latest' }}
         name: Install secp256k1 dependencies (Linux)
-        run: sudo apt install autoconf automake clang libtool make
+        run: sudo apt install autoconf automake gcc libtool make
 
       - name: Set up Flutter
         run: |
