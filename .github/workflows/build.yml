@@ -5,48 +5,62 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
+        flutter: ["3.7.12"]
+        ndk: ["21.4.7075529"]
     runs-on: ${{matrix.os}}
+    env:
+      FLUTTER_VERSION: ${{ matrix.flutter }}
+      NDK_VERSION: ${{ matrix.ndk }}
     steps:
       - uses: actions/checkout@v4
 
-      - id: cache-key
-        run: echo "key=$(git log --pretty=tformat:"%H" -n1 $GITHUB_WORKSPACE/.github)" >> "$GITHUB_OUTPUT"
+      - name: Set up Java
+        run: echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
 
       - id: cache-deps
         uses: actions/cache@v3
         with:
-          key: ${{ matrix.os }}-build-${{ steps.cache-key.outputs.key }}
+          key: ${{ matrix.os }}-build-${{ matrix.flutter }}-${{ matrix.ndk }}-${{ hashFiles('**/pubspec.yaml', '**/pubspec.lock') }}
           path: |
+            "$ANDROID_HOME/ndk/$NDK_VERSION"
             .deps
-            "$ANDROID_NDK_HOME/21.4.7075529"
+
+      - if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+        name: Install NDK
+        run: echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION"
 
       - if: ${{ steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'macos-latest' }}
-        name: tap-protocol dependencies & Flutter (Mac)
+        name: Download & extract Flutter (Mac)
         run: |
           mkdir -p .deps
-          brew install autoconf automake libtool
-          curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.7.12-stable.zip
+          curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_$FLUTTER_VERSION-stable.zip
           unzip flutter.zip -d .deps/
 
       - if: ${{ steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-latest' }}
-        name: tap-protocol dependencies & Flutter (Linux)
+        name: Download & extract Flutter (Linux)
         run: |
           mkdir -p .deps
-          sudo apt install autoconf automake clang libtool make
-          curl -o flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.7.12-stable.tar.xz
+          curl -o flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_$FLUTTER_VERSION-stable.tar.xz
           tar -C .deps/ -xvf flutter.tar.xz
-          
-      - name: Setup Flutter
+
+      - if: ${{ matrix.os == 'macos-latest' }}
+        name: Install secp256k1 dependencies (Mac)
+        run: brew install autoconf automake libtool
+
+      - if: ${{ matrix.os == 'ubuntu-latest' }}
+        name: Install secp256k1 dependencies (Linux)
+        run: sudo apt install autoconf automake clang libtool make
+
+      - name: Set up Flutter
         run: |
           export PATH="$(pwd)/.deps/flutter/bin:$PATH"
+          export PUB_CACHE="$(pwd)/.deps/pub_cache"
           flutter config --no-analytics
           flutter doctor
           echo "PATH=$PATH" >> "$GITHUB_ENV"
+          echo "PUB_CACHE=$PUB_CACHE" >> "$GITHUB_ENV"
 
-      - name: Fix Java
-        run: echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
-
-      - name: Build AAR
+      - name: Build library AAR
         run: |
           flutter pub get
           flutter build aar
