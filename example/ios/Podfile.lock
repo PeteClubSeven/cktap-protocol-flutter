@@ -19,7 +19,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/nfc_manager/ios"
 
 SPEC CHECKSUMS:
-  cktap_protocol: 5df6e17fb3a7997f1a6821896a39749b67c7e31d
+  cktap_protocol: e7b8689fd0dee7979e98aedbfc58ca44da543848
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   nfc_manager: d7da7cb781f7744b94df5fe9dbca904ac4a0939e
 
