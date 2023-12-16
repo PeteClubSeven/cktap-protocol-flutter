@@ -150,7 +150,7 @@ bool TapProtocolThread::beginSatscard_CertificateCheck() {
 bool TapProtocolThread::beginSatscard_GetSlot(int32_t slot, const char* cvc) {
     if (auto card = _satscard.lock()) {
         return _startAsyncCardOperation([=, cvc = makeCvc(cvc)]() {
-            _setResponse<CardOperation::Satscard_GetSlot>(std::move(card->GetSlot(slot, cvc)));
+            _setResponse<CardOperation::Satscard_GetSlot>(card->GetSlot(slot, cvc));
             return CKTapInterfaceErrorCode::success;
         });
     }
@@ -171,7 +171,7 @@ bool TapProtocolThread::beginSatscard_ListSlots(const char* cvc, int32_t limit) 
 bool TapProtocolThread::beginSatscard_New(const char* chainCode, const char* cvc) {
     if (auto card = _satscard.lock()) {
         return _startAsyncCardOperation([=, chain = makeChainCode(chainCode), cvc = makeCvc(cvc)]() {
-            _setResponse<CardOperation::Satscard_New>(std::move(card->New(chain, cvc)));
+            _setResponse<CardOperation::Satscard_New>(card->New(chain, cvc));
             return CKTapInterfaceErrorCode::success;
         });
     }
@@ -181,7 +181,7 @@ bool TapProtocolThread::beginSatscard_New(const char* chainCode, const char* cvc
 bool TapProtocolThread::beginSatscard_Unseal(const char* cvc) {
     if (auto card = _satscard.lock()) {
         return _startAsyncCardOperation([=, cvc = makeCvc(cvc)]() {
-            _setResponse<CardOperation::Satscard_Unseal>(std::move(card->Unseal(cvc)));
+            _setResponse<CardOperation::Satscard_Unseal>(card->Unseal(cvc));
             return CKTapInterfaceErrorCode::success;
         });
     }
@@ -276,13 +276,13 @@ std::optional<CKTapCardType> TapProtocolThread::getConstructedCardType() const {
 
 std::unique_ptr<tap_protocol::Satscard> TapProtocolThread::releaseConstructedSatscard() {
     return !isThreadActive() ?
-        std::move(dynamic_pointer_cast<tap_protocol::Satscard>(_constructedCard)) :
+        dynamic_pointer_cast<tap_protocol::Satscard>(_constructedCard) :
         nullptr;
 }
 
 std::unique_ptr<tap_protocol::Tapsigner> TapProtocolThread::releaseConstructedTapsigner() {
     return !isThreadActive() ?
-        std::move(dynamic_pointer_cast<tap_protocol::Tapsigner>(_constructedCard)) :
+        dynamic_pointer_cast<tap_protocol::Tapsigner>(_constructedCard) :
         nullptr;
 }
 
