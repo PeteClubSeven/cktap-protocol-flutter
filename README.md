@@ -1,92 +1,49 @@
-# cktap_protocol
+# Coinkite Tap Protocol Flutter
 
-A flutter library implementing the Coinkite tap protocol for use with the Satscard and Tapsigner
+A flutter library implementing the Coinkite tap protocol for use with the Satscard and Tapsigner. The plugin is effectively a wrapper around Nunchuk's [tap-protocol](https://github.com/nunchuk-io/tap-protocol) library.
+
+## Current Status
+
+The project is currently under development. It is being developed primarily to allow Satscard support in the [Breez](https://breez.technology/mobile/). Once that bounty is complete this plugin will be updated with full support for the Satscard and Tapsigner.
+
+### Platform Support
+- [x] Android
+- [ ] iOS (in progress): https://github.com/PeteClubSeven/cktap-protocol-flutter/tree/feature/ios-support
+- [ ] macOS
+- [ ] Linux
+- [ ] Windows
+
+### Feature support
+
+- [ ] Support building on Windows
+- [x] Support building on macOS
+- [x] Support building on Linux
+- [x] Reading Satscards
+- [x] Reading Tapsigners
+- [ ] Performing every CKTapCard NFC operation
+- [x] Performing every Satscard-specific NFC operation
+- [ ] Performing every Tapsigner-specific NFC operation
+- [ ] Exposing the tap-protocol utility functions
+- [ ] Exposing the alternative Tapsigner HWI API
+- [ ] Allow concurrent native operations (currently errors out to avoid crashing)
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[FFI plugin](https://docs.flutter.dev/development/platform-integration/c-interop),
-a specialized package that includes native code directly invoked with Dart FFI.
+You must have the tools required for libsecp256k1 to build. Run the following commands:
+- On macOS
+  - `brew install autoconf automake libtool`
+- On Ubuntu
+  -  `sudo apt install autoconf automake gcc libtool`
 
 ## Project stucture
 
 This template uses the following structure:
 
-* `src`: Contains the native source code, and a CmakeFile.txt file for building
+* `src/cpp`: Contains the native source code, and a CMakeLists.txt file for building
   that source code into a dynamic library.
 
 * `lib`: Contains the Dart code that defines the API of the plugin, and which
   calls into the native code using `dart:ffi`.
 
-* platform folders (`android`, `ios`, `windows`, etc.): Contains the build files
-  for building and bundling the native code library with the platform application.
-
-## Buidling and bundling native code
-
-The `pubspec.yaml` specifies FFI plugins as follows:
-
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        ffiPlugin: true
-```
-
-This configuration invokes the native build for the various target platforms
-and bundles the binaries in Flutter applications using these FFI plugins.
-
-This can be combined with dartPluginClass, such as when FFI is used for the
-implementation of one platform in a federated plugin:
-
-```yaml
-  plugin:
-    implements: some_other_plugin
-    platforms:
-      some_platform:
-        dartPluginClass: SomeClass
-        ffiPlugin: true
-```
-
-A plugin can have both FFI and method channels:
-
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        pluginClass: SomeName
-        ffiPlugin: true
-```
-
-The native build systems that are invoked by FFI (and method channel) plugins are:
-
-* For Android: Gradle, which invokes the Android NDK for native builds.
-  * See the documentation in android/build.gradle.
-* For iOS and MacOS: Xcode, via CocoaPods.
-  * See the documentation in ios/cktap_protocol.podspec.
-  * See the documentation in macos/cktap_protocol.podspec.
-* For Linux and Windows: CMake.
-  * See the documentation in linux/CMakeLists.txt.
-  * See the documentation in windows/CMakeLists.txt.
-
-## Binding to native code
-
-To use the native code, bindings in Dart are needed.
-To avoid writing these by hand, they are generated from the header file
-(`src/cktap_protocol.h`) by `package:ffigen`.
-Regenerate the bindings by running `flutter pub run ffigen --config ffigen.yaml`.
-
-## Invoking native code
-
-Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/cktap_protocol.dart`.
-
-Longer-running functions should be invoked on a helper isolate to avoid
-dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/cktap_protocol.dart`.
-
-## Flutter help
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
+* platform folders (`android` & `ios`): Contains the build files for building and bundling
+  the native code library with the platform application.
