@@ -1,28 +1,28 @@
 name: cktap_protocol
 description: A new Flutter FFI plugin project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/PeteClubSeven/cktap-protocol-flutter
 publish_to: 'none'
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '>=2.19.6 <4.0.0'
   flutter: ">=3.7.12"
 
 dependencies:
-  ffi: ^2.0.2
+  ffi: <2.1.0 # Requires Flutter 3.10
   flutter:
     sdk: flutter
   nfc_manager:
     git:
       url: https://github.com/PeteClubSeven/flutter-nfc-manager
       commit: 4a993ed513f3cc50b0d7efcadde9a864556f8003
-  plugin_platform_interface: ^2.1.4
+  plugin_platform_interface: <2.1.7 # Requires Flutter 3.10
 
 dev_dependencies:
-  ffigen: ^7.2.11
+  ffigen: <8.0.0 # Requires Flutter 3.10
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.1
+  flutter_lints: <3.0.0 # Requires Flutter 3.10
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

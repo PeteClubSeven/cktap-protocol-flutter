@@ -5,7 +5,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
-        flutter: ["3.7.12"]
+        flutter: ["3.7.12", "3.16.5"]
         ndk: ["21.4.7075529"]
     runs-on: ${{matrix.os}}
     env:
