@@ -46,7 +46,7 @@ android {
         applicationId "com.example.cktap_protocol_example"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        compileSdk 33
+        compileSdk 33 // Need gradle 8 for SDK 34 support
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()

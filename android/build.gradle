@@ -11,7 +11,7 @@ buildscript {
 
     dependencies {
         // The Android Gradle Plugin knows how to build native code with the NDK.
-        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath 'com.android.tools.build:gradle:7.4.2'
     }
 }
 
@@ -56,7 +56,7 @@ android {
     }
 
     defaultConfig {
-        compileSdk 33
+        compileSdk 33 // Need gradle 8 for SDK 34 support
         minSdkVersion 21
         externalNativeBuild {
             cmake {
