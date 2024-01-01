@@ -26,6 +26,8 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC DART_SHARED_LIB)
 if(ANDROID)
     execute_process(COMMAND "chmod" "+x" "${PROJECT_SOURCE_DIR}/../../android/build_libsecp256k1.sh")
     execute_process(COMMAND "${PROJECT_SOURCE_DIR}/../../android/build_libsecp256k1.sh" "${CMAKE_ANDROID_NDK}" "${ANDROID_ABI}")
+
+    target_compile_definitions(cktap_protocol PRIVATE CKTAP_PLATFORM_ANDROID)
 endif()
 
 # Link against Nunchuk's tap-protocol library so we can interface with it

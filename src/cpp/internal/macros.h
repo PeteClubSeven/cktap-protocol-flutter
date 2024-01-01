@@ -4,6 +4,17 @@
 #include <stdexcept>
 #include <variant>
 
+#if defined(CKTAP_PLATFORM_ANDROID)
+    #define CKTAP_PLATFORM_ANDROID 1
+    #define CKTAP_PLATFORM_IOS 0
+#elif defined(CKTAP_PLATFORM_IOS)
+    #define CKTAP_PLATFORM_ANDROID 0
+    #define CKTAP_PLATFORM_IOS 1
+#else
+    #define CKTAP_PLATFORM_ANDROID 0
+    #define CKTAP_PLATFORM_IOS 0
+#endif
+
 // TODO: Figure out how to get rid of this horrible macro
 // There seems to be a bug either with FFI or with the compiler where trying to catch a
 // tap_protocol::TapProtoException doesn't work. This causes a full app crash and is replicable
