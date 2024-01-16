@@ -31,7 +31,7 @@ The project is currently under development. It is being developed primarily to a
 
 You must have the tools required for libsecp256k1 to build. Run the following commands:
 - On macOS
-  - `brew install autoconf automake libtool`
+  - `brew install autoconf automake cmake libtool`
 - On Ubuntu
   -  `sudo apt install autoconf automake gcc libtool`
 

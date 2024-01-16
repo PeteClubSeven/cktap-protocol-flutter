@@ -46,3 +46,5 @@ doc/api/
 
 # Project
 .deps
+
+ios/Libraries/libtap-protocol.dylib

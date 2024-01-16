@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/error/types.dart';
@@ -36,13 +37,16 @@ class Implementation {
 
   /// Loads the required native DLLs initializes the library
   factory Implementation._initialize() {
-    const List<String> dependencies = ['tap-protocol'];
-    const String pluginLibName = 'cktap_protocol';
-
-    for (final libName in dependencies) {
-      loadLibrary(libName);
+    // Dependencies are only needed for non-Apple platforms
+    if (!Platform.isIOS && !Platform.isMacOS) {
+      const List<String> dependencies = ['tap-protocol'];
+      for (final libName in dependencies) {
+        loadLibrary(libName);
+      }
     }
 
+    // Load the main library
+    const String pluginLibName = 'cktap_protocol';
     final bindings = NativeBindings(loadLibrary(pluginLibName));
     return Implementation(bindings);
   }
