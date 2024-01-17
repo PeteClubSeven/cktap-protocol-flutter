@@ -19,8 +19,6 @@ A new Flutter FFI plugin project.
   # `../src/*` so that the C sources can be shared among all target platforms.
   s.dependency          'Flutter'
   s.platform            = :ios, '12.0'
-  s.vendored_library    = 'Libraries/libtap-protocol.dylib'
-  s.libraries           = 'tap-protocol'
   s.source              = { :path => '.' }
   s.source_files        = 'Classes/**/*'
   s.script_phase        = {
@@ -28,13 +26,11 @@ A new Flutter FFI plugin project.
     :name => 'Build tap-protocol',
     :script => '${PODS_TARGET_SRCROOT}/build_tap_protocol.sh',
     :output_files => [
-      '${PODS_TARGET_SRCROOT}/Libraries/libtap-protocol.dylib',
-      '${PODS_TARGET_SRCROOT}/../contrib/tap-protocol/build/libtap-protocol.dylib',
-      '${PODS_TARGET_SRCROOT}/../contrib/tap-protocol/build/contrib/bitcoin-core/libbitcoin-core.a',
-      '${PODS_TARGET_SRCROOT}/../contrib/tap-protocol/contrib/bitcoin-core/src/secp256k1/build/iphoneos/libsecp256k1.a',
+      '${PODS_TARGET_SRCROOT}/Libraries/libtap-protocol.a',
+      '${PODS_TARGET_SRCROOT}/Libraries/libbitcoin-core.a',
+      '${PODS_TARGET_SRCROOT}/Libraries/libsecp256k1.a',
     ],
   }
-
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'DEFINES_MODULE' => 'YES',
@@ -43,9 +39,14 @@ A new Flutter FFI plugin project.
     'GCC_PREPROCESSOR_DEFINITIONS[sdk=iphonesimulator*]' => 'CKTAP_PLATFORM_IOS_SIMULATOR=1',
     'HEADER_SEARCH_PATHS' => [
       '${PODS_TARGET_SRCROOT}/../src/cpp',
+    ],
+    'LIBRARY_SEARCH_PATHS' => '${PODS_TARGET_SRCROOT}/Libraries',
+    'OTHER_LDFLAGS[sdk=iphoneos*]' => '-l"tap-protocol" -l"bitcoin-core" -l"secp256k1"',
+    'STRIP_STYLE' => 'non-global',
+    'SYSTEM_HEADER_SEARCH_PATHS' => [
       '${PODS_TARGET_SRCROOT}/../contrib/tap-protocol/contrib/include',
       '${PODS_TARGET_SRCROOT}/../contrib/tap-protocol/include',
-      ],
-    }
+    ],
+  }
   s.swift_version = '5.0'
 end
