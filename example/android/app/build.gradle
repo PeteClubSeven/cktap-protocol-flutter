@@ -43,7 +43,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.cktap_protocol_example"
+        applicationId "dev.peteclubseven.cktap_protocol_example"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         compileSdk 33 // Need gradle 8 for SDK 34 support
@@ -60,7 +60,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    namespace 'com.example.cktap_protocol_example'
+    namespace 'dev.peteclubseven.cktap_protocol_example'
 }
 
 flutter {

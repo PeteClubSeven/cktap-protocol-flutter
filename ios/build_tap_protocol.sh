@@ -12,7 +12,7 @@ if [[ "$PLATFORM_NAME" == *simulator* ]]; then
   exit 0
 fi
 
-scriptDir=$(dirname "$0")
+scriptDir="$(dirname "$0")"
 libDir="$scriptDir/Libraries"
 pushd "$(realpath "$scriptDir/..")" || exit
 
@@ -20,9 +20,8 @@ pushd "$(realpath "$scriptDir/..")" || exit
 echo "Updating submodules"
 git submodule update --init --recursive
 
-pushd contrib/tap-protocol || exit
-
 # Skip the built in cmake generation by creating a build folder
+pushd contrib/tap-protocol || exit
 mkdir -p "build/$CONFIGURATION"
 
 echo "Building libsecp256k1 for iOS"
