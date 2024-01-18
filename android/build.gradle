@@ -33,6 +33,7 @@ android {
     externalNativeBuild {
         cmake {
             path "../src/cpp/CMakeLists.txt"
+            buildStagingDirectory "../build/cktap-protocol-android"
 
             // The default CMake version for the Android Gradle Plugin is 3.10.2.
             // https://developer.android.com/studio/projects/install-ndk#vanilla_cmake

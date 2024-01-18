@@ -22,13 +22,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC DART_SHARED_LIB)
 
-# Ensure libsecp256k1 is built for the Nunchuk tap-protocol library to link
-if(ANDROID)
-    execute_process(COMMAND "chmod" "+x" "${PROJECT_SOURCE_DIR}/../../android/build_libsecp256k1.sh")
-    execute_process(COMMAND "${PROJECT_SOURCE_DIR}/../../android/build_libsecp256k1.sh" "${CMAKE_ANDROID_NDK}" "${ANDROID_ABI}")
-
-    target_compile_definitions(cktap_protocol PRIVATE CKTAP_PLATFORM_ANDROID)
-endif()
+# Flutter by default doesn't initialize submodules for plugins. We must make sure tap-protocol is
+# available
+execute_process(COMMAND git submodule update --init --recursive)
 
 # Link against Nunchuk's tap-protocol library so we can interface with it
 add_subdirectory("${PROJECT_SOURCE_DIR}/../../contrib/tap-protocol" "${PROJECT_SOURCE_DIR}/../../build/tap-protocol")
