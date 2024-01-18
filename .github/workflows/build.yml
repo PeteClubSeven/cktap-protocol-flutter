@@ -25,31 +25,27 @@ jobs:
             "$ANDROID_HOME/ndk/$NDK_VERSION"
             .deps
 
-      - if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+      - if: steps.cache-deps.outputs.cache-hit != 'true'
         name: Install NDK
         run: echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION"
 
-      - if: ${{ steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'macos-latest' }}
+      - if: steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'macos-latest'
         name: Download & extract Flutter (Mac)
         run: |
           mkdir -p .deps
           curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_$FLUTTER_VERSION-stable.zip
           unzip flutter.zip -d .deps/
 
-      - if: ${{ steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-latest' }}
+      - if: steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-latest'
         name: Download & extract Flutter (Linux)
         run: |
           mkdir -p .deps
           curl -o flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_$FLUTTER_VERSION-stable.tar.xz
           tar -C .deps/ -xvf flutter.tar.xz
 
-      #- if: ${{ matrix.os == 'macos-latest' }}
-        #name: Install secp256k1 dependencies (Mac)
-        #run: brew install autoconf automake cmake coreutils libtool
-
-      #- if: ${{ matrix.os == 'ubuntu-latest' }}
-        #name: Install secp256k1 dependencies (Linux)
-        #run: sudo apt install autoconf automake gcc libtool make
+      - if: matrix.os == 'macos-latest'
+        name: Install tap-protocol dependencies (Mac)
+        run: brew install cmake coreutils
 
       - name: Set up Flutter
         run: |
@@ -63,19 +59,17 @@ jobs:
           echo "PATH=$PATH" >> "$GITHUB_ENV"
           echo "PUB_CACHE=$PUB_CACHE" >> "$GITHUB_ENV"
 
-      - if: ${{ matrix.os == 'macos-latest' }}
+      - if: matrix.os == 'macos-latest'
         name: Build iOS frameworks
-        continue-on-error: true
         run: |
           cd example
           flutter build ios-framework
 
-      - if: ${{ matrix.os == 'macos-latest' }}
+      - if: matrix.os == 'macos-latest'
         name: Build iOS example
-        continue-on-error: true
         run: |
           cd example
-          flutter build ios
+          flutter build ios --no-codesign
 
       - name: Build Android plugin
         run: |
