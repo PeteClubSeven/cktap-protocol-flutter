@@ -9,7 +9,7 @@ import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/library.dart';
 import 'package:cktap_protocol/src/native/thread.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
-import 'package:cktap_protocol/transport.dart';
+import 'package:cktap_transport/cktap_transport.dart';
 
 /// Interfaces with a native implementation of the tap protocol to perform
 /// various operations on Coinkite NFC devices

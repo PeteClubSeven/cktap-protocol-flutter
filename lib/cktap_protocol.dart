@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/implementation.dart';
-import 'package:cktap_protocol/transport.dart';
-import 'package:nfc_manager/nfc_manager.dart';
+import 'package:cktap_transport/cktap_transport.dart';
 
 /// Implements the basic functionality required to interact with Coinkite NFC
 /// cards
@@ -13,22 +12,6 @@ class CKTap {
   /// can simple call this function. Subsequent calls won't do anything
   static void initialize() {
     Implementation.instance;
-  }
-
-  /// Performs a preliminary check to see if the given tag is potentially a
-  /// compatible NFC card. This can only be confirmed by communicating via NFC
-  /// with the cards
-  static bool isLikelyCoinkiteCard(NfcTag tag) {
-    final ndef = Ndef.from(tag);
-    if (ndef != null && ndef.cachedMessage != null) {
-      for (final record in ndef.cachedMessage!.records) {
-        final payload = String.fromCharCodes(record.payload);
-        if (isLikelySatscard(payload) || isLikelyTapsigner(payload)) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   /// Checks if the given payload is that of a Satscard. The authenticity of an

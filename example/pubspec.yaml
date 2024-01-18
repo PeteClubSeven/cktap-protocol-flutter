@@ -29,10 +29,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-
   bloc: ^8.1.2
   cktap_protocol:
-    path: ../
+    path: "../"
+  cktap_transport_nfc_manager:
+    git:
+      url: https://github.com/PeteClubSeven/cktap-transport-nfc-manager.git
+      ref: release/v3
   cupertino_icons: ^1.0.6
   ffi: <2.1.0 # Requires Flutter 3.10
   flutter:
@@ -41,7 +44,7 @@ dependencies:
   nfc_manager:
     git:
       url: https://github.com/PeteClubSeven/flutter-nfc-manager
-      commit: 4a993ed513f3cc50b0d7efcadde9a864556f8003
+      ref: release/v3
 
 dev_dependencies:
   flutter_test:

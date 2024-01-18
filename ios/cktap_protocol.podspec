@@ -5,9 +5,9 @@
 Pod::Spec.new do |s|
   s.name             = 'cktap_protocol'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter FFI plugin project.'
+  s.summary          = 'A flutter library implementing the Coinkite tap protocol.'
   s.description      = <<-DESC
-A new Flutter FFI plugin project.
+A flutter library implementing the Coinkite tap protocol for use with the Satscard and Tapsigner. The plugin is effectively a wrapper around Nunchuk\'s tap-protocol library.
                        DESC
   s.homepage         = 'https://github.com/PeteClubSeven/cktap-protocol-flutter'
   s.license          = { :file => '../LICENSE' }

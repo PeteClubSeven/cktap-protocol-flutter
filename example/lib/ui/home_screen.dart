@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:cktap_protocol/cktap.dart';
+import 'package:cktap_protocol/cktap_protocol.dart';
 import 'package:cktap_protocol/cktapcard.dart';
-import 'package:cktap_protocol/transport.dart';
 import 'package:cktap_protocol_example/bloc/card_events.dart';
+import 'package:cktap_transport_nfc_manager/cktap_transport_nfc_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nfc_manager/nfc_manager.dart';
@@ -34,9 +34,6 @@ class HomeScreenState extends State<HomeScreen> {
     NfcManager.instance.startSession(
       alertMessage: "Please present a Satscard or a Tapsigner",
       onDiscovered: (NfcTag tag) async {
-        if (CKTap.isLikelyCoinkiteCard(tag)) {
-          // We can just do [CKTap.readCard] but for the sake of
-          // speed/testing we'll try to instantiate the cards directly
           try {
             if (context.mounted) {
               final bloc = BlocProvider.of<CardBloc>(context);
@@ -89,7 +86,6 @@ class HomeScreenState extends State<HomeScreen> {
               bloc.add(CardError());
             }
           }
-        }
       },
     );
   }

@@ -4,11 +4,11 @@ A flutter library implementing the Coinkite tap protocol for use with the Satsca
 
 ## Current Status
 
-The project is currently under development. It is being developed primarily to allow Satscard support in the [Breez](https://breez.technology/mobile/). Once that bounty is complete this plugin will be updated with full support for the Satscard and Tapsigner.
+The project is currently under development. It is being developed primarily to allow Satscard support in the [Breez](https://breez.technology/mobile/) app. Once that bounty is complete this plugin will be updated with full support for the Satscard and Tapsigner.
 
 ### Platform Support
 - [x] Android
-- [ ] iOS (in progress): https://github.com/PeteClubSeven/cktap-protocol-flutter/tree/feature/ios-support
+- [x] iOS
 - [ ] macOS
 - [ ] Linux
 - [ ] Windows

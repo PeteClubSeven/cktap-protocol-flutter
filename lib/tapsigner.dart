@@ -1,10 +1,10 @@
-import 'package:cktap_protocol/cktap.dart';
+import 'package:cktap_protocol/cktap_protocol.dart';
 import 'package:cktap_protocol/cktapcard.dart';
 import 'package:cktap_protocol/src/implementation.dart';
 import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/translations.dart';
-import 'package:cktap_protocol/transport.dart';
+import 'package:cktap_transport/cktap_transport.dart';
 
 class Tapsigner extends CKTapCard {
   int numberOfBackups;

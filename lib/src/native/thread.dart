@@ -9,7 +9,7 @@ import 'package:cktap_protocol/src/error/validation.dart';
 import 'package:cktap_protocol/src/native/bindings.dart';
 import 'package:cktap_protocol/src/native/factories.dart';
 import 'package:cktap_protocol/src/native/library.dart';
-import 'package:cktap_protocol/transport.dart';
+import 'package:cktap_transport/cktap_transport.dart';
 
 /// Attempts to cancel the current operation and waits until it has
 Future<void> cancelNativeOperation() async {
