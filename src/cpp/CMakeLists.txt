@@ -14,19 +14,23 @@ add_library(cktap_protocol SHARED
     "${PROJECT_SOURCE_DIR}/internal/tap_protocol_thread.cpp"
     "${PROJECT_SOURCE_DIR}/internal/utils.cpp")
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC "${PROJECT_SOURCE_DIR}/")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/")
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_NAME "cktap_protocol")
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "cktap_protocol")
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC DART_SHARED_LIB)
+target_compile_definitions(cktap_protocol PRIVATE "CKTAP_PLATFORM_${CMAKE_SYSTEM_NAME}=1")
 
-# Flutter by default doesn't initialize submodules for plugins. We must make sure tap-protocol is
-# available
-execute_process(COMMAND git submodule update --init --recursive)
+# Flutter by default doesn't initialize submodules for plugins. We must make
+# sure tap-protocol is available
+if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "WINDOWS")
+    # TODO: Add Windows command
+else()
+    execute_process(COMMAND "${PROJECT_SOURCE_DIR}/../../scripts/update_submodules.sh")
+endif()
 
 # Link against Nunchuk's tap-protocol library so we can interface with it
-add_subdirectory("${PROJECT_SOURCE_DIR}/../../contrib/tap-protocol" "${PROJECT_SOURCE_DIR}/../../build/tap-protocol")
+add_subdirectory("${PROJECT_SOURCE_DIR}/../../contrib/tap-protocol"
+                 "${PROJECT_SOURCE_DIR}/../../build/tap-protocol")
 target_compile_options(tap-protocol PRIVATE "-w")
 target_link_libraries(${PROJECT_NAME} PUBLIC tap-protocol)

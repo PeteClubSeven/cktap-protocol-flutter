@@ -5,12 +5,10 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
-        flutter: ["3.7.12", "3.16.7"]           # Flutter 3.7.12 is to maintain Breez suport
-        ndk: ["21.4.7075529", "26.1.10909125"]  # NDK 21.4 is to maintain Breez support
+        flutter: ["3.7.12", "3.16.7"] # Flutter 3.7.12 is to maintain Breez support
     runs-on: ${{matrix.os}}
     env:
       FLUTTER_VERSION: ${{ matrix.flutter }}
-      NDK_VERSION: ${{ matrix.ndk }}
     steps:
       - uses: actions/checkout@v4
 
@@ -20,14 +18,9 @@ jobs:
       - id: cache-deps
         uses: actions/cache@v3
         with:
-          key: ${{ matrix.os }}-build-${{ matrix.flutter }}-${{ matrix.ndk }}-${{ hashFiles('**/pubspec.yaml', '**/pubspec.lock') }}
+          key: ${{ matrix.os }}-build-${{ matrix.flutter }}-${{ hashFiles('**/pubspec.yaml', '**/pubspec.lock') }}
           path: |
-            "$ANDROID_HOME/ndk/$NDK_VERSION"
             .deps
-
-      - if: steps.cache-deps.outputs.cache-hit != 'true'
-        name: Install NDK
-        run: echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION"
 
       - if: steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'macos-latest'
         name: Download & extract Flutter (Mac)
@@ -53,8 +46,6 @@ jobs:
           export PUB_CACHE="$(pwd)/.deps/pub_cache"
           flutter config --no-analytics
           flutter doctor
-          flutter pub get
-          cd example
           flutter pub get
           echo "PATH=$PATH" >> "$GITHUB_ENV"
           echo "PUB_CACHE=$PUB_CACHE" >> "$GITHUB_ENV"

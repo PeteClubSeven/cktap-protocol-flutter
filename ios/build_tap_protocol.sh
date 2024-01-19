@@ -18,14 +18,18 @@ pushd "$(realpath "$scriptDir/..")" || exit
 
 # Dart and Flutter don't support submodules for git dependencies
 echo "Updating submodules"
-git submodule update --init --recursive
+scripts/update_submodules.sh || true
 
 echo "Building tap-protocol for iOS"
 buildDir="$(pwd)/build/tap-protocol-ios-$CONFIGURATION"
 mkdir -p "$buildDir"
 pushd "$buildDir" || exit
 
-cmake ../../contrib/tap-protocol -DCMAKE_TOOLCHAIN_FILE=ios.toolchain.cmake -DPLATFORM=OS64 -DBUILD_SHARED_LIB_TAPPROTOCOL=0
+cmake ../../contrib/tap-protocol \
+  -DCMAKE_TOOLCHAIN_FILE=ios.toolchain.cmake \
+  -DBUILD_SHARED_LIB_TAPPROTOCOL=0 \
+  -DPLATFORM=OS64
+
 if [ -f /usr/sbin/sysctl ]; then
   numCores=$(sysctl -n hw.ncpu)
   make -j "$numCores"
