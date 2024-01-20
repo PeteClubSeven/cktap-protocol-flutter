@@ -2,3 +2,4 @@ cmake*
 .idea/*
 !.idea/codeStyles
 !.idea/codeStyles/*.xml
+!CMakeLists.txt
