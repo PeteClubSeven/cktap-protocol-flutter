@@ -23,10 +23,10 @@ The project is currently under development. It is being developed primarily to a
 - [ ] Support Linux
 - [ ] Support Web
 - [ ] Support Windows
-- [ ] Performing every CKTapCard NFC operation
-- [ ] Performing every Tapsigner-specific NFC operation
-- [ ] Exposing the tap-protocol utility functions
-- [ ] Exposing the alternative Tapsigner HWI API
+- [ ] Perform every CKTapCard NFC operation
+- [ ] Perform every Tapsigner-specific NFC operation
+- [ ] Expose the tap-protocol utility functions
+- [ ] Expose the alternative Tapsigner HWI API
 - [ ] Allow concurrent native operations (currently errors out to avoid crashing)
 
 ## Getting Started
