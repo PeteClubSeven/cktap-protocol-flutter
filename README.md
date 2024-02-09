@@ -8,21 +8,22 @@ The project is currently under development. It is being developed primarily to a
 
 ### Platform Support
 - [x] Android
-- [x] iOS
-- [ ] macOS
-- [ ] Linux
-- [ ] Web
-- [ ] Windows
+- [x] iOS (macOS only)
 
-### Feature support
+### Feature Support
+- [x] Build on Windows
+- [x] Build on macOS
+- [x] Build on Linux
+- [x] Read Satscards
+- [x] Read Tapsigners
+- [x] Perform every Satscard-specific NFC operation
 
-- [ ] Support building on Windows
-- [x] Support building on macOS
-- [x] Support building on Linux
-- [x] Reading Satscards
-- [x] Reading Tapsigners
+### Todo
+- [ ] Support macOS
+- [ ] Support Linux
+- [ ] Support Web
+- [ ] Support Windows
 - [ ] Performing every CKTapCard NFC operation
-- [x] Performing every Satscard-specific NFC operation
 - [ ] Performing every Tapsigner-specific NFC operation
 - [ ] Exposing the tap-protocol utility functions
 - [ ] Exposing the alternative Tapsigner HWI API
@@ -32,13 +33,13 @@ The project is currently under development. It is being developed primarily to a
 
 You must have the tools required for tap-protocol and libsecp256k1 to build, please follow these instructions:
 - All platforms
-  - Make sure the Android SDK is installed and $ANDROID_HOME points to a valid location with the command line tools installed 
+  - Make sure the Android SDK is installed and $ANDROID_HOME points to a valid location with the command line tools installed.
 - macOS 13 or newer
   - `brew install cmake`
 - macOS 12 or older
   - `brew install cmake coreutils`
 
-## Project stucture
+## Project Stucture
 
 This template uses the following structure:
 

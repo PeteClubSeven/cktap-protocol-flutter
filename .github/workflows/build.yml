@@ -4,59 +4,40 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
-        flutter: ["3.7.12", "3.16.7"] # Flutter 3.7.12 is to maintain Breez support
-    runs-on: ${{matrix.os}}
-    env:
-      FLUTTER_VERSION: ${{ matrix.flutter }}
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        flutter: ['3.7.12', '3.16.5', 'any']
+        include:
+          - os: macos-14      # macOS-latest is x86_64 and macOS 14 is ARM64
+            flutter: '3.7.12' # Flutter 3.7.12 is to maintain Breez support
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.channel == 'any' }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Java
-        run: echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
-
-      - id: cache-deps
-        uses: actions/cache@v3
+      - uses: actions/setup-java@v4
         with:
-          key: ${{ matrix.os }}-build-${{ matrix.flutter }}-${{ hashFiles('**/pubspec.yaml', '**/pubspec.lock') }}
-          path: |
-            .deps
+          distribution: 'zulu'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter }}
 
-      - if: steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'macos-latest'
-        name: Download & extract Flutter (Mac)
-        run: |
-          mkdir -p .deps
-          curl -o flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_$FLUTTER_VERSION-stable.zip
-          unzip flutter.zip -d .deps/
-
-      - if: steps.cache-deps.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-latest'
-        name: Download & extract Flutter (Linux)
-        run: |
-          mkdir -p .deps
-          curl -o flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_$FLUTTER_VERSION-stable.tar.xz
-          tar -C .deps/ -xvf flutter.tar.xz
-
-      - if: matrix.os == 'macos-latest'
-        name: Install tap-protocol dependencies (Mac)
-        run: brew install cmake coreutils
+      - if: matrix.os == 'macos-12' || matrix.os == 'macos-latest'
+        name: Install dependencies (macOS 12)
+        run: brew install coreutils
 
       - name: Set up Flutter
         run: |
-          export PATH="$(pwd)/.deps/flutter/bin:$PATH"
-          export PUB_CACHE="$(pwd)/.deps/pub_cache"
           flutter config --no-analytics
-          flutter doctor
+          flutter doctor -v
           flutter pub get
-          echo "PATH=$PATH" >> "$GITHUB_ENV"
-          echo "PUB_CACHE=$PUB_CACHE" >> "$GITHUB_ENV"
 
-      - if: matrix.os == 'macos-latest'
+      - if: startsWith(matrix.os, 'macos')
         name: Build iOS frameworks
         run: |
           cd example
           flutter build ios-framework
 
-      - if: matrix.os == 'macos-latest'
+      - if: startsWith(matrix.os, 'macos')
         name: Build iOS example
         run: |
           cd example

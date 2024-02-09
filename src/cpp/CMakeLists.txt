@@ -23,8 +23,8 @@ target_compile_definitions(cktap_protocol PRIVATE "CKTAP_PLATFORM_${CMAKE_SYSTEM
 
 # Flutter by default doesn't initialize submodules for plugins. We must make
 # sure tap-protocol is available
-if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "WINDOWS")
-    # TODO: Add Windows command
+if(CMAKE_HOST_WIN32)
+    execute_process(COMMAND cmd.exe /c "${PROJECT_SOURCE_DIR}\\..\\..\\scripts\\update_submodules.bat")
 else()
     execute_process(COMMAND "${PROJECT_SOURCE_DIR}/../../scripts/update_submodules.sh")
 endif()
